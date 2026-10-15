@@ -29,3 +29,13 @@
 **提示词：** 设置规则：新建的html文件加入超链接到首页index.html
 
 ---
+
+---
+
+## 2026-10-15
+
+**模型：** opencode/longcat-2.5-preview-free
+
+**提示词：** 创建skill：提交项目：使用git commit并push当前项目到https://gitee.com/whalefox/gzh2
+
+---
