@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FontAwesome 字体图标</title>
+    <link rel="stylesheet" href="cdn/fa.min.css">
+    <style>
+        .guo_body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            margin: 0;
+            padding: 40px 20px;
+        }
+        .guo_container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .guo_title {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .guo_subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+        }
+        .guo_section-title {
+            color: #444;
+            border-left: 4px solid #1890ff;
+            padding-left: 12px;
+            margin-top: 40px;
+            margin-bottom: 20px;
+        }
+        .guo_grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 20px;
+        }
+        .guo_card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 24px 12px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .guo_card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+        }
+        .guo_card i {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+        .guo_card .guo_label {
+            font-size: 13px;
+            color: #666;
+        }
+        .guo_color-blue { color: #1890ff; }
+        .guo-color-green { color: #52c41a; }
+        .guo-color-orange { color: #fa8c16; }
+        .guo-color-red { color: #f5222d; }
+        .guo-color-purple { color: #722ed1; }
+        .guo-color-pink { color: #eb2f96; }
+        .guo-color-cyan { color: #13c2c2; }
+        .guo-color-gold { color: #faad14; }
+    </style>
+</head>
+<body class="guo_body">
+    <div class="guo_container">
+        <h1 class="guo_title">FontAwesome 字体图标</h1>
+        <p class="guo_subtitle">使用 @font-face 字体文件渲染图标，通过 CSS 类名调用</p>
+
+        <h2 class="guo_section-title">实心图标 (Solid)</h2>
+        <div class="guo_grid">
+            <div class="guo_card"><i class="fas fa-home guo-color-blue"></i><div class="guo-label">fa-home</div></div>
+            <div class="guo_card"><i class="fas fa-user guo-color-green"></i><div class="guo-label">fa-user</div></div>
+            <div class="guo-card"><i class="fas fa-heart guo-color-red"></i><div class="guo-label">fa-heart</div></div>
+            <div class="guo-card"><i class="fas fa-star guo-color-gold"></i><div class="guo-label">fa-star</div></div>
+            <div class="guo-card"><i class="fas fa-cog guo-color-purple"></i><div class="guo-label">fa-cog</div></div>
+            <div class="guo-card"><i class="fas fa-search guo-color-cyan"></i><div class="guo-label">fa-search</div></div>
+            <div class="guo-card"><i class="fas fa-envelope guo-color-orange"></i><div class="guo-label">fa-envelope</div></div>
+            <div class="guo-card"><i class="fas fa-bell guo-color-pink"></i><div class="guo-label">fa-bell</div></div>
+            <div class="guo-card"><i class="fas fa-camera guo-color-blue"></i><div class="guo-label">fa-camera</div></div>
+            <div class="guo-card"><i class="fas fa-music guo-color-green"></i><div class="guo-label">fa-music</div></div>
+            <div class="guo-card"><i class="fas fa-cloud guo-color-cyan"></i><div class="guo-label">fa-cloud</div></div>
+            <div class="guo-card"><i class="fas fa-fire guo-color-red"></i><div class="guo-label">fa-fire</div></div>
+        </div>
+
+        <h2 class="guo_section-title">常规图标 (Regular)</h2>
+        <div class="guo_grid">
+            <div class="guo-card"><i class="far fa-user guo-color-blue"></i><div class="guo-label">fa-user</div></div>
+            <div class="guo-card"><i class="far fa-heart guo-color-red"></i><div class="guo-label">fa-heart</div></div>
+            <div class="guo-card"><i class="far fa-star guo-color-gold"></i><div class="guo-label">fa-star</div></div>
+            <div class="guo-card"><i class="far fa-bell guo-color-orange"></i><div class="guo-label">fa-bell</div></div>
+            <div class="guo-card"><i class="far fa-envelope guo-color-cyan"></i><div class="guo-label">fa-envelope</div></div>
+            <div class="guo-card"><i class="far fa-folder guo-color-purple"></i><div class="guo-label">fa-folder</div></div>
+            <div class="guo-card"><i class="far fa-file guo-color-green"></i><div class="guo-label">fa-file</div></div>
+            <div class="guo-card"><i class="far fa-image guo-color-pink"></i><div class="guo-label">fa-image</div></div>
+        </div>
+
+        <h2 class="guo_section-title">品牌图标 (Brands)</h2>
+        <div class="guo_grid">
+            <div class="guo-card"><i class="fab fa-github guo-color-purple"></i><div class="guo-label">fa-github</div></div>
+            <div class="guo-card"><i class="fab fa-twitter guo-color-blue"></i><div class="guo-label">fa-twitter</div></div>
+            <div class="guo-card"><i class="fab fa-weixin guo-color-green"></i><div class="guo-label">fa-weixin</div></div>
+            <div class="guo-card"><i class="fab fa-apple guo-color-cyan"></i><div class="guo-label">fa-apple</div></div>
+            <div class="guo-card"><i class="fab fa-android guo-color-green"></i><div class="guo-label">fa-android</div></div>
+            <div class="guo-card"><i class="fab fa-chrome guo-color-orange"></i><div class="guo-label">fa-chrome</div></div>
+            <div class="guo-card"><i class="fab fa-firefox guo-color-red"></i><div class="guo-label">fa-firefox</div></div>
+            <div class="guo-card"><i class="fab fa-windows guo-color-blue"></i><div class="guo-label">fa-windows</div></div>
+        </div>
+
+        <h2 class="guo_section-title">尺寸与动画</h2>
+        <div class="guo_grid">
+            <div class="guo-card"><i class="fas fa-star fa-xs guo-color-gold"></i><div class="guo-label">fa-xs</div></div>
+            <div class="guo-card"><i class="fas fa-star fa-sm guo-color-gold"></i><div class="guo-label">fa-sm</div></div>
+            <div class="guo-card"><i class="fas fa-star fa-lg guo-color-gold"></i><div class="guo-label">fa-lg</div></div>
+            <div class="guo-card"><i class="fas fa-star fa-2x guo-color-gold"></i><div class="guo-label">fa-2x</div></div>
+            <div class="guo-card"><i class="fas fa-star fa-3x guo-color-gold"></i><div class="guo-label">fa-3x</div></div>
+            <div class="guo-card"><i class="fas fa-star fa-5x guo-color-gold"></i><div class="guo-label">fa-5x</div></div>
+            <div class="guo-card"><i class="fas fa-spinner fa-spin fa-2x guo-color-blue"></i><div class="guo-label">fa-spin</div></div>
+            <div class="guo-card"><i class="fas fa-heart fa-beat fa-2x guo-color-red"></i><div class="guo-label">fa-beat</div></div>
+            <div class="guo-card"><i class="fas fa-bell fa-shake fa-2x guo-color-orange"></i><div class="guo-label">fa-shake</div></div>
+        </div>
+    </div>
+</body>
+</html>
