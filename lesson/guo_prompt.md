@@ -49,3 +49,21 @@
 ## 2026-10-19
 **模型:** opencode/longcat-2.5-preview-free
 **Prompt:** 根据font目录中的iconfont图标完成移动端的固定的自适应宽度的下导航，导航项目包括4个：首页、视频、聊天和个人中心，完成html网页的设计，在lesson目录下创建网页名称12-3.html和12-4.html分别使用字体图标和svg，包括右上角的数字徽章和红点。
+
+---
+
+## 2026-10-22
+**模型:** trae/claude
+**Prompt:** 仿照图片界面布局，在lesson下创建网页pinduoduo.html。
+
+---
+
+## 2026-10-22
+**模型:** trae/claude
+**Prompt:** 设置项目规则：所有变量名称、css类、id名称都以gzh_开始，所有html页面中都包括注释：姓名：郭兹寒，日期：功能名称。
+
+---
+
+## 2026-10-22
+**模型:** trae/claude
+**Prompt:** 完成网页13-2.html，演示javascript基本的6种数据类型。
