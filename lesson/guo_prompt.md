@@ -67,3 +67,9 @@
 ## 2026-10-22
 **模型:** trae/claude
 **Prompt:** 完成网页13-2.html，演示javascript基本的6种数据类型。
+
+---
+
+## 2026-10-22
+**模型:** trae/claude
+**Prompt:** 设置项目规则：使用原生的html、css和javascript实现，图标使用font目录下的iconfont图标，不适用第三方库和cdn，使用fetch获取服务器端数据
