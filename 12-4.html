@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG 图标 · 底部导航</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: #f5f6fa;
+            padding-bottom: 60px;
+            color: #333;
+        }
+        .guo-header {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: #fff;
+            padding: 60px 20px;
+            text-align: center;
+        }
+        .guo-header h1 {
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+        .guo-header p {
+            font-size: 14px;
+            opacity: 0.85;
+        }
+        .guo-content {
+            padding: 20px;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+        .guo-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 18px 20px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+        }
+        .guo-card h3 {
+            font-size: 16px;
+            margin-bottom: 6px;
+            color: #333;
+        }
+        .guo-card p {
+            font-size: 13px;
+            color: #888;
+            line-height: 1.6;
+        }
+        .guo-navbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            background: #fff;
+            border-top: 1px solid #eee;
+            box-shadow: 0 -2px 12px rgba(0,0,0,0.08);
+            z-index: 1000;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        .guo-nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 0 6px;
+            text-decoration: none;
+            color: #999;
+            position: relative;
+            transition: color 0.2s;
+        }
+        .guo-nav-item.guo-active {
+            color: #11998e;
+        }
+        .guo-nav-item svg {
+            width: 24px;
+            height: 24px;
+        }
+        .guo-nav-item .guo-nav-label {
+            font-size: 10px;
+            margin-top: 4px;
+        }
+        .guo-badge {
+            position: absolute;
+            top: 2px;
+            right: calc(50% - 22px);
+            background: #ff4d4f;
+            color: #fff;
+            font-size: 10px;
+            min-width: 16px;
+            height: 16px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+            line-height: 1;
+        }
+        .guo-dot {
+            position: absolute;
+            top: 4px;
+            right: calc(50% - 18px);
+            width: 8px;
+            height: 8px;
+            background: #ff4d4f;
+            border-radius: 50%;
+        }
+        .guo-nav-center {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            position: relative;
+        }
+        .guo-center-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6b35 0%, #ff2d55 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(255, 45, 85, 0.4);
+            margin-top: -20px;
+            border: 3px solid #fff;
+        }
+        .guo-center-btn svg {
+            width: 24px;
+            height: 24px;
+            color: #fff;
+        }
+        .guo-center-label {
+            position: absolute;
+            bottom: 4px;
+            font-size: 10px;
+            color: #ff2d55;
+            font-weight: 600;
+        }
+        .guo-demo-section {
+            margin-top: 30px;
+        }
+        .guo-demo-section h2 {
+            font-size: 15px;
+            color: #555;
+            margin-bottom: 12px;
+            padding-left: 10px;
+            border-left: 3px solid #11998e;
+        }
+        .guo-demo-img {
+            width: 100%;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%);
+            height: 160px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #5a7a5a;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="guo-header">
+        <h1>SVG 内联图标</h1>
+        <p>移动端固定底部导航 · 自适应宽度</p>
+    </div>
+    <div class="guo-content">
+        <div class="guo-card">
+            <h3>SVG 图标方案</h3>
+            <p>使用内联 SVG 方式渲染图标，无需外部依赖，可直接通过 CSS 控制颜色和大小。</p>
+        </div>
+        <div class="guo-card">
+            <h3>自适应布局</h3>
+            <p>导航栏使用 flex 布局，4 个项目平均分配宽度，适配不同屏幕尺寸的移动设备。</p>
+        </div>
+        <div class="guo-card">
+            <h3>徽章与红点</h3>
+            <p>聊天图标右上角显示数字徽章，个人中心图标右上角显示红点提示。</p>
+        </div>
+        <div class="guo-demo-section">
+            <h2>页面内容示例</h2>
+            <div class="guo-demo-img">内容区域</div>
+        </div>
+    </div>
+    <nav class="guo-navbar">
+        <a href="#" class="guo-nav-item guo-active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+            <span class="guo-nav-label">首页</span>
+        </a>
+        <a href="#" class="guo-nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="23 7 16 12 23 17 23 7"></polygon>
+                <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+            </svg>
+            <span class="guo-nav-label">视频</span>
+        </a>
+        <a href="#" class="guo-nav-center">
+            <span class="guo-center-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <path d="M16 10a4 4 0 0 1-8 0"></path>
+                </svg>
+            </span>
+            <span class="guo-center-label">双11</span>
+        </a>
+        <a href="#" class="guo-nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+            <span class="guo-nav-label">聊天</span>
+            <span class="guo-badge">8</span>
+        </a>
+        <a href="#" class="guo-nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <span class="guo-nav-label">个人中心</span>
+            <span class="guo-dot"></span>
+        </a>
+    </nav>
+</body>
+</html>

@@ -1,0 +1,234 @@
+<!-- 姓名：郭兹寒，建立时间：2026-10-26 14:39，使用的大模型：trae/Kimi-K3，功能：展示 JavaScript 程序结构（条件与循环） -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript 程序结构：条件与循环</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 40px 20px 80px;
+            color: #e0e0e0;
+        }
+        .gzh_container {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+        .gzh_header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .gzh_header h1 {
+            font-size: 32px;
+            color: #00d9ff;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+        .gzh_header p {
+            color: #8892b0;
+            font-size: 15px;
+        }
+        .gzh_group_title {
+            font-size: 20px;
+            color: #ffd666;
+            margin: 34px 0 16px;
+            padding-left: 12px;
+            border-left: 4px solid #ffd666;
+        }
+        .gzh_grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+            gap: 20px;
+        }
+        .gzh_card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(0, 217, 255, 0.15);
+            border-radius: 12px;
+            padding: 22px 24px;
+            transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+        }
+        .gzh_card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 36px rgba(0, 217, 255, 0.12);
+            border-color: rgba(0, 217, 255, 0.4);
+        }
+        .gzh_card h3 {
+            font-size: 17px;
+            color: #00d9ff;
+            margin-bottom: 12px;
+        }
+        .gzh_code {
+            background: #0d1117;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 12px 14px;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #7ee787;
+            white-space: pre-wrap;
+            margin-bottom: 12px;
+        }
+        .gzh_output {
+            background: rgba(0, 217, 255, 0.06);
+            border: 1px dashed rgba(0, 217, 255, 0.3);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 14px;
+            line-height: 1.8;
+            color: #e0e0e0;
+        }
+        .gzh_output::before {
+            content: "运行结果";
+            display: block;
+            font-size: 11px;
+            color: #5a6a8a;
+            margin-bottom: 4px;
+            letter-spacing: 1px;
+        }
+        @media (max-width: 640px) {
+            .gzh_grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="gzh_container">
+        <header class="gzh_header">
+            <h1>JavaScript 程序结构</h1>
+            <p>条件结构与循环结构的基本用法，每个示例均在本页实时运行。</p>
+        </header>
+
+        <h2 class="gzh_group_title">一、条件结构</h2>
+        <div class="gzh_grid">
+            <div class="gzh_card">
+                <h3>1. if...else if...else —— 成绩等级判定</h3>
+                <div class="gzh_code">var gzh_score = 85;
+if (gzh_score >= 90) {
+    '优秀';
+} else if (gzh_score >= 80) {
+    '良好';
+} else if (gzh_score >= 60) {
+    '及格';
+} else {
+    '不及格';
+}</div>
+                <div class="gzh_output" id="gzh_out_if"></div>
+            </div>
+            <div class="gzh_card">
+                <h3>2. switch —— 星期几</h3>
+                <div class="gzh_code">var gzh_day = new Date().getDay();
+switch (gzh_day) {
+    case 0: '星期日'; break;
+    case 1: '星期一'; break;
+    /* ... case 2~5 ... */
+    case 6: '星期六'; break;
+}</div>
+                <div class="gzh_output" id="gzh_out_switch"></div>
+            </div>
+            <div class="gzh_card">
+                <h3>3. 三元运算符 —— 奇偶判断</h3>
+                <div class="gzh_code">var gzh_n = 7;
+var gzh_r = (gzh_n % 2 === 0) ? '偶数' : '奇数';</div>
+                <div class="gzh_output" id="gzh_out_ternary"></div>
+            </div>
+        </div>
+
+        <h2 class="gzh_group_title">二、循环结构</h2>
+        <div class="gzh_grid">
+            <div class="gzh_card">
+                <h3>4. for 循环 —— 1 加到 100</h3>
+                <div class="gzh_code">var gzh_sum = 0;
+for (var gzh_i = 1; gzh_i <= 100; gzh_i++) {
+    gzh_sum += gzh_i;
+}</div>
+                <div class="gzh_output" id="gzh_out_for"></div>
+            </div>
+            <div class="gzh_card">
+                <h3>5. while 循环 —— 累加首次超过 1000</h3>
+                <div class="gzh_code">var gzh_total = 0, gzh_k = 0;
+while (gzh_total <= 1000) {
+    gzh_k++;
+    gzh_total += gzh_k;
+}</div>
+                <div class="gzh_output" id="gzh_out_while"></div>
+            </div>
+            <div class="gzh_card">
+                <h3>6. for...of —— 遍历数组</h3>
+                <div class="gzh_code">var gzh_fruits = ['苹果', '香蕉', '橙子'];
+for (var gzh_f of gzh_fruits) {
+    // 依次取出每个元素
+}</div>
+                <div class="gzh_output" id="gzh_out_forof"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 1. if...else if...else
+        var gzh_score = 85;
+        var gzh_grade;
+        if (gzh_score >= 90) {
+            gzh_grade = '优秀';
+        } else if (gzh_score >= 80) {
+            gzh_grade = '良好';
+        } else if (gzh_score >= 60) {
+            gzh_grade = '及格';
+        } else {
+            gzh_grade = '不及格';
+        }
+        document.getElementById('gzh_out_if').textContent =
+            '分数 ' + gzh_score + ' → 等级：' + gzh_grade;
+
+        // 2. switch
+        var gzh_day = new Date().getDay();
+        var gzh_week;
+        switch (gzh_day) {
+            case 0: gzh_week = '星期日'; break;
+            case 1: gzh_week = '星期一'; break;
+            case 2: gzh_week = '星期二'; break;
+            case 3: gzh_week = '星期三'; break;
+            case 4: gzh_week = '星期四'; break;
+            case 5: gzh_week = '星期五'; break;
+            case 6: gzh_week = '星期六'; break;
+        }
+        document.getElementById('gzh_out_switch').textContent =
+            'getDay() = ' + gzh_day + ' → 今天是' + gzh_week;
+
+        // 3. 三元运算符
+        var gzh_n = 7;
+        var gzh_r = (gzh_n % 2 === 0) ? '偶数' : '奇数';
+        document.getElementById('gzh_out_ternary').textContent =
+            gzh_n + ' 是' + gzh_r;
+
+        // 4. for 循环
+        var gzh_sum = 0;
+        for (var gzh_i = 1; gzh_i <= 100; gzh_i++) {
+            gzh_sum += gzh_i;
+        }
+        document.getElementById('gzh_out_for').textContent =
+            '1 + 2 + ... + 100 = ' + gzh_sum;
+
+        // 5. while 循环
+        var gzh_total = 0, gzh_k = 0;
+        while (gzh_total <= 1000) {
+            gzh_k++;
+            gzh_total += gzh_k;
+        }
+        document.getElementById('gzh_out_while').textContent =
+            '加到 ' + gzh_k + ' 时总和为 ' + gzh_total + '，首次超过 1000';
+
+        // 6. for...of
+        var gzh_fruits = ['苹果', '香蕉', '橙子'];
+        var gzh_list = [];
+        for (var gzh_f of gzh_fruits) {
+            gzh_list.push(gzh_f);
+        }
+        document.getElementById('gzh_out_forof').textContent =
+            '遍历结果：' + gzh_list.join('、');
+    </script>
+</body>
+</html>

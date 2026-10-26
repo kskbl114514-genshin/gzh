@@ -1,0 +1,433 @@
+<!-- 姓名：郭兹寒，日期：2026-10-22，功能：演示 JavaScript 6 种基本数据类型 -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript 基本数据类型</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 40px 20px 80px;
+            color: #e0e0e0;
+        }
+        .gzh_container {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+        .gzh_header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .gzh_header h1 {
+            font-size: 32px;
+            color: #00d9ff;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+        .gzh_header p {
+            color: #8892b0;
+            font-size: 15px;
+        }
+        .gzh_header .gzh_subtitle {
+            margin-top: 8px;
+            font-size: 13px;
+            color: #5a6a8a;
+        }
+        .gzh_grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+            gap: 20px;
+        }
+        .gzh_card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(0, 217, 255, 0.15);
+            border-radius: 12px;
+            padding: 22px 24px;
+            transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+        }
+        .gzh_card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 36px rgba(0, 217, 255, 0.12);
+            border-color: rgba(0, 217, 255, 0.4);
+        }
+        .gzh_card_head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .gzh_card_num {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+        .gzh_type_1 .gzh_card_num { background: #ff6b6b; color: #fff; }
+        .gzh_type_2 .gzh_card_num { background: #4ecdc4; color: #fff; }
+        .gzh_type_3 .gzh_card_num { background: #ffe66d; color: #1a1a2e; }
+        .gzh_type_4 .gzh_card_num { background: #a78bfa; color: #fff; }
+        .gzh_type_5 .gzh_card_num { background: #fb923c; color: #fff; }
+        .gzh_type_6 .gzh_card_num { background: #f472b6; color: #fff; }
+        .gzh_type_name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+        }
+        .gzh_type_en {
+            font-size: 13px;
+            color: #5a6a8a;
+            font-family: Consolas, monospace;
+        }
+        .gzh_typeof {
+            display: inline-block;
+            margin-top: 6px;
+            padding: 3px 10px;
+            background: rgba(0, 217, 255, 0.08);
+            border: 1px solid rgba(0, 217, 255, 0.25);
+            border-radius: 4px;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 12px;
+            color: #00d9ff;
+        }
+        .gzh_desc {
+            font-size: 13px;
+            color: #8892b0;
+            margin: 12px 0;
+            line-height: 1.7;
+        }
+        .gzh_code {
+            background: #0d1526;
+            border-radius: 8px;
+            padding: 14px 16px;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.75;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            overflow-x: auto;
+        }
+        .gzh_code .gzh_var { color: #ff79c6; }
+        .gzh_code .gzh_str { color: #f1fa8c; }
+        .gzh_code .gzh_num { color: #bd93f9; }
+        .gzh_code .gzh_bool { color: #50fa7b; }
+        .gzh_code .gzh_null { color: #8be9fd; }
+        .gzh_code .gzh_comm { color: #6272a4; font-style: italic; }
+        .gzh_code .gzh_key { color: #ff6b6b; }
+        .gzh_result {
+            margin-top: 12px;
+            padding: 12px 14px;
+            background: rgba(80, 250, 123, 0.06);
+            border: 1px solid rgba(80, 250, 123, 0.2);
+            border-radius: 8px;
+            font-size: 12px;
+            font-family: Consolas, "Courier New", monospace;
+            color: #8892b0;
+        }
+        .gzh_result div {
+            padding: 2px 0;
+        }
+        .gzh_result .gzh_res_val {
+            color: #50fa7b;
+            font-weight: 600;
+        }
+        .gzh_result .gzh_res_type {
+            color: #00d9ff;
+        }
+        .gzh_result .gzh_res_key {
+            color: #ff79c6;
+        }
+        .gzh_foot {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .gzh_foot a {
+            color: #00d9ff;
+            text-decoration: none;
+            font-size: 14px;
+            transition: opacity .2s;
+        }
+        .gzh_foot a:hover {
+            opacity: .8;
+        }
+        .gzh_table {
+            margin-top: 30px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(0, 217, 255, 0.12);
+        }
+        .gzh_table_head {
+            padding: 16px 24px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #00d9ff;
+            background: rgba(0, 217, 255, 0.05);
+            border-bottom: 1px solid rgba(0, 217, 255, 0.12);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px 20px;
+            text-align: left;
+            font-size: 13px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        th {
+            color: #8892b0;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.02);
+        }
+        td {
+            color: #ccd6f6;
+            font-family: Consolas, "Courier New", monospace;
+        }
+        tr:hover td { background: rgba(0, 217, 255, 0.03); }
+        @media (max-width: 600px) {
+            .gzh_grid { grid-template-columns: 1fr; }
+            .gzh_header h1 { font-size: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="gzh_container">
+
+        <div class="gzh_header">
+            <h1>JavaScript 基本数据类型</h1>
+            <p>6 种 Primitive Data Types（基本 / 原始数据类型）</p>
+            <div class="gzh_subtitle">String · Number · Boolean · Null · Undefined · Symbol</div>
+        </div>
+
+        <!-- 类型 1：String -->
+        <div class="gzh_grid">
+            <div class="gzh_card gzh_type_1">
+                <div class="gzh_card_head">
+                    <div class="gzh_card_num">1</div>
+                    <div>
+                        <div class="gzh_type_name">字符串</div>
+                        <div class="gzh_type_en">String</div>
+                    </div>
+                </div>
+                <div class="gzh_typeof">typeof → "string"</div>
+                <div class="gzh_desc">由引号括起来的零个或多个字符序列，支持单引号、双引号和反引号（模板字符串）。</div>
+                <div class="gzh_code">
+<span class="gzh_comm">// 三种写法</span><br>
+<span class="gzh_var">var</span> gzh_str1 = <span class="gzh_str">'hello'</span>;<br>
+<span class="gzh_var">var</span> gzh_str2 = <span class="gzh_str">"world"</span>;<br>
+<span class="gzh_var">var</span> gzh_str3 = <span class="gzh_str">`郭兹寒 ${2026}`</span>;
+                </div>
+                <div class="gzh_result" id="gzh_res_1"></div>
+            </div>
+
+            <!-- 类型 2：Number -->
+            <div class="gzh_card gzh_type_2">
+                <div class="gzh_card_head">
+                    <div class="gzh_card_num">2</div>
+                    <div>
+                        <div class="gzh_type_name">数字</div>
+                        <div class="gzh_type_en">Number</div>
+                    </div>
+                </div>
+                <div class="gzh_typeof">typeof → "number"</div>
+                <div class="gzh_desc">包括整数、浮点数、Infinity（无穷大）和 NaN（Not a Number）。只有浮点数这一种数值形式。</div>
+                <div class="gzh_code">
+<span class="gzh_var">var</span> gzh_int = <span class="gzh_num">42</span>;<br>
+<span class="gzh_var">var</span> gzh_float = <span class="gzh_num">3.14</span>;<br>
+<span class="gzh_var">var</span> gzh_sci = <span class="gzh_num">1.5e3</span>; <span class="gzh_comm">// 科学计数法</span><br>
+<span class="gzh_var">var</span> gzh_nan = <span class="gzh_num">NaN</span>;
+                </div>
+                <div class="gzh_result" id="gzh_res_2"></div>
+            </div>
+
+            <!-- 类型 3：Boolean -->
+            <div class="gzh_card gzh_type_3">
+                <div class="gzh_card_head">
+                    <div class="gzh_card_num">3</div>
+                    <div>
+                        <div class="gzh_type_name">布尔值</div>
+                        <div class="gzh_type_en">Boolean</div>
+                    </div>
+                </div>
+                <div class="gzh_typeof">typeof → "boolean"</div>
+                <div class="gzh_desc">只有两个值：true（真）和 false（假）。常用于条件判断和比较运算的结果。</div>
+                <div class="gzh_code">
+<span class="gzh_var">var</span> gzh_isOk = <span class="gzh_bool">true</span>;<br>
+<span class="gzh_var">var</span> gzh_isNo = <span class="gzh_bool">false</span>;<br>
+<span class="gzh_comm">// 比较运算结果</span><br>
+<span class="gzh_var">var</span> gzh_cmp = <span class="gzh_num">10</span> &gt; <span class="gzh_num">5</span>;
+                </div>
+                <div class="gzh_result" id="gzh_res_3"></div>
+            </div>
+
+            <!-- 类型 4：Null -->
+            <div class="gzh_card gzh_type_4">
+                <div class="gzh_card_head">
+                    <div class="gzh_card_num">4</div>
+                    <div>
+                        <div class="gzh_type_name">空值</div>
+                        <div class="gzh_type_en">Null</div>
+                    </div>
+                </div>
+                <div class="gzh_typeof">typeof null → "object" ⚠️</div>
+                <div class="gzh_desc">表示"空"或"无"，只有 null 这一个值。这是一个历史遗留 bug：typeof null 错误地返回 "object"。</div>
+                <div class="gzh_code">
+<span class="gzh_var">var</span> gzh_empty = <span class="gzh_null">null</span>;<br>
+<span class="gzh_comm">// 检查是否为 null 的正确方式</span><br>
+gzh_empty === <span class="gzh_null">null</span>; <span class="gzh_comm">// true</span><br>
+gzh_empty == <span class="gzh_null">undefined</span>; <span class="gzh_comm">// true（宽松相等）</span>
+                </div>
+                <div class="gzh_result" id="gzh_res_4"></div>
+            </div>
+
+            <!-- 类型 5：Undefined -->
+            <div class="gzh_card gzh_type_5">
+                <div class="gzh_card_head">
+                    <div class="gzh_card_num">5</div>
+                    <div>
+                        <div class="gzh_type_name">未定义</div>
+                        <div class="gzh_type_en">Undefined</div>
+                    </div>
+                </div>
+                <div class="gzh_typeof">typeof → "undefined"</div>
+                <div class="gzh_desc">变量已声明但未赋值，或访问对象不存在的属性时，值就是 undefined。</div>
+                <div class="gzh_code">
+<span class="gzh_key">var</span> gzh_declared; <span class="gzh_comm">// 声明但未赋值</span><br>
+<span class="gzh_var">var</span> gzh_obj = { name: <span class="gzh_str">'gzh'</span> };<br>
+<span class="gzh_var">var</span> gzh_missing = gzh_obj.age; <span class="gzh_comm">// 不存在的属性</span>
+                </div>
+                <div class="gzh_result" id="gzh_res_5"></div>
+            </div>
+
+            <!-- 类型 6：Symbol -->
+            <div class="gzh_card gzh_type_6">
+                <div class="gzh_card_head">
+                    <div class="gzh_card_num">6</div>
+                    <div>
+                        <div class="gzh_type_name">符号</div>
+                        <div class="gzh_type_en">Symbol</div>
+                    </div>
+                </div>
+                <div class="gzh_typeof">typeof → "symbol"</div>
+                <div class="gzh_desc">ES6 新增类型。每个 Symbol 都是唯一的，用作对象的唯一属性名，避免命名冲突。</div>
+                <div class="gzh_code">
+<span class="gzh_var">var</span> gzh_sym1 = Symbol();<br>
+<span class="gzh_var">var</span> gzh_sym2 = Symbol(<span class="gzh_str">'key'</span>);<br>
+gzh_sym1 === gzh_sym2; <span class="gzh_comm">// false，永不相等</span><br>
+<span class="gzh_var">var</span> gzh_obj2 = { [gzh_sym2]: <span class="gzh_num">123</span> };
+                </div>
+                <div class="gzh_result" id="gzh_res_6"></div>
+            </div>
+        </div>
+
+        <!-- 总结表格 -->
+        <div class="gzh_table">
+            <div class="gzh_table_head">📋 六种基本数据类型速查表</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>类型</th>
+                        <th>typeof 返回值</th>
+                        <th>示例值</th>
+                        <th>说明</th>
+                    </tr>
+                </thead>
+                <tbody id="gzh_table_body"></tbody>
+            </table>
+        </div>
+
+        <div class="gzh_foot">
+            <a href="index.html">← 返回首页</a>
+        </div>
+
+    </div>
+
+    <script>
+        (function () {
+            // ===== 1. String =====
+            var gzh_str1 = 'hello';
+            var gzh_str2 = "world";
+            var gzh_str3 = `郭兹寒 ${2026}`;
+            document.getElementById('gzh_res_1').innerHTML =
+                '<div><span class="gzh_res_key">gzh_str1</span> = <span class="gzh_res_val">' + gzh_str1 + '</span> &nbsp; <span class="gzh_res_type">typeof: ' + typeof gzh_str1 + '</span></div>' +
+                '<div><span class="gzh_res_key">gzh_str2</span> = <span class="gzh_res_val">' + gzh_str2 + '</span> &nbsp; <span class="gzh_res_type">typeof: ' + typeof gzh_str2 + '</span></div>' +
+                '<div><span class="gzh_res_key">gzh_str3</span> = <span class="gzh_res_val">' + gzh_str3 + '</span> &nbsp; <span class="gzh_res_type">typeof: ' + typeof gzh_str3 + '</span></div>';
+
+            // ===== 2. Number =====
+            var gzh_int = 42;
+            var gzh_float = 3.14;
+            var gzh_sci = 1.5e3;
+            var gzh_nan = NaN;
+            document.getElementById('gzh_res_2').innerHTML =
+                '<div><span class="gzh_res_key">gzh_int</span> = <span class="gzh_res_val">' + gzh_int + '</span> &nbsp; <span class="gzh_res_type">typeof: ' + typeof gzh_int + '</span></div>' +
+                '<div><span class="gzh_res_key">gzh_float</span> = <span class="gzh_res_val">' + gzh_float + '</span> &nbsp; <span class="gzh_res_type">typeof: ' + typeof gzh_float + '</span></div>' +
+                '<div><span class="gzh_res_key">gzh_sci</span> = <span class="gzh_res_val">' + gzh_sci + '</span> &nbsp; <span class="gzh_res_type">typeof: ' + typeof gzh_sci + '</span></div>' +
+                '<div><span class="gzh_res_key">gzh_nan</span> = <span class="gzh_res_val">' + gzh_nan + '</span> &nbsp; <span class="gzh_res_type">typeof: ' + typeof gzh_nan + '</span></div>';
+
+            // ===== 3. Boolean =====
+            var gzh_isOk = true;
+            var gzh_isNo = false;
+            var gzh_cmp = 10 > 5;
+            document.getElementById('gzh_res_3').innerHTML =
+                '<div><span class="gzh_res_key">gzh_isOk</span> = <span class="gzh_res_val">' + gzh_isOk + '</span> &nbsp; <span class="gzh_res_type">typeof: ' + typeof gzh_isOk + '</span></div>' +
+                '<div><span class="gzh_res_key">gzh_isNo</span> = <span class="gzh_res_val">' + gzh_isNo + '</span> &nbsp; <span class="gzh_res_type">typeof: ' + typeof gzh_isNo + '</span></div>' +
+                '<div><span class="gzh_res_key">10 > 5</span> = <span class="gzh_res_val">' + gzh_cmp + '</span> &nbsp; <span class="gzh_res_type">typeof: ' + typeof gzh_cmp + '</span></div>';
+
+            // ===== 4. Null =====
+            var gzh_empty = null;
+            document.getElementById('gzh_res_4').innerHTML =
+                '<div><span class="gzh_res_key">gzh_empty</span> = <span class="gzh_res_val">' + gzh_empty + '</span></div>' +
+                '<div><span class="gzh_res_key">typeof null</span> = <span class="gzh_res_val">' + typeof gzh_empty + '</span> <span style="color:#ff6b6b">⚠️ 历史 bug</span></div>' +
+                '<div><span class="gzh_res_key">null === null</span> → <span class="gzh_res_val">' + (gzh_empty === null) + '</span></div>' +
+                '<div><span class="gzh_res_key">null == undefined</span> → <span class="gzh_res_val">' + (gzh_empty == undefined) + '</span> <span style="color:#8892b0">（宽松相等）</span></div>';
+
+            // ===== 5. Undefined =====
+            var gzh_declared;
+            var gzh_obj = { name: 'gzh' };
+            var gzh_missing = gzh_obj.age;
+            document.getElementById('gzh_res_5').innerHTML =
+                '<div><span class="gzh_res_key">gzh_declared</span> = <span class="gzh_res_val">' + gzh_declared + '</span> &nbsp; <span class="gzh_res_type">typeof: ' + typeof gzh_declared + '</span></div>' +
+                '<div><span class="gzh_res_key">gzh_obj.age</span> = <span class="gzh_res_val">' + gzh_missing + '</span> &nbsp; <span class="gzh_res_type">typeof: ' + typeof gzh_missing + '</span></div>';
+
+            // ===== 6. Symbol =====
+            var gzh_sym1 = Symbol();
+            var gzh_sym2 = Symbol('key');
+            document.getElementById('gzh_res_6').innerHTML =
+                '<div><span class="gzh_res_key">gzh_sym1</span> = <span class="gzh_res_val">' + gzh_sym1.toString() + '</span> &nbsp; <span class="gzh_res_type">typeof: ' + typeof gzh_sym1 + '</span></div>' +
+                '<div><span class="gzh_res_key">gzh_sym2</span> = <span class="gzh_res_val">' + gzh_sym2.toString() + '</span> &nbsp; <span class="gzh_res_type">typeof: ' + typeof gzh_sym2 + '</span></div>' +
+                '<div><span class="gzh_res_key">sym1 === sym2</span> → <span class="gzh_res_val">' + (gzh_sym1 === gzh_sym2) + '</span> <span style="color:#8892b0">永不相等</span></div>';
+
+            // ===== 速查表 =====
+            var gzh_rows = [
+                ['1', 'String 字符串', '<span style="color:#00d9ff">"string"</span>', '"hello"', '文本 / 字符序列'],
+                ['2', 'Number 数字', '<span style="color:#00d9ff">"number"</span>', '42, 3.14, NaN', '整数 / 浮点数'],
+                ['3', 'Boolean 布尔', '<span style="color:#00d9ff">"boolean"</span>', 'true, false', '逻辑真假值'],
+                ['4', 'Null 空值', '<span style="color:#ff6b6b">"object" ❌</span>', 'null', '历史遗留 bug'],
+                ['5', 'Undefined 未定义', '<span style="color:#00d9ff">"undefined"</span>', 'undefined', '声明但未赋值'],
+                ['6', 'Symbol 符号', '<span style="color:#00d9ff">"symbol"</span>', 'Symbol("key")', 'ES6，唯一标识']
+            ];
+            var gzh_tbody = document.getElementById('gzh_table_body');
+            for (var gzh_i = 0; gzh_i < gzh_rows.length; gzh_i++) {
+                var gzh_tr = document.createElement('tr');
+                gzh_tr.innerHTML =
+                    '<td>' + gzh_rows[gzh_i][0] + '</td>' +
+                    '<td>' + gzh_rows[gzh_i][1] + '</td>' +
+                    '<td>' + gzh_rows[gzh_i][2] + '</td>' +
+                    '<td>' + gzh_rows[gzh_i][3] + '</td>' +
+                    '<td>' + gzh_rows[gzh_i][4] + '</td>';
+                gzh_tbody.appendChild(gzh_tr);
+            }
+        })();
+    </script>
+</body>
+</html>

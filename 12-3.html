@@ -1,0 +1,221 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iconfont 字体图标 · 底部导航</title>
+    <script src="font/font_5244707_8jor433nqzj/iconfont.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: #f5f6fa;
+            padding-bottom: 60px;
+            color: #333;
+        }
+        .guo-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            padding: 60px 20px;
+            text-align: center;
+        }
+        .guo-header h1 {
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+        .guo-header p {
+            font-size: 14px;
+            opacity: 0.85;
+        }
+        .guo-content {
+            padding: 20px;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+        .guo-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 18px 20px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+        }
+        .guo-card h3 {
+            font-size: 16px;
+            margin-bottom: 6px;
+            color: #333;
+        }
+        .guo-card p {
+            font-size: 13px;
+            color: #888;
+            line-height: 1.6;
+        }
+        .guo-navbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            background: #fff;
+            border-top: 1px solid #eee;
+            box-shadow: 0 -2px 12px rgba(0,0,0,0.08);
+            z-index: 1000;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        .guo-nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 0 6px;
+            text-decoration: none;
+            color: #999;
+            position: relative;
+            transition: color 0.2s;
+        }
+        .guo-nav-item.guo-active {
+            color: #667eea;
+        }
+        .guo-nav-item .guo-iconfont {
+            font-size: 22px;
+            line-height: 1;
+        }
+        .guo-nav-item .guo-nav-label {
+            font-size: 10px;
+            margin-top: 4px;
+        }
+        .guo-badge {
+            position: absolute;
+            top: 2px;
+            right: calc(50% - 22px);
+            background: #ff4d4f;
+            color: #fff;
+            font-size: 10px;
+            min-width: 16px;
+            height: 16px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+            line-height: 1;
+        }
+        .guo-dot {
+            position: absolute;
+            top: 4px;
+            right: calc(50% - 18px);
+            width: 8px;
+            height: 8px;
+            background: #ff4d4f;
+            border-radius: 50%;
+        }
+        .guo-nav-center {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            position: relative;
+        }
+        .guo-center-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6b35 0%, #ff2d55 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(255, 45, 85, 0.4);
+            margin-top: -20px;
+            border: 3px solid #fff;
+        }
+        .guo-center-btn .guo-iconfont {
+            font-size: 24px;
+            color: #fff;
+            line-height: 1;
+        }
+        .guo-center-label {
+            position: absolute;
+            bottom: 4px;
+            font-size: 10px;
+            color: #ff2d55;
+            font-weight: 600;
+        }
+        .guo-demo-section {
+            margin-top: 30px;
+        }
+        .guo-demo-section h2 {
+            font-size: 15px;
+            color: #555;
+            margin-bottom: 12px;
+            padding-left: 10px;
+            border-left: 3px solid #667eea;
+        }
+        .guo-demo-img {
+            width: 100%;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 100%);
+            height: 160px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #aaa;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="guo-header">
+        <h1>iconfont 字体图标</h1>
+        <p>移动端固定底部导航 · 自适应宽度</p>
+    </div>
+    <div class="guo-content">
+        <div class="guo-card">
+            <h3>字体图标方案</h3>
+            <p>使用 iconfont 字体文件，通过 @font-face 引入，以类名方式调用图标，支持 CSS 颜色、大小控制。</p>
+        </div>
+        <div class="guo-card">
+            <h3>自适应布局</h3>
+            <p>导航栏使用 flex 布局，4 个项目平均分配宽度，适配不同屏幕尺寸的移动设备。</p>
+        </div>
+        <div class="guo-card">
+            <h3>徽章与红点</h3>
+            <p>聊天图标右上角显示数字徽章，个人中心图标右上角显示红点提示。</p>
+        </div>
+        <div class="guo-demo-section">
+            <h2>页面内容示例</h2>
+            <div class="guo-demo-img">内容区域</div>
+        </div>
+    </div>
+    <nav class="guo-navbar">
+        <a href="#" class="guo-nav-item guo-active">
+            <i class="guo-iconfont iconfont icon-home"></i>
+            <span class="guo-nav-label">首页</span>
+        </a>
+        <a href="#" class="guo-nav-item">
+            <i class="guo-iconfont iconfont icon-shipin1"></i>
+            <span class="guo-nav-label">视频</span>
+        </a>
+        <a href="#" class="guo-nav-center">
+            <span class="guo-center-btn">
+                <i class="guo-iconfont iconfont icon-gouwuche"></i>
+            </span>
+            <span class="guo-center-label">双11</span>
+        </a>
+        <a href="#" class="guo-nav-item">
+            <i class="guo-iconfont iconfont icon-liaotian"></i>
+            <span class="guo-nav-label">聊天</span>
+            <span class="guo-badge">8</span>
+        </a>
+        <a href="#" class="guo-nav-item">
+            <i class="guo-iconfont iconfont icon-wode"></i>
+            <span class="guo-nav-label">个人中心</span>
+            <span class="guo-dot"></span>
+        </a>
+    </nav>
+</body>
+</html>
