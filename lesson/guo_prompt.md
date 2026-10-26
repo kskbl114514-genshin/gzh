@@ -73,3 +73,45 @@
 ## 2026-10-22
 **模型:** trae/claude
 **Prompt:** 设置项目规则：使用原生的html、css和javascript实现，图标使用font目录下的iconfont图标，不适用第三方库和cdn，使用fetch获取服务器端数据
+
+---
+
+## 2026-10-26
+**模型:** trae/Kimi-K3
+**Prompt:** 编写14-1.html，一百个盒子，里面有数字，按照数7的规则（7的倍数，个位数为7的数字等），不满足要求的显示数字，满足要求的显示空盒子。
+
+---
+
+## 2026-10-26
+**模型:** trae/Kimi-K3
+**Prompt:** 修改规则agents.md，在新建一个html文件时，都要加入注释，注释包括：郭兹寒，建立时间，使用的大模型，功能名称。
+
+---
+
+## 2026-10-26
+**模型:** trae/Kimi-K3
+**Prompt:** 返回git公钥
+
+---
+
+## 2026-10-26
+**模型:** trae/Kimi-K3
+**Prompt:** image包新增了4个广告的图片，分别是ad1,ad2,ad3,ad4，将四个广告图片替换到pinduoduo.html里
+
+---
+
+## 2026-10-26
+**模型:** trae/Kimi-K3
+**Prompt:** 搞错了，是替换下面四个商品的广告图
+
+---
+
+## 2026-10-26
+**模型:** trae/Kimi-K3
+**Prompt:** 创建技能skill：提交到github，commit和push整个项目到https://github.com/kskbl114514-genshin/gzh.git。公钥已设置。
+
+---
+
+## 2026-10-26
+**模型:** trae/Kimi-K3
+**Prompt:** 完成14-2.html，展示javascript程序结构：循环，条件。然后提交到github。
