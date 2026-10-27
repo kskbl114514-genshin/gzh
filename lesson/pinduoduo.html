@@ -157,90 +157,16 @@
         .gzh_entrance_icon {
             width: 46px; height: 46px;
             border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 800;
-            font-size: 20px;
+            display: block;
+            object-fit: cover;
+        }
+        .gzh_entrance_extra_wrap {
             position: relative;
+            width: 46px; height: 46px;
+            display: inline-block;
         }
-        .gzh_e1 {
-            background: #ffeaea;
-        }
-        .gzh_e1::before {
-            content: "秒";
-            color: #e73b3b;
-        }
-        .gzh_e1::after {
-            content: "抢";
-            position: absolute;
-            top: -4px; right: -4px;
-            width: 18px; height: 18px;
-            background: #e73b3b;
-            border-radius: 50%;
-            color: #fff;
-            font-size: 10px;
-            font-weight: 700;
-            display: flex; align-items: center; justify-content: center;
-            border: 2px solid #fff;
-        }
-        .gzh_e2 {
-            background: linear-gradient(135deg, #ffcf3b, #ff8c1a);
-        }
-        .gzh_e2::before {
-            content: "";
-            width: 24px; height: 24px;
-            background: #fff;
-            border-radius: 8px 8px 50% 8px;
-            position: relative;
-        }
-        .gzh_e2::after {
-            content: "";
-            position: absolute;
-            top: 8px; right: 10px;
-            width: 6px; height: 14px;
-            background: #4caf50;
-            border-radius: 50%;
-            transform: rotate(25deg);
-        }
-        .gzh_e3 {
-            background: #fff3b0;
-            flex-direction: column;
-        }
-        .gzh_e3::before {
-            content: "0.99元";
-            color: #ff3b30;
-            font-size: 11px;
-            font-weight: 900;
-            line-height: 1;
-        }
-        .gzh_e3::after {
-            content: "限时抢";
-            color: #ff3b30;
-            font-size: 9px;
-            font-weight: 700;
-            margin-top: 2px;
-            line-height: 1;
-        }
-        .gzh_e4 {
-            background: #ffd6e8;
-        }
-        .gzh_e4::before {
-            content: "潮";
-            color: #e73b3b;
-        }
-        .gzh_e5 {
-            background: linear-gradient(135deg, #ff9a9e, #fad0c4, #a1c4fd, #c2e9fb);
-            background-size: 200% 200%;
-            animation: gzh_rainbow 4s ease infinite;
-        }
-        @keyframes gzh_rainbow {
-            0%,100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-        }
-        .gzh_e5::before {
-            content: "其";
-            color: #fff;
-            font-size: 22px;
-            text-shadow: 0 1px 2px rgba(0,0,0,.2);
+        .gzh_entrance_extra_wrap .gzh_entrance_icon {
+            width: 100%; height: 100%;
         }
         .gzh_entrance_extra {
             display: flex;
@@ -613,23 +539,24 @@
         <!-- 快捷入口 -->
         <div class="gzh_entrance">
             <div class="gzh_entrance_item">
-                <div class="gzh_entrance_icon gzh_e1"></div>
+                <img class="gzh_entrance_icon" src="../image/xianshimiaosha.jpg" alt="限时秒杀">
                 <span>限时秒杀</span>
             </div>
             <div class="gzh_entrance_item">
-                <div class="gzh_entrance_icon gzh_e2"></div>
+                <img class="gzh_entrance_icon" src="../image/duoduomaicai.jpg" alt="多多买菜">
                 <span>多多买菜</span>
             </div>
             <div class="gzh_entrance_item">
-                <div class="gzh_entrance_icon gzh_e3"></div>
+                <img class="gzh_entrance_icon" src="../image/9kuai9temai.jpg" alt="9块9特卖">
                 <span>9块9特卖</span>
             </div>
             <div class="gzh_entrance_item">
-                <div class="gzh_entrance_icon gzh_e4"></div>
+                <img class="gzh_entrance_icon" src="../image/chaoliuhaojia.jpg" alt="潮流好价">
                 <span>潮流好价</span>
             </div>
             <div class="gzh_entrance_item">
-                <div class="gzh_entrance_icon gzh_e5">
+                <div class="gzh_entrance_extra_wrap">
+                    <img class="gzh_entrance_icon" src="../image/other.jpg" alt="其他">
                     <div class="gzh_entrance_extra">
                         <span>省</span>
                         <span>领</span>
