@@ -236,66 +236,8 @@
         .gzh_sub_img {
             width: 82px; height: 82px;
             border-radius: 6px;
-            position: relative;
-            overflow: hidden;
-        }
-        .gzh_s1 { background: linear-gradient(135deg, #ffd5d5, #ffbfbf, #ffeaea); }
-        .gzh_s1::before {
-            content: "";
-            position: absolute;
-            left: 12px; bottom: 8px;
-            width: 58px; height: 10px;
-            background: rgba(0,0,0,.15);
-            border-radius: 3px;
-            box-shadow: 0 -12px 0 rgba(0,0,0,.12), 0 -24px 0 rgba(0,0,0,.1);
-        }
-        .gzh_s2 { background: linear-gradient(135deg, #d4d8de, #b0b6be); }
-        .gzh_s2::before {
-            content: "";
-            position: absolute;
-            left: 18px; top: 18px;
-            width: 46px; height: 46px;
-            background: #9aa0a8;
-            border-radius: 4px;
-            box-shadow: 0 3px 0 rgba(0,0,0,.1);
-        }
-        .gzh_s2::after {
-            content: "";
-            position: absolute;
-            left: 22px; top: 28px;
-            width: 38px; height: 2px;
-            background: rgba(255,255,255,.5);
-            box-shadow: 0 8px 0 rgba(255,255,255,.4), 0 16px 0 rgba(255,255,255,.3);
-        }
-        .gzh_s3 { background: linear-gradient(135deg, #ffe0ec, #ffc2d8); }
-        .gzh_s3::before {
-            content: "";
-            position: absolute;
-            left: 8px; top: 8px;
-            width: 30px; height: 22px;
-            border: 2px solid #e73b3b;
-            border-bottom: none;
-            border-radius: 6px 6px 0 0;
-            transform: rotate(-10deg);
-        }
-        .gzh_s3::after {
-            content: "";
-            position: absolute;
-            right: 10px; bottom: 6px;
-            width: 40px; height: 30px;
-            background: #e73b3b;
-            border-radius: 4px;
-            transform: rotate(8deg);
-        }
-        .gzh_s4 { background: linear-gradient(135deg, #fff0b3, #ffd666); }
-        .gzh_s4::before {
-            content: "";
-            position: absolute;
-            left: 18px; top: 10px;
-            width: 40px; height: 40px;
-            border-radius: 50%;
-            background: #fff;
-            box-shadow: inset 0 0 0 3px #ff8c1a;
+            display: block;
+            object-fit: cover;
         }
         .gzh_sub_price {
             margin-top: 6px;
@@ -577,19 +519,19 @@
             </div>
             <div class="gzh_subsidy_list">
                 <div class="gzh_sub_item">
-                    <div class="gzh_sub_img gzh_s1"></div>
+                    <img class="gzh_sub_img" src="image/by1.jpg" alt="百亿补贴商品1">
                     <div class="gzh_sub_price"><small>¥</small>6.69</div>
                 </div>
                 <div class="gzh_sub_item">
-                    <div class="gzh_sub_img gzh_s2"></div>
+                    <img class="gzh_sub_img" src="image/by2.jpg" alt="百亿补贴商品2">
                     <div class="gzh_sub_price"><small>¥</small>19.8</div>
                 </div>
                 <div class="gzh_sub_item">
-                    <div class="gzh_sub_img gzh_s3"></div>
+                    <img class="gzh_sub_img" src="image/by3.jpg" alt="百亿补贴商品3">
                     <div class="gzh_sub_price"><small>¥</small>11.6</div>
                 </div>
                 <div class="gzh_sub_item">
-                    <div class="gzh_sub_img gzh_s4"></div>
+                    <img class="gzh_sub_img" src="image/by4.jpg" alt="百亿补贴商品4">
                     <div class="gzh_sub_price"><small>¥</small>17.62</div>
                 </div>
             </div>
