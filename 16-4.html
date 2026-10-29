@@ -1,0 +1,212 @@
+<!-- 姓名：郭兹寒，建立时间：2026-10-29 14:35，使用的大模型：trae/Kimi-K3，功能：汽车导购Tab切换页面 -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>汽车导购 · Tab切换</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", "微软雅黑", sans-serif;
+            background: #fff;
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        /* ============ 顶部导航 ============ */
+        .gzh_tabs {
+            display: flex;
+            border-bottom: 1px solid #e8e8e8;
+            background: #fff;
+            padding: 0 24px;
+        }
+        .gzh_tab {
+            padding: 16px 22px;
+            font-size: 15px;
+            color: #666;
+            cursor: pointer;
+            position: relative;
+            transition: color .2s ease;
+            user-select: none;
+            white-space: nowrap;
+        }
+        .gzh_tab:hover { color: #333; }
+        .gzh_tab.gzh_active {
+            color: #1a1a1a;
+            font-weight: 700;
+        }
+        .gzh_tab.gzh_active::after {
+            content: "";
+            position: absolute;
+            bottom: -1px;
+            left: 16px; right: 16px;
+            height: 3px;
+            background: #1a1a1a;
+            border-radius: 2px 2px 0 0;
+        }
+
+        /* ============ 内容区 ============ */
+        .gzh_content {
+            padding: 28px 32px 40px;
+            max-width: 780px;
+            margin: 0 auto;
+        }
+        .gzh_big_title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1a1a1a;
+            line-height: 1.5;
+            margin-bottom: 28px;
+            letter-spacing: .3px;
+        }
+
+        /* ============ 文章列表 ============ */
+        .gzh_list { list-style: none; }
+        .gzh_item {
+            display: flex;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px dashed #eee;
+            cursor: pointer;
+            transition: background .15s, padding-left .15s;
+        }
+        .gzh_item:hover {
+            background: #fafafa;
+            padding-left: 8px;
+        }
+        .gzh_item:hover .gzh_title { color: #c00; }
+        .gzh_dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            background: #e43d33;
+            flex-shrink: 0;
+            margin-right: 14px;
+            box-shadow: 0 0 0 3px rgba(228,61,51,.1);
+        }
+        .gzh_title {
+            flex: 1;
+            font-size: 15px;
+            color: #333;
+            font-weight: 500;
+            line-height: 1.6;
+            transition: color .15s;
+        }
+        .gzh_date {
+            font-size: 13px;
+            color: #aaa;
+            margin-left: 12px;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 顶部导航 -->
+<nav class="gzh_tabs">
+    <div class="gzh_tab gzh_active" data-tab="guide">导购</div>
+    <div class="gzh_tab" data-tab="t39">3-9万</div>
+    <div class="gzh_tab" data-tab="t917">9-17万</div>
+    <div class="gzh_tab" data-tab="t1742">17-42万</div>
+    <div class="gzh_tab" data-tab="suv">SUV</div>
+</nav>
+
+<!-- 内容区 -->
+<main class="gzh_content">
+    <h1 class="gzh_big_title" id="gzh_big_title"></h1>
+    <ul class="gzh_list" id="gzh_list"></ul>
+</main>
+
+<script>
+    var gzh_DATA = {
+        guide: {
+            title: "改变品牌的未来 认识豪华品牌最便宜车型",
+            items: [
+                { t: "推荐：XI等城市四驱style+经济省油的SUV", d: "12/16" },
+                { t: "全景天窗/保养便利 30万办齐四驱SUV推荐", d: "12/16" },
+                { t: "最高降幅20万！奥迪Q5等年底特惠SUV盘点", d: "12/18" },
+                { t: "比拼硬实力 8款低配四驱紧凑型SUV性能点评", d: "12/1" },
+                { t: "花钱也能养SUV 翼搏等入门SUV使用手册", d: "12/16" },
+                { t: "最高优惠4.3万 十款15万SUV年末购买推荐", d: "12/16" }
+            ]
+        },
+        t39: {
+            title: "15万级降价谁更值 预算/油耗/空间较量",
+            items: [
+                { t: "爸爸去哪？亲子出游适合车型和注意事项", d: "12/20" },
+                { t: "最高降幅20万！奥迪Q5等年底特惠SUV盘点", d: "12/18" },
+                { t: "配置气泡肯定有！传祺GA3碰撞试验图解", d: "12/16" },
+                { t: "高尔夫1≠两厢版途腾 配置/动力差异解读", d: "12/12" },
+                { t: "花钱也能养SUV 翼搏等入门SUV使用手册", d: "12/11" },
+                { t: "最高优惠4.3万 十款15万SUV年末购买推荐", d: "12/16" }
+            ]
+        },
+        t917: {
+            title: "最低仅4.6万元起 超低价SUV购买价值点评",
+            items: [
+                { t: "全民摇号时代？六款低价占号必备车型推荐", d: "12/19" },
+                { t: "凌派/观致3等 2013全新热门家用车盘点", d: "12/19" },
+                { t: "坚持高配路线！静态评测华泰路盛E70", d: "12/09" },
+                { t: "买车先销量看 10月份销量前十新车盘点", d: "11/29" },
+                { t: "抄底正当时 车展后清仓优惠老款车型推荐", d: "11/28" },
+                { t: "土豪气质 细数车展那些低价车上的\"神器\"", d: "11/27" }
+            ]
+        },
+        t1742: {
+            title: "B级品质满足A级需求 路盛E70亮点详解析",
+            items: [
+                { t: "购车必看 凯迪拉克XTS领先型28T深度体验", d: "12/20" },
+                { t: "爸爸去哪？亲子出游适合车型和注意事项", d: "12/20" },
+                { t: "推荐：XI等城市四驱style+经济省油的SUV", d: "12/19" },
+                { t: "全景天窗/保养便利 30万办齐四驱SUV推荐", d: "12/19" },
+                { t: "全民摇号时代？六款低价占号必备车型推荐", d: "12/19" },
+                { t: "最高降幅20万！奥迪Q5等年底特惠SUV盘点", d: "12/18" }
+            ]
+        },
+        suv: {
+            title: "15万级降价谁更值 预算/油耗/空间较量",
+            items: [
+                { t: "爸爸去哪？亲子出游适合车型和注意事项", d: "12/20" },
+                { t: "推荐：XI等城市四驱style+经济省油的SUV", d: "12/19" },
+                { t: "全景天窗/保养便利 30万办齐四驱SUV推荐", d: "12/16" },
+                { t: "全民摇号时代？六款低价占号必备车型推荐", d: "12/19" },
+                { t: "最高降幅20万！奥迪Q5等年底特惠SUV盘点", d: "12/18" }
+            ]
+        }
+    };
+
+    function gzh_switch(tabKey) {
+        var data = gzh_DATA[tabKey];
+        if (!data) return;
+        // 切换 active 样式
+        document.querySelectorAll('.gzh_tab').forEach(function(el) {
+            el.classList.toggle('gzh_active', el.dataset.tab === tabKey);
+        });
+        // 渲染大标题
+        document.getElementById('gzh_big_title').textContent = data.title;
+        // 渲染文章列表
+        var list = document.getElementById('gzh_list');
+        list.innerHTML = '';
+        data.items.forEach(function(it) {
+            var li = document.createElement('li');
+            li.className = 'gzh_item';
+            li.innerHTML =
+                '<span class="gzh_dot"></span>' +
+                '<span class="gzh_title">' + it.t + '</span>' +
+                '<span class="gzh_date">' + it.d + '</span>';
+            list.appendChild(li);
+        });
+    }
+
+    // 绑定点击事件
+    document.querySelectorAll('.gzh_tab').forEach(function(el) {
+        el.addEventListener('click', function() {
+            gzh_switch(el.dataset.tab);
+        });
+    });
+
+    // 初始化第一个
+    gzh_switch('guide');
+</script>
+</body>
+</html>
