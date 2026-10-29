@@ -1,0 +1,422 @@
+<!-- 姓名：郭兹寒，建立时间：2026-10-29 13:42，使用的大模型：trae/Kimi-K3，功能：可视化展示 JavaScript 对象的用法 -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript 对象 · 可视化</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", Consolas, monospace;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            padding: 32px 20px 80px;
+            color: #e8e8f0;
+        }
+        .gzh_wrap { max-width: 1080px; margin: 0 auto; }
+        .gzh_head { text-align: center; margin-bottom: 28px; }
+        .gzh_head h1 {
+            font-size: 30px; color: #ff6b6b; letter-spacing: 2px;
+            text-shadow: 0 0 20px rgba(255,107,107,.3);
+        }
+        .gzh_head p { color: #a0a0c0; font-size: 14px; margin-top: 8px; }
+
+        /* ============ 对象可视化舞台 ============ */
+        .gzh_stage {
+            background: rgba(255,255,255,.04);
+            border: 1px solid rgba(255,107,107,.2);
+            border-radius: 14px; padding: 24px; margin-bottom: 28px;
+        }
+        .gzh_stage_label {
+            font-size: 12px; color: #ff6b6b; letter-spacing: 2px;
+            margin-bottom: 14px; font-weight: 700;
+        }
+        .gzh_obj_box {
+            background: #0a0818; border-radius: 10px;
+            padding: 18px; border: 1px dashed rgba(255,107,107,.2);
+            font-family: Consolas, "Courier New", monospace;
+        }
+        .gzh_obj_open { color: #ffd666; font-weight: 800; }
+        .gzh_obj_close { color: #ffd666; font-weight: 800; }
+        .gzh_prop {
+            display: flex; align-items: flex-start; gap: 6px;
+            padding: 6px 10px; margin: 4px 0; border-radius: 6px;
+            transition: background .3s, transform .3s;
+        }
+        .gzh_prop:hover { background: rgba(255,107,107,.08); }
+        .gzh_prop.gzh_new { animation: gzh_obj_in .4s ease; }
+        .gzh_prop.gzh_del { animation: gzh_obj_out .3s ease forwards; }
+        .gzh_prop.gzh_hit  { background: rgba(255,214,102,.15); box-shadow: 0 0 0 2px #ffd666; }
+        @keyframes gzh_obj_in {
+            0% { opacity: 0; transform: translateX(-10px); } 100% { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes gzh_obj_out {
+            0% { opacity: 1; transform: translateX(0); } 100% { opacity: 0; transform: translateX(15px); height: 0; padding: 0; margin: 0; }
+        }
+        .gzh_prop .gzh_key { color: #4ecdc4; }
+        .gzh_prop .gzh_col { color: #888; }
+        .gzh_prop .gzh_val_str { color: #f9ca24; }
+        .gzh_prop .gzh_val_num { color: #7ee787; }
+        .gzh_prop .gzh_val_bool { color: #ff6b6b; font-weight: 700; }
+        .gzh_prop .gzh_val_null { color: #999; font-style: italic; }
+
+        .gzh_reset { text-align: center; margin-top: 14px; }
+        .gzh_reset button {
+            background: transparent; border: 2px solid #ff6b6b; color: #ff6b6b;
+            padding: 8px 22px; border-radius: 20px; font-weight: 700;
+            cursor: pointer; font-size: 14px; transition: all .2s;
+        }
+        .gzh_reset button:hover { background: #ff6b6b; color: #fff; }
+
+        /* ============ 方法卡片 ============ */
+        .gzh_group { margin-bottom: 28px; }
+        .gzh_group_title {
+            font-size: 16px; color: #4ecdc4; margin-bottom: 14px;
+            padding-left: 12px; border-left: 4px solid #4ecdc4;
+        }
+        .gzh_cards {
+            display: grid; gap: 14px;
+            grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+        }
+        .gzh_method {
+            background: rgba(255,255,255,.04);
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 12px; padding: 16px;
+            transition: transform .2s ease, border-color .2s ease;
+        }
+        .gzh_method:hover { transform: translateY(-3px); border-color: rgba(255,107,107,.4); }
+        .gzh_method h3 {
+            font-size: 16px; color: #ff6b6b; margin-bottom: 4px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .gzh_method h3::before {
+            content: ""; width: 6px; height: 18px; background: #ff6b6b; border-radius: 2px;
+        }
+        .gzh_method .gzh_desc { font-size: 12px; color: #999; margin-bottom: 10px; line-height: 1.6; }
+        .gzh_method pre {
+            background: #0d0d1a; padding: 10px 12px; border-radius: 6px;
+            font-size: 12px; line-height: 1.7; color: #7ee787;
+            overflow-x: auto; margin-bottom: 10px; border: 1px solid rgba(255,255,255,.05);
+        }
+        .gzh_method button {
+            background: linear-gradient(135deg,#ff6b6b,#ee5a5a);
+            color: #fff; border: none; padding: 7px 16px;
+            border-radius: 6px; font-weight: 700; font-size: 13px;
+            cursor: pointer; transition: transform .15s, box-shadow .15s;
+        }
+        .gzh_method button:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(255,107,107,.3); }
+        .gzh_method .gzh_result {
+            margin-top: 10px; padding: 8px 12px; border-radius: 6px;
+            background: rgba(78,205,196,.1); border-left: 3px solid #4ecdc4;
+            font-size: 13px; color: #4ecdc4; font-family: Consolas, monospace;
+            min-height: 34px; display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+        }
+        .gzh_method .gzh_result:empty::before {
+            content: "点击按钮运行 →"; color: #555; font-style: italic;
+        }
+    </style>
+</head>
+<body>
+<div class="gzh_wrap">
+    <header class="gzh_head">
+        <h1>🏷️ JavaScript 对象 · 可视化</h1>
+        <p>左边是当前对象的实时渲染，右边是可以执行的代码示例</p>
+    </header>
+
+    <!-- ============ 对象舞台 ============ -->
+    <div class="gzh_stage">
+        <div class="gzh_stage_label">当前对象 person = { name: "小明", age: 18, isStudent: true, hobby: "编程" }</div>
+        <div class="gzh_obj_box" id="gzh_obj_box"></div>
+        <div class="gzh_reset"><button onclick="gzh_obj_reset()">↺ 重置对象</button></div>
+    </div>
+
+    <!-- ============ 创建对象 ============ -->
+    <div class="gzh_group">
+        <h2 class="gzh_group_title">一、创建对象的三种方式</h2>
+        <div class="gzh_cards">
+            <div class="gzh_method">
+                <h3>对象字面量</h3>
+                <div class="gzh_desc">最常用，花括号里写键值对</div>
+                <pre>var person = {
+  name: "小明",
+  age: 18
+};</pre>
+                <button onclick="gzh_run('literal')">▶ 运行</button>
+                <div class="gzh_result" id="gzh_r_literal"></div>
+            </div>
+            <div class="gzh_method">
+                <h3>new Object()</h3>
+                <div class="gzh_desc">空对象，之后逐个添加属性</div>
+                <pre>var p = new Object();
+p.name = "小红";
+p.age = 20;</pre>
+                <button onclick="gzh_run('newobj')">▶ 运行</button>
+                <div class="gzh_result" id="gzh_r_newobj"></div>
+            </div>
+            <div class="gzh_method">
+                <h3>构造函数</h3>
+                <div class="gzh_desc">适合批量创建同类对象</div>
+                <pre>function GzhUser(n, a) {
+  this.name = n;
+  this.age = a;
+}
+var u = new GzhUser("小刚", 22);</pre>
+                <button onclick="gzh_run('ctor')">▶ 运行</button>
+                <div class="gzh_result" id="gzh_r_ctor"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ 增删改查 ============ -->
+    <div class="gzh_group">
+        <h2 class="gzh_group_title">二、增删改查</h2>
+        <div class="gzh_cards">
+            <div class="gzh_method">
+                <h3>读取属性</h3>
+                <div class="gzh_desc">点号 .  和 方括号 [] 两种方式</div>
+                <pre>person.name        // 点号
+person["age"]      // 方括号</pre>
+                <button onclick="gzh_run('get')">▶ 运行</button>
+                <div class="gzh_result" id="gzh_r_get"></div>
+            </div>
+            <div class="gzh_method">
+                <h3>新增 / 修改属性</h3>
+                <div class="gzh_desc">直接赋值即可，键不存在就新增</div>
+                <pre>person.grade = 95;      // 新增
+person.age = 19;        // 修改</pre>
+                <button onclick="gzh_run('set')">▶ 运行</button>
+                <div class="gzh_result" id="gzh_r_set"></div>
+            </div>
+            <div class="gzh_method">
+                <h3>删除属性 delete</h3>
+                <div class="gzh_desc">用 delete 关键字删除某个属性</div>
+                <pre>delete person.hobby;</pre>
+                <button onclick="gzh_run('del')">▶ 运行</button>
+                <div class="gzh_result" id="gzh_r_del"></div>
+            </div>
+            <div class="gzh_method">
+                <h3>检查属性是否存在 in</h3>
+                <div class="gzh_desc">'属性名' in 对象 → true / false</div>
+                <pre>'name' in person   // true
+'email' in person   // false</pre>
+                <button onclick="gzh_run('has')">▶ 运行</button>
+                <div class="gzh_result" id="gzh_r_has"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ 遍历 ============ -->
+    <div class="gzh_group">
+        <h2 class="gzh_group_title">三、遍历对象</h2>
+        <div class="gzh_cards">
+            <div class="gzh_method">
+                <h3>for...in</h3>
+                <div class="gzh_desc">遍历所有可枚举属性（包括原型链）</div>
+                <pre>for (var k in person) {
+  console.log(k, person[k]);
+}</pre>
+                <button onclick="gzh_run('forin')">▶ 运行</button>
+                <div class="gzh_result" id="gzh_r_forin"></div>
+            </div>
+            <div class="gzh_method">
+                <h3>Object.keys()</h3>
+                <div class="gzh_desc">返回所有键名组成的数组</div>
+                <pre>Object.keys(person)
+// ["name","age","isStudent","hobby"]</pre>
+                <button onclick="gzh_run('keys')">▶ 运行</button>
+                <div class="gzh_result" id="gzh_r_keys"></div>
+            </div>
+            <div class="gzh_method">
+                <h3>Object.values()</h3>
+                <div class="gzh_desc">返回所有值组成的数组</div>
+                <pre>Object.values(person)
+// ["小明", 18, true, "编程"]</pre>
+                <button onclick="gzh_run('values')">▶ 运行</button>
+                <div class="gzh_result" id="gzh_r_values"></div>
+            </div>
+            <div class="gzh_method">
+                <h3>Object.entries()</h3>
+                <div class="gzh_desc">返回 [键, 值] 二维数组</div>
+                <pre>Object.entries(person)
+// [["name","小明"],["age",18]...]</pre>
+                <button onclick="gzh_run('entries')">▶ 运行</button>
+                <div class="gzh_result" id="gzh_r_entries"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ Object 静态方法 ============ -->
+    <div class="gzh_group">
+        <h2 class="gzh_group_title">四、合并 / 拷贝 / 解构</h2>
+        <div class="gzh_cards">
+            <div class="gzh_method">
+                <h3>Object.assign()</h3>
+                <div class="gzh_desc">合并多个对象到第一个（浅拷贝）</div>
+                <pre>Object.assign(person,
+  { grade: 95 },
+  { city: "北京" }
+);</pre>
+                <button onclick="gzh_run('assign')">▶ 运行</button>
+                <div class="gzh_result" id="gzh_r_assign"></div>
+            </div>
+            <div class="gzh_method">
+                <h3>展开运算符合并</h3>
+                <div class="gzh_desc">... 展开两个对象合并成新对象</div>
+                <pre>var merged = {
+  ...person,
+  grade: 100,
+  happy: true
+};</pre>
+                <button onclick="gzh_run('spread')">▶ 运行</button>
+                <div class="gzh_result" id="gzh_r_spread"></div>
+            </div>
+            <div class="gzh_method">
+                <h3>解构赋值</h3>
+                <div class="gzh_desc">从对象里把值"拆出来"赋给变量</div>
+                <pre>var { name, age } = person;
+console.log(name);  // 小明
+console.log(age);   // 18</pre>
+                <button onclick="gzh_run('destruc')">▶ 运行</button>
+                <div class="gzh_result" id="gzh_r_destruc"></div>
+            </div>
+            <div class="gzh_method">
+                <h3>JSON 深拷贝</h3>
+                <div class="gzh_desc">先序列化成字符串，再转回对象（不支持函数）</div>
+                <pre>var copy = JSON.parse(
+  JSON.stringify(person)
+);
+copy.name = "修改后";
+// person.name 不变</pre>
+                <button onclick="gzh_run('deepcopy')">▶ 运行</button>
+                <div class="gzh_result" id="gzh_r_deepcopy"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var gzh_ORIGIN = { name: "小明", age: 18, isStudent: true, hobby: "编程" };
+    var gzh_obj = null;
+
+    function gzh_obj_reset() {
+        gzh_obj = { name: "小明", age: 18, isStudent: true, hobby: "编程" };
+        gzh_render({});
+        document.querySelectorAll('.gzh_result').forEach(function(el){ el.textContent = ''; });
+    }
+
+    function gzh_type(val) {
+        if (typeof val === 'string') return 'gzh_val_str';
+        if (typeof val === 'number') return 'gzh_val_num';
+        if (typeof val === 'boolean') return 'gzh_val_bool';
+        if (val === null) return 'gzh_val_null';
+        return 'gzh_val_str';
+    }
+    function gzh_val(val) {
+        if (typeof val === 'string') return '"' + val + '"';
+        if (val === null) return 'null';
+        return String(val);
+    }
+
+    function gzh_render(highlightKeys) {
+        var box = document.getElementById('gzh_obj_box');
+        box.innerHTML = '<span class="gzh_obj_open">{</span><br>';
+        var keys = Object.keys(gzh_obj);
+        keys.forEach(function(k, i) {
+            var prop = document.createElement('div');
+            prop.className = 'gzh_prop';
+            if (highlightKeys && highlightKeys[k]) prop.classList.add(highlightKeys[k]);
+            prop.innerHTML =
+                '<span class="gzh_key">' + k + '</span>' +
+                '<span class="gzh_col">:</span> ' +
+                '<span class="' + gzh_type(gzh_obj[k]) + '">' + gzh_val(gzh_obj[k]) + '</span>';
+            if (i < keys.length - 1) prop.innerHTML += ',';
+            box.appendChild(prop);
+        });
+        box.innerHTML += '<span class="gzh_obj_close">}</span>';
+    }
+
+    function gzh_set(id, html) {
+        document.getElementById('gzh_r_' + id).innerHTML = html;
+    }
+
+    function gzh_run(kind) {
+        switch (kind) {
+            case 'literal':
+                gzh_set('literal', '已创建: <code>{ name: "小明", age: 18 }</code>（就是当前舞台上的对象）');
+                break;
+            case 'newobj':
+                var p = new Object(); p.name = "小红"; p.age = 20;
+                gzh_set('newobj', '结果: <code>' + JSON.stringify(p) + '</code>');
+                break;
+            case 'ctor':
+                function GzhUser(n, a) { this.name = n; this.age = a; }
+                var u = new GzhUser("小刚", 22);
+                gzh_set('ctor', '结果: <code>' + JSON.stringify(u) + '</code>');
+                break;
+            case 'get':
+                var hl = {}; hl.name = 'gzh_hit'; hl.age = 'gzh_hit';
+                gzh_render(hl);
+                gzh_set('get', 'person.name = <b style="color:#f9ca24">' + gzh_obj.name + '</b> &nbsp;|&nbsp; person["age"] = <b style="color:#7ee787">' + gzh_obj.age + '</b>');
+                break;
+            case 'set':
+                gzh_obj.grade = 95;
+                gzh_obj.age = 19;
+                var hl2 = { grade: 'gzh_new', age: 'gzh_hit' };
+                gzh_render(hl2);
+                gzh_set('set', '新增了 grade: 95，修改了 age → 19');
+                break;
+            case 'del':
+                if (!('hobby' in gzh_obj)) { gzh_set('del', 'hobby 已被删除，请先重置'); return; }
+                gzh_obj.hobby = undefined;
+                gzh_render({ hobby: 'gzh_del' });
+                var self = gzh_obj;
+                setTimeout(function() {
+                    delete self.hobby;
+                    gzh_render({});
+                    gzh_set('del', '已删除 hobby 属性');
+                }, 320);
+                break;
+            case 'has':
+                gzh_set('has', '<code>"name" in person</code> → <b>' + ('name' in gzh_obj) + '</b> &nbsp;|&nbsp; <code>"email" in person</code> → <b>' + ('email' in gzh_obj) + '</b>');
+                break;
+            case 'forin':
+                var pairs = [];
+                for (var k in gzh_obj) pairs.push(k + '=' + gzh_obj[k]);
+                gzh_set('forin', '遍历结果: ' + pairs.join('  ·  '));
+                break;
+            case 'keys':
+                gzh_set('keys', 'Object.keys → <code>[' + Object.keys(gzh_obj).join(', ') + ']</code>');
+                break;
+            case 'values':
+                gzh_set('values', 'Object.values → <code>[' + Object.values(gzh_obj).map(function(v){ return gzh_val(v); }).join(', ') + ']</code>');
+                break;
+            case 'entries':
+                var es = Object.entries(gzh_obj).map(function(e){ return '[' + gzh_val(e[0]) + ',' + gzh_val(e[1]) + ']'; });
+                gzh_set('entries', 'Object.entries → <code>' + es.join(' ') + '</code>');
+                break;
+            case 'assign':
+                Object.assign(gzh_obj, { grade: 95 }, { city: "北京" });
+                gzh_render({ grade: 'gzh_new', city: 'gzh_new' });
+                gzh_set('assign', '合并了 { grade: 95 } 和 { city: "北京" }');
+                break;
+            case 'spread':
+                var merged = Object.assign({}, gzh_obj, { grade: 100, happy: true });
+                gzh_set('spread', '新对象 merged = <code>' + JSON.stringify(merged) + '</code><br>(原对象不变)');
+                break;
+            case 'destruc':
+                var name = gzh_obj.name, age = gzh_obj.age;
+                gzh_set('destruc', '解构得到: <b>name = "' + name + '"</b> &nbsp; <b>age = ' + age + '</b>');
+                break;
+            case 'deepcopy':
+                var copy = JSON.parse(JSON.stringify(gzh_obj));
+                copy.name = "修改后";
+                gzh_set('deepcopy', 'copy.name = <b style="color:#ff6b6b">"' + copy.name + '"</b><br>person.name = <b style="color:#4ecdc4">"' + gzh_obj.name + '"</b>（互不影响 ✅）');
+                break;
+        }
+    }
+
+    gzh_obj_reset();
+</script>
+</body>
+</html>
