@@ -98,6 +98,40 @@
             margin-left: 12px;
             flex-shrink: 0;
         }
+
+        /* ============ 响应式：平板 ============ */
+        @media (max-width: 1024px) {
+            .gzh_content { max-width: 720px; padding: 24px 24px 32px; }
+            .gzh_big_title { font-size: 20px; margin-bottom: 22px; }
+            .gzh_tab { padding: 14px 18px; font-size: 14px; }
+        }
+
+        /* ============ 响应式：手机横屏 / 大屏 ============ */
+        @media (max-width: 768px) {
+            .gzh_tabs {
+                padding: 0 12px;
+                overflow-x: auto;
+                scrollbar-width: none; /* Firefox */
+            }
+            .gzh_tabs::-webkit-scrollbar { display: none; /* Chrome/Safari */ }
+            .gzh_tab { padding: 14px 16px; font-size: 14px; }
+            .gzh_content { max-width: 100%; padding: 20px 16px 28px; }
+            .gzh_big_title { font-size: 18px; margin-bottom: 18px; line-height: 1.45; }
+            .gzh_item { padding: 12px 0; }
+            .gzh_item:hover { padding-left: 4px; }
+            .gzh_title { font-size: 14px; line-height: 1.55; }
+            .gzh_date { font-size: 12px; margin-left: 8px; }
+            .gzh_dot { width: 8px; height: 8px; margin-right: 10px; box-shadow: 0 0 0 2px rgba(228,61,51,.1); }
+        }
+
+        /* ============ 响应式：手机竖屏 ============ */
+        @media (max-width: 480px) {
+            .gzh_tab { padding: 12px 14px; font-size: 13px; }
+            .gzh_tab.gzh_active::after { left: 10px; right: 10px; }
+            .gzh_big_title { font-size: 16px; margin-bottom: 14px; }
+            .gzh_title { font-size: 13px; }
+            .gzh_date { display: none; } /* 极窄屏隐藏日期节省空间 */
+        }
     </style>
 </head>
 <body>
