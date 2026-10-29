@@ -1,0 +1,448 @@
+﻿<!-- 姓名：郭兹寒，建立时间：2026-10-29 13:40，使用的大模型：trae/Kimi-K3，功能：可视化展示 JavaScript 数组常用方法 -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript 数组方法 · 可视化</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", Consolas, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 32px 20px 80px;
+            color: #e8e8f0;
+        }
+        .gzh_wrap { max-width: 1080px; margin: 0 auto; }
+        .gzh_head { text-align: center; margin-bottom: 32px; }
+        .gzh_head h1 {
+            font-size: 30px; color: #ffd666; letter-spacing: 2px;
+            text-shadow: 0 0 20px rgba(255,214,102,.3);
+        }
+        .gzh_head p { color: #a0a0c0; font-size: 14px; margin-top: 8px; }
+
+        /* ============ 数组盒子可视化 ============ */
+        .gzh_stage {
+            background: rgba(255,255,255,.04);
+            border: 1px solid rgba(255,214,102,.2);
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 28px;
+        }
+        .gzh_stage_label {
+            font-size: 12px; color: #ffd666; letter-spacing: 2px;
+            margin-bottom: 14px; font-weight: 700;
+        }
+        .gzh_array_row {
+            display: flex; gap: 8px; flex-wrap: wrap; min-height: 60px;
+            padding: 10px; background: #0a0818; border-radius: 8px;
+            border: 1px dashed rgba(255,214,102,.15);
+        }
+        .gzh_box {
+            width: 52px; height: 52px; flex-shrink: 0;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 18px;
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.2);
+            transition: transform .3s ease, opacity .3s ease, background .3s ease;
+            position: relative;
+        }
+        .gzh_box.gzh_pop   { background: linear-gradient(135deg,#ff6b6b,#ee5a5a); }
+        .gzh_box.gzh_push  { background: linear-gradient(135deg,#4ecdc4,#44a08d); }
+        .gzh_box.gzh_shift { background: linear-gradient(135deg,#a29bfe,#6c5ce7); }
+        .gzh_box.gzh_unshift{background: linear-gradient(135deg,#fd79a8,#e84393); }
+        .gzh_box.gzh_find  { background: linear-gradient(135deg,#fdcb6e,#f39c12); color:#2d1; }
+        .gzh_box.gzh_hit   { outline: 3px solid #ffd666; outline-offset: 2px; transform: scale(1.12); }
+        .gzh_box.gzh_gone  { transform: scale(0); opacity: 0; }
+        .gzh_box.gzh_new   { animation: gzh_popin .4s ease; }
+        @keyframes gzh_popin {
+            0% { transform: scale(0) rotate(-12deg); opacity: 0; }
+            60% { transform: scale(1.15) rotate(4deg); opacity: 1; }
+            100% { transform: scale(1) rotate(0); }
+        }
+        .gzh_box .gzh_idx {
+            position: absolute; bottom: -16px; left: 50%;
+            transform: translateX(-50%); font-size: 10px;
+            color: #888; font-weight: 500;
+        }
+
+        /* ============ 方法卡片 ============ */
+        .gzh_group { margin-bottom: 28px; }
+        .gzh_group_title {
+            font-size: 16px; color: #4ecdc4; margin-bottom: 14px;
+            padding-left: 12px; border-left: 4px solid #4ecdc4;
+        }
+        .gzh_cards {
+            display: grid; gap: 14px;
+            grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+        }
+        .gzh_method {
+            background: rgba(255,255,255,.04);
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 12px; padding: 16px;
+            transition: transform .2s ease, border-color .2s ease;
+        }
+        .gzh_method:hover {
+            transform: translateY(-3px);
+            border-color: rgba(255,214,102,.4);
+        }
+        .gzh_method h3 {
+            font-size: 16px; color: #ffd666; margin-bottom: 4px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .gzh_method h3::before {
+            content: ""; width: 6px; height: 18px; background: #ffd666;
+            border-radius: 2px;
+        }
+        .gzh_method .gzh_desc {
+            font-size: 12px; color: #999; margin-bottom: 10px;
+            line-height: 1.6;
+        }
+        .gzh_method pre {
+            background: #0d0d1a; padding: 10px 12px; border-radius: 6px;
+            font-size: 12px; line-height: 1.7; color: #7ee787;
+            overflow-x: auto; margin-bottom: 10px;
+            border: 1px solid rgba(255,255,255,.05);
+        }
+        .gzh_method button {
+            background: linear-gradient(135deg,#ffd666,#ff9800);
+            color: #2d1b00; border: none; padding: 7px 16px;
+            border-radius: 6px; font-weight: 700; font-size: 13px;
+            cursor: pointer; transition: transform .15s, box-shadow .15s;
+        }
+        .gzh_method button:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(255,214,102,.3); }
+        .gzh_method .gzh_result {
+            margin-top: 10px; padding: 8px 12px; border-radius: 6px;
+            background: rgba(78,205,196,.1); border-left: 3px solid #4ecdc4;
+            font-size: 13px; color: #4ecdc4; font-family: Consolas, monospace;
+            min-height: 34px; display: flex; align-items: center;
+        }
+        .gzh_method .gzh_result:empty::before {
+            content: "点击按钮运行 →"; color: #555; font-style: italic;
+        }
+        .gzh_reset {
+            text-align: center; margin-bottom: 20px;
+        }
+        .gzh_reset button {
+            background: transparent; border: 2px solid #ffd666; color: #ffd666;
+            padding: 8px 22px; border-radius: 20px; font-weight: 700;
+            cursor: pointer; font-size: 14px; transition: all .2s;
+        }
+        .gzh_reset button:hover {
+            background: #ffd666; color: #2d1b00;
+        }
+    </style>
+</head>
+<body>
+<div class="gzh_wrap">
+    <header class="gzh_head">
+        <h1>📦 JavaScript 数组方法 · 可视化</h1>
+        <p>下方每个盒子代表数组里的一个元素，点击按钮实时看效果</p>
+    </header>
+
+    <div class="gzh_stage">
+        <div class="gzh_stage_label">当前数组 arr = [3, 7, 2, 9, 5, 7, 1]</div>
+        <div class="gzh_array_row" id="gzh_array_row"></div>
+        <div class="gzh_reset" style="margin-top:16px"><button onclick="gzh_reset()">↺ 重置数组</button></div>
+    </div>
+
+    <!-- ============ 增删方法 ============ -->
+    <div class="gzh_group">
+        <h2 class="gzh_group_title">一、增删方法（修改原数组）</h2>
+        <div class="gzh_cards">
+            <div class="gzh_method">
+                <h3>push()</h3>
+                <div class="gzh_desc">末尾追加一个元素，返回新长度</div>
+                <pre>arr.push(10)</pre>
+                <button onclick="gzh_push()">▶ 运行</button>
+                <div class="gzh_result" id="gzh_r_push"></div>
+            </div>
+            <div class="gzh_method">
+                <h3>pop()</h3>
+                <div class="gzh_desc">删除末尾元素，返回被删元素</div>
+                <pre>arr.pop()</pre>
+                <button onclick="gzh_pop()">▶ 运行</button>
+                <div class="gzh_result" id="gzh_r_pop"></div>
+            </div>
+            <div class="gzh_method">
+                <h3>unshift()</h3>
+                <div class="gzh_desc">开头插入元素，返回新长度</div>
+                <pre>arr.unshift(0)</pre>
+                <button onclick="gzh_unshift()">▶ 运行</button>
+                <div class="gzh_result" id="gzh_r_unshift"></div>
+            </div>
+            <div class="gzh_method">
+                <h3>shift()</h3>
+                <div class="gzh_desc">删除开头元素，返回被删元素</div>
+                <pre>arr.shift()</pre>
+                <button onclick="gzh_shift()">▶ 运行</button>
+                <div class="gzh_result" id="gzh_r_shift"></div>
+            </div>
+            <div class="gzh_method">
+                <h3>splice()</h3>
+                <div class="gzh_desc">万能增删：从下标2开始删2个，再插入 'a','b'</div>
+                <pre>arr.splice(2, 2, 'a', 'b')</pre>
+                <button onclick="gzh_splice()">▶ 运行</button>
+                <div class="gzh_result" id="gzh_r_splice"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ 查询方法 ============ -->
+    <div class="gzh_group">
+        <h2 class="gzh_group_title">二、查询方法（不修改原数组）</h2>
+        <div class="gzh_cards">
+            <div class="gzh_method">
+                <h3>indexOf()</h3>
+                <div class="gzh_desc">找元素第一次出现的下标（7 出现两次）</div>
+                <pre>arr.indexOf(7)</pre>
+                <button onclick="gzh_indexOf()">▶ 运行</button>
+                <div class="gzh_result" id="gzh_r_indexOf"></div>
+            </div>
+            <div class="gzh_method">
+                <h3>includes()</h3>
+                <div class="gzh_desc">数组里是否包含某个值</div>
+                <pre>arr.includes(9)</pre>
+                <button onclick="gzh_includes()">▶ 运行</button>
+                <div class="gzh_result" id="gzh_r_includes"></div>
+            </div>
+            <div class="gzh_method">
+                <h3>find()</h3>
+                <div class="gzh_desc">找第一个满足条件的元素（偶数）</div>
+                <pre>arr.find(n => n % 2 === 0)</pre>
+                <button onclick="gzh_find()">▶ 运行</button>
+                <div class="gzh_result" id="gzh_r_find"></div>
+            </div>
+            <div class="gzh_method">
+                <h3>filter()</h3>
+                <div class="gzh_desc">筛选所有满足条件的元素（大于5）</div>
+                <pre>arr.filter(n => n > 5)</pre>
+                <button onclick="gzh_filter()">▶ 运行</button>
+                <div class="gzh_result" id="gzh_r_filter"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ 变换方法 ============ -->
+    <div class="gzh_group">
+        <h2 class="gzh_group_title">三、变换方法（返回新数组，不改原数组）</h2>
+        <div class="gzh_cards">
+            <div class="gzh_method">
+                <h3>map()</h3>
+                <div class="gzh_desc">对每个元素做变换，返回新数组（×2）</div>
+                <pre>arr.map(n => n * 2)</pre>
+                <button onclick="gzh_map()">▶ 运行</button>
+                <div class="gzh_result" id="gzh_r_map"></div>
+            </div>
+            <div class="gzh_method">
+                <h3>sort()</h3>
+                <div class="gzh_desc">数字升序排序（必须传比较函数）</div>
+                <pre>arr.sort((a,b) => a - b)</pre>
+                <button onclick="gzh_sort()">▶ 运行</button>
+                <div class="gzh_result" id="gzh_r_sort"></div>
+            </div>
+            <div class="gzh_method">
+                <h3>reverse()</h3>
+                <div class="gzh_desc">翻转数组（⚠️ 会修改原数组）</div>
+                <pre>arr.reverse()</pre>
+                <button onclick="gzh_reverse()">▶ 运行</button>
+                <div class="gzh_result" id="gzh_r_reverse"></div>
+            </div>
+            <div class="gzh_method">
+                <h3>slice()</h3>
+                <div class="gzh_desc">截取 [1, 4) 范围，不修改原数组</div>
+                <pre>arr.slice(1, 4)</pre>
+                <button onclick="gzh_slice()">▶ 运行</button>
+                <div class="gzh_result" id="gzh_r_slice"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ 迭代方法 ============ -->
+    <div class="gzh_group">
+        <h2 class="gzh_group_title">四、迭代 / 归约方法</h2>
+        <div class="gzh_cards">
+            <div class="gzh_method">
+                <h3>forEach()</h3>
+                <div class="gzh_desc">遍历每个元素并执行回调，无返回值</div>
+                <pre>arr.forEach((n,i) => console.log(i,n))</pre>
+                <button onclick="gzh_forEach()">▶ 运行</button>
+                <div class="gzh_result" id="gzh_r_forEach"></div>
+            </div>
+            <div class="gzh_method">
+                <h3>reduce()</h3>
+                <div class="gzh_desc">累加求和（最强大的归约方法）</div>
+                <pre>arr.reduce((a,b) => a + b, 0)</pre>
+                <button onclick="gzh_reduce()">▶ 运行</button>
+                <div class="gzh_result" id="gzh_r_reduce"></div>
+            </div>
+            <div class="gzh_method">
+                <h3>join()</h3>
+                <div class="gzh_desc">用分隔符把数组拼成字符串</div>
+                <pre>arr.join(" · ")</pre>
+                <button onclick="gzh_join()">▶ 运行</button>
+                <div class="gzh_result" id="gzh_r_join"></div>
+            </div>
+            <div class="gzh_method">
+                <h3>every() / some()</h3>
+                <div class="gzh_desc">every: 是否全部满足 &nbsp; some: 是否有一个满足</div>
+                <pre>arr.every(n => n > 0)  //全正?
+arr.some(n => n > 8)   //有大于8?</pre>
+                <button onclick="gzh_evsome()">▶ 运行</button>
+                <div class="gzh_result" id="gzh_r_evsome"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var gzh_ORIGIN = [3, 7, 2, 9, 5, 7, 1];
+    var gzh_arr = [];
+
+    function gzh_reset() {
+        gzh_arr = gzh_ORIGIN.slice();
+        gzh_render();
+        document.querySelectorAll('.gzh_result').forEach(function(el){ el.textContent = ''; });
+    }
+
+    function gzh_render(highlightMap) {
+        var row = document.getElementById('gzh_array_row');
+        row.innerHTML = '';
+        gzh_arr.forEach(function(v, i) {
+            var box = document.createElement('div');
+            box.className = 'gzh_box';
+            if (highlightMap && highlightMap[i]) {
+                box.classList.add(highlightMap[i]);
+            }
+            box.textContent = v;
+            var idx = document.createElement('span');
+            idx.className = 'gzh_idx';
+            idx.textContent = i;
+            box.appendChild(idx);
+            row.appendChild(box);
+        });
+    }
+
+    function gzh_set(id, text) {
+        document.getElementById('gzh_r_' + id).textContent = text;
+    }
+
+    // ===== 增删 =====
+    function gzh_push() {
+        var r = gzh_arr.push(10);
+        gzh_render();
+        var lastIdx = gzh_arr.length - 1;
+        document.querySelectorAll('.gzh_box')[lastIdx].classList.add('gzh_new', 'gzh_push');
+        gzh_set('push', '返回值（新长度）: ' + r + '  →  arr = [' + gzh_arr.join(', ') + ']');
+    }
+    function gzh_pop() {
+        if (!gzh_arr.length) { gzh_set('pop', '数组已空！请先重置'); return; }
+        var lastIdx = gzh_arr.length - 1;
+        var boxes = document.querySelectorAll('.gzh_box');
+        boxes[lastIdx].classList.add('gzh_gone', 'gzh_pop');
+        setTimeout(function() {
+            var r = gzh_arr.pop();
+            gzh_render();
+            gzh_set('pop', '返回值（被弹出）: ' + r + '  →  arr = [' + gzh_arr.join(', ') + ']');
+        }, 300);
+    }
+    function gzh_unshift() {
+        var r = gzh_arr.unshift(0);
+        gzh_render();
+        document.querySelectorAll('.gzh_box')[0].classList.add('gzh_new', 'gzh_unshift');
+        gzh_set('unshift', '返回值（新长度）: ' + r + '  →  arr = [' + gzh_arr.join(', ') + ']');
+    }
+    function gzh_shift() {
+        if (!gzh_arr.length) { gzh_set('shift', '数组已空！'); return; }
+        document.querySelectorAll('.gzh_box')[0].classList.add('gzh_gone', 'gzh_shift');
+        setTimeout(function() {
+            var r = gzh_arr.shift();
+            gzh_render();
+            gzh_set('shift', '返回值（被移出）: ' + r + '  →  arr = [' + gzh_arr.join(', ') + ']');
+        }, 300);
+    }
+    function gzh_splice() {
+        var r = gzh_arr.splice(2, 2, 'a', 'b');
+        gzh_render();
+        gzh_set('splice', '删除了: [' + r.join(', ') + ']  →  arr = [' + gzh_arr.join(', ') + ']');
+    }
+
+    // ===== 查询 =====
+    function gzh_indexOf() {
+        var r = gzh_arr.indexOf(7);
+        var map = {}; if (r >= 0) map[r] = 'gzh_hit';
+        gzh_render(map);
+        gzh_set('indexOf', '7 第一次出现的下标: ' + r);
+    }
+    function gzh_includes() {
+        var r = gzh_arr.includes(9);
+        var map = {};
+        gzh_arr.forEach(function(v,i){ if(v===9) map[i]='gzh_hit'; });
+        gzh_render(map);
+        gzh_set('includes', 'arr.includes(9) → ' + r + ' (9 在数组中' + (r?'':'没有') + '出现)');
+    }
+    function gzh_find() {
+        var r = gzh_arr.find(function(n){ return n % 2 === 0; });
+        var idx = gzh_arr.indexOf(r);
+        var map = {}; if (idx >= 0) map[idx] = 'gzh_hit';
+        gzh_render(map);
+        gzh_set('find', '第一个偶数是: ' + r);
+    }
+    function gzh_filter() {
+        var r = gzh_arr.filter(function(n){ return n > 5; });
+        var map = {};
+        gzh_arr.forEach(function(v,i){ if(v>5) map[i]='gzh_hit'; });
+        gzh_render(map);
+        gzh_set('filter', '大于5的元素: [' + r.join(', ') + ']');
+    }
+
+    // ===== 变换 =====
+    function gzh_map() {
+        var r = gzh_arr.map(function(n){ return n * 2; });
+        gzh_set('map', 'map 结果: [' + r.join(', ') + ']（原数组不变）');
+    }
+    function gzh_sort() {
+        gzh_arr.sort(function(a,b){ return a - b; });
+        gzh_render();
+        gzh_set('sort', '升序排序后: [' + gzh_arr.join(', ') + ']');
+    }
+    function gzh_reverse() {
+        gzh_arr.reverse();
+        gzh_render();
+        gzh_set('reverse', '翻转后: [' + gzh_arr.join(', ') + ']');
+    }
+    function gzh_slice() {
+        var r = gzh_arr.slice(1, 4);
+        var map = {1:'gzh_hit', 2:'gzh_hit', 3:'gzh_hit'};
+        gzh_render(map);
+        gzh_set('slice', 'slice(1,4) → [' + r.join(', ') + ']（原数组不变）');
+    }
+
+    // ===== 迭代 =====
+    function gzh_forEach() {
+        var logs = [];
+        gzh_arr.forEach(function(n,i){ logs.push('['+i+']='+n); });
+        gzh_set('forEach', '遍历日志: ' + logs.join('  '));
+    }
+    function gzh_reduce() {
+        var r = gzh_arr.reduce(function(a,b){ return a + b; }, 0);
+        gzh_set('reduce', '所有元素之和: ' + r + '  →  ' + gzh_arr.join(' + ') + ' = ' + r);
+    }
+    function gzh_join() {
+        var r = gzh_arr.join(' · ');
+        gzh_set('join', '拼接结果: "' + r + '"');
+    }
+    function gzh_evsome() {
+        var every = gzh_arr.every(function(n){ return n > 0; });
+        var some  = gzh_arr.some(function(n){ return n > 8; });
+        gzh_set('evsome', 'every(全>0): ' + every + ' &nbsp;|&nbsp; some(有>8): ' + some);
+    }
+
+    // 初始化
+    gzh_reset();
+</script>
+</body>
+</html>
+
