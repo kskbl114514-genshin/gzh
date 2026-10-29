@@ -1,0 +1,266 @@
+﻿<!-- 姓名：郭兹寒，建立时间：2026-10-29 14:24，使用的大模型：trae/Kimi-K3，功能：复刻"翻译平台特价专区"页面 -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>翻译平台特价专区</title>
+    <link rel="stylesheet" href="font/font_5244707_88sf48z3ehl/iconfont.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: #f2f3f5;
+            min-height: 100vh;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .gzh_card {
+            width: 380px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 16px rgba(0,0,0,.06);
+            overflow: hidden;
+        }
+
+        /* ============ 标题 ============ */
+        .gzh_header {
+            display: flex; align-items: center; gap: 10px;
+            padding: 18px 20px 14px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .gzh_earth {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 14px; font-weight: 700;
+            box-shadow: 0 2px 6px rgba(79,172,254,.4);
+            position: relative;
+        }
+        .gzh_earth::before {
+            content: "";
+            position: absolute; inset: 4px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(255,255,255,.7);
+        }
+        .gzh_earth::after {
+            content: "";
+            position: absolute;
+            width: 100%; height: 1px;
+            background: rgba(255,255,255,.7);
+            top: 50%;
+        }
+        .gzh_header h1 {
+            font-size: 16px; color: #222; font-weight: 700; letter-spacing: .5px;
+        }
+
+        /* ============ 列表项 ============ */
+        .gzh_list { padding: 6px 20px; }
+        .gzh_item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px 0;
+            border-bottom: 1px dashed #eee;
+            cursor: pointer;
+            transition: background .15s;
+        }
+        .gzh_item:last-child { border-bottom: none; }
+        .gzh_item:hover { background: #fafafa; margin: 0 -20px; padding: 14px 20px; }
+        .gzh_cart {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, #ff758c, #ff7eb3);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 18px;
+            flex-shrink: 0;
+        }
+        .gzh_cart .iconfont { font-size: 18px; }
+        .gzh_item_info { flex: 1; display: flex; align-items: baseline; justify-content: space-between; }
+        .gzh_item_info .gzh_name {
+            font-size: 15px; color: #333; font-weight: 600;
+        }
+        .gzh_item_info .gzh_count {
+            font-size: 13px; color: #999;
+        }
+        .gzh_item_info .gzh_count b {
+            color: #ff4757; font-size: 16px; font-weight: 700; margin-right: 2px;
+        }
+
+        /* ============ 蓝色大按钮 ============ */
+        .gzh_btn_wrap { padding: 16px 20px; }
+        .gzh_big_btn {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; height: 50px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border: none; border-radius: 25px;
+            color: #fff; font-size: 15px; font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(59,130,246,.4);
+            transition: transform .15s, box-shadow .15s;
+        }
+        .gzh_big_btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(59,130,246,.5);
+        }
+        .gzh_big_btn:active { transform: translateY(0); }
+        .gzh_big_btn .iconfont { font-size: 18px; }
+
+        /* ============ 底部二维码区 ============ */
+        .gzh_footer {
+            margin: 4px 20px 20px;
+            padding: 18px;
+            background: #fafbfc;
+            border-radius: 10px;
+            display: flex; gap: 18px; align-items: center;
+            border: 1px solid #f0f0f0;
+        }
+        .gzh_channels {
+            display: flex; flex-direction: column; gap: 12px;
+        }
+        .gzh_ch {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 13px; color: #555;
+            cursor: pointer;
+        }
+        .gzh_ch_icon {
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 15px;
+            flex-shrink: 0;
+        }
+        .gzh_ch_weibo   { background: linear-gradient(135deg,#ff6a00,#ee0979); }
+        .gzh_ch_wx      { background: linear-gradient(135deg,#07c160,#06ad56); }
+        .gzh_ch_mini    { background: linear-gradient(135deg,#1296db,#0d7bb5); }
+        .gzh_ch_android { background: linear-gradient(135deg,#a4c639,#8aad2e); }
+
+        .gzh_qr {
+            flex: 1;
+            display: flex; flex-direction: column; align-items: center; gap: 6px;
+        }
+        .gzh_qr_box {
+            width: 110px; height: 110px;
+            background:
+                repeating-linear-gradient(0deg, #222 0 4px, transparent 4px 8px),
+                repeating-linear-gradient(90deg, #222 0 4px, transparent 4px 8px),
+                #fff;
+            background-size: 8px 8px, 8px 8px, 100% 100%;
+            border: 8px solid #fff;
+            box-shadow: 0 0 0 1px #e0e0e0, 0 2px 8px rgba(0,0,0,.08);
+            border-radius: 4px;
+            position: relative;
+        }
+        .gzh_qr_box::before,
+        .gzh_qr_box::after {
+            content: "";
+            position: absolute;
+            width: 22px; height: 22px;
+            background: #222;
+            top: 10px; left: 10px;
+            box-shadow:
+                0 0 0 4px #fff,
+                0 0 0 5px #222;
+            border-radius: 2px;
+        }
+        .gzh_qr_box::after {
+            top: auto; left: auto;
+            bottom: 10px; right: 10px;
+        }
+        .gzh_qr_center {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 28px; height: 28px;
+            background: linear-gradient(135deg,#ff4757,#ff6b81);
+            border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 12px; font-weight: 700;
+            box-shadow: 0 2px 6px rgba(255,71,87,.4);
+        }
+        .gzh_qr_label {
+            font-size: 11px; color: #888; text-align: center;
+            margin-top: 2px;
+        }
+    </style>
+</head>
+<body>
+<div class="gzh_card">
+    <!-- 标题 -->
+    <div class="gzh_header">
+        <div class="gzh_earth"></div>
+        <h1>翻译平台特价专区</h1>
+    </div>
+
+    <!-- 列表 -->
+    <div class="gzh_list">
+        <div class="gzh_item">
+            <div class="gzh_cart"><i class="iconfont icon-jia"></i></div>
+            <div class="gzh_item_info">
+                <span class="gzh_name">8折专区</span>
+                <span class="gzh_count"><b>738</b>篇</span>
+            </div>
+        </div>
+        <div class="gzh_item">
+            <div class="gzh_cart"><i class="iconfont icon-jia"></i></div>
+            <div class="gzh_item_info">
+                <span class="gzh_name">5折专区</span>
+                <span class="gzh_count"><b>977</b>篇</span>
+            </div>
+        </div>
+        <div class="gzh_item">
+            <div class="gzh_cart"><i class="iconfont icon-jia"></i></div>
+            <div class="gzh_item_info">
+                <span class="gzh_name">1龙币专区</span>
+                <span class="gzh_count"><b>11420</b>篇</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 蓝色大按钮 -->
+    <div class="gzh_btn_wrap">
+        <button class="gzh_big_btn">
+            <i class="iconfont icon-bianji"></i>
+            进入翻译加工厂 贡献才气
+        </button>
+    </div>
+
+    <!-- 底部二维码区 -->
+    <div class="gzh_footer">
+        <div class="gzh_channels">
+            <div class="gzh_ch">
+                <div class="gzh_ch_icon gzh_ch_weibo">
+                    <i class="iconfont icon-bilibili"></i>
+                </div>
+                <span>微博</span>
+            </div>
+            <div class="gzh_ch">
+                <div class="gzh_ch_icon gzh_ch_wx">
+                    <i class="iconfont icon-weixin"></i>
+                </div>
+                <span>公众号</span>
+            </div>
+            <div class="gzh_ch">
+                <div class="gzh_ch_icon gzh_ch_mini">
+                    <i class="iconfont icon-shouye"></i>
+                </div>
+                <span>小程序</span>
+            </div>
+            <div class="gzh_ch">
+                <div class="gzh_ch_icon gzh_ch_android">
+                    <i class="iconfont icon-pingguo"></i>
+                </div>
+                <span>安卓APP</span>
+            </div>
+        </div>
+        <div class="gzh_qr">
+            <div class="gzh_qr_box">
+                <div class="gzh_qr_center">龙腾</div>
+            </div>
+            <div class="gzh_qr_label">扫一扫关注龙腾官方微博</div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
