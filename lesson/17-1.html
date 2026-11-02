@@ -335,7 +335,7 @@
     function gzh_highlight(str) {
         // 简单语法高亮
         return str
-            .replace(/(&)/g, '&amp;').replace(/(</g, '&lt;').replace(/(>)/g, '&gt;')
+            .replace(/(&)/g, '&amp;').replace(/(<)/g, '&lt;').replace(/(>)/g, '&gt;')
             .replace(/("(?:\\.|[^"\\])*")(\s*:)/g, '<span class="gzh_key">$1</span><span class="gzh_colon">$2</span>')
             .replace(/("(?:\\.|[^"\\])*")/g, '<span class="gzh_str">$1</span>')
             .replace(/\b(-?\d+\.?\d*)\b/g, '<span class="gzh_num">$1</span>')

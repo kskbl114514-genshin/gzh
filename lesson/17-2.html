@@ -1,0 +1,362 @@
+<!-- 姓名：郭兹寒，建立时间：2026-11-02 13:40，使用的大模型：trae/Kimi-K3，功能：fetch调用dog.ceo随机狗狗图片接口 -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>随机狗狗 · Fetch API 演示</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #fff7ed, #fed7aa);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .gzh_wrap {
+            max-width: 640px;
+            margin: 0 auto;
+        }
+
+        /* ============ 标题 ============ */
+        .gzh_header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+        .gzh_header h1 {
+            font-size: 28px;
+            color: #7c2d12;
+            font-weight: 700;
+        }
+        .gzh_header h1::before { content: "🐕 "; }
+        .gzh_header p {
+            color: #9a3412;
+            font-size: 13px;
+            margin-top: 8px;
+            opacity: .85;
+        }
+        .gzh_api_tag {
+            display: inline-block;
+            background: #fff;
+            border: 1px solid #fdba74;
+            color: #c2410c;
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            margin-top: 10px;
+            font-family: Consolas, monospace;
+        }
+
+        /* ============ 图片区 ============ */
+        .gzh_photo {
+            background: #fff;
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 10px 30px rgba(124,45,18,.15);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .gzh_img_wrap {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            background: #f1f5f9;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .gzh_img_wrap img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            display: block;
+            animation: gzh_fade .35s ease;
+        }
+        @keyframes gzh_fade {
+            from { opacity: 0; transform: scale(.96); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+
+        /* Loading 骨架 */
+        .gzh_loading {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 10px;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+        .gzh_spinner {
+            width: 42px; height: 42px;
+            border: 4px solid #e2e8f0;
+            border-top-color: #f97316;
+            border-radius: 50%;
+            animation: gzh_spin .9s linear infinite;
+        }
+        @keyframes gzh_spin { to { transform: rotate(360deg); } }
+
+        /* Error 状态 */
+        .gzh_error {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 10px;
+            color: #dc2626;
+            font-size: 14px;
+            text-align: center;
+            padding: 20px;
+        }
+        .gzh_error::before {
+            content: "⚠️";
+            font-size: 42px;
+        }
+
+        /* 犬种名 */
+        .gzh_breed {
+            text-align: center;
+            margin-top: 14px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #9a3412;
+        }
+        .gzh_breed small {
+            font-size: 12px;
+            color: #a16207;
+            background: #fef3c7;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: 8px;
+            font-weight: normal;
+        }
+
+        /* ============ 按钮 ============ */
+        .gzh_btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: #fff;
+            border: none;
+            border-radius: 25px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(249,115,22,.35);
+            transition: transform .15s, box-shadow .15s;
+            margin-bottom: 16px;
+        }
+        .gzh_btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(249,115,22,.45);
+        }
+        .gzh_btn:active:not(:disabled) { transform: translateY(0); }
+        .gzh_btn:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+        }
+
+        /* ============ 响应 JSON 区 ============ */
+        .gzh_card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px 18px;
+            box-shadow: 0 4px 16px rgba(0,0,0,.06);
+            margin-bottom: 16px;
+        }
+        .gzh_card h3 {
+            font-size: 14px;
+            color: #7c2d12;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        .gzh_card h3::before { content: "📡 "; }
+        .gzh_status {
+            display: inline-block;
+            font-size: 12px;
+            padding: 2px 10px;
+            border-radius: 10px;
+            margin-left: 6px;
+            font-weight: normal;
+        }
+        .gzh_status.gzh_ok  { background: #dcfce7; color: #166534; }
+        .gzh_status.gzh_err { background: #fee2e2; color: #991b1b; }
+        .gzh_json {
+            background: #1e293b;
+            color: #e2e8f0;
+            border-radius: 6px;
+            padding: 12px 14px;
+            font-family: Consolas, "Monaco", monospace;
+            font-size: 12.5px;
+            line-height: 1.7;
+            overflow-x: auto;
+            word-break: break-all;
+            white-space: pre-wrap;
+        }
+        .gzh_json .gzh_k { color: #93c5fd; }
+        .gzh_json .gzh_s { color: #86efac; }
+        .gzh_json .gzh_n { color: #fbbf24; }
+
+        /* ============ 代码示例 ============ */
+        .gzh_code_block {
+            background: #0f172a;
+            color: #cbd5e1;
+            border-radius: 8px;
+            padding: 14px 16px;
+            font-family: Consolas, monospace;
+            font-size: 12.5px;
+            line-height: 1.7;
+            overflow-x: auto;
+        }
+        .gzh_code_block .gzh_cmt { color: #64748b; }
+        .gzh_code_block .gzh_kw  { color: #c084fc; }
+        .gzh_code_block .gzh_str { color: #86efac; }
+        .gzh_code_block .gzh_fn  { color: #60a5fa; }
+    </style>
+</head>
+<body>
+<div class="gzh_wrap">
+
+    <!-- 标题 -->
+    <div class="gzh_header">
+        <h1>随机狗狗图片</h1>
+        <p>使用 Fetch API 调用 dog.ceo 开放接口</p>
+        <span class="gzh_api_tag">GET https://dog.ceo/api/breeds/image/random</span>
+    </div>
+
+    <!-- 图片区 -->
+    <div class="gzh_photo">
+        <div class="gzh_img_wrap" id="gzh_img_wrap">
+            <div class="gzh_loading">
+                <div class="gzh_spinner"></div>
+                <span>正在加载…</span>
+            </div>
+        </div>
+        <div class="gzh_breed" id="gzh_breed">加载中…</div>
+    </div>
+
+    <!-- 按钮 -->
+    <button class="gzh_btn" id="gzh_btn" onclick="gzh_fetchDog()">🔄 换一只！</button>
+
+    <!-- 原始 JSON 响应 -->
+    <div class="gzh_card">
+        <h3>原始 JSON 响应
+            <span class="gzh_status" id="gzh_status">待请求</span>
+        </h3>
+        <pre class="gzh_json" id="gzh_json">// 点击按钮发起请求后，响应 JSON 将显示在这里</pre>
+    </div>
+
+    <!-- Fetch 代码模板 -->
+    <div class="gzh_card">
+        <h3>标准 Fetch 模板</h3>
+        <pre class="gzh_code_block"><span class="gzh_cmt">// 1. 发起请求</span>
+<span class="gzh_kw">fetch</span>(<span class="gzh_str">'https://dog.ceo/api/breeds/image/random'</span>)
+  <span class="gzh_cmt">// 2. 检查响应状态</span>
+  .<span class="gzh_fn">then</span>(<span class="gzh_kw">function</span>(res) {
+    <span class="gzh_kw">if</span> (!res.<span class="gzh_fn">ok</span>) <span class="gzh_kw">throw</span> <span class="gzh_kw">new</span> Error(<span class="gzh_str">'HTTP '</span> + res.status);
+    <span class="gzh_kw">return</span> res.<span class="gzh_fn">json</span>();   <span class="gzh_cmt">// 3. 解析 JSON</span>
+  })
+  <span class="gzh_cmt">// 4. 使用数据</span>
+  .<span class="gzh_fn">then</span>(<span class="gzh_kw">function</span>(data) {
+    console.<span class="gzh_fn">log</span>(data.message);  <span class="gzh_cmt">// 图片 URL</span>
+  })
+  <span class="gzh_cmt">// 5. 错误处理</span>
+  .<span class="gzh_fn">catch</span>(<span class="gzh_kw">function</span>(err) {
+    console.<span class="gzh_fn">error</span>(err);
+  });</pre>
+    </div>
+
+</div>
+
+<script>
+    var gzh_URL = 'https://dog.ceo/api/breeds/image/random';
+
+    /* 简单 JSON 高亮 */
+    function gzh_jsonHighlight(str) {
+        return str
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/("(?:\\.|[^"\\])*")(\s*:)/g, '<span class="gzh_k">$1</span>$2')
+            .replace(/("(?:\\.|[^"\\])*")/g, '<span class="gzh_s">$1</span>')
+            .replace(/\b(\d+)\b/g, '<span class="gzh_n">$1</span>');
+    }
+
+    /* 从 URL 解析犬种名 */
+    function gzh_parseBreed(url) {
+        // https://images.dog.ceo/breeds/mexicanhairless/n02113978_3318.jpg
+        var m = url.match(/breeds\/([^\/]+)/);
+        if (!m) return '未知犬种';
+        // 把 kebab-case 转成可读的大写开头
+        return m[1].split('-').map(function(w) {
+            return w.charAt(0).toUpperCase() + w.slice(1);
+        }).join(' ');
+    }
+
+    function gzh_renderLoading() {
+        var wrap = document.getElementById('gzh_img_wrap');
+        wrap.innerHTML =
+            '<div class="gzh_loading">' +
+                '<div class="gzh_spinner"></div>' +
+                '<span>正在加载…</span>' +
+            '</div>';
+        document.getElementById('gzh_breed').textContent = '加载中…';
+        document.getElementById('gzh_btn').disabled = true;
+        document.getElementById('gzh_status').textContent = '请求中…';
+        document.getElementById('gzh_status').className = 'gzh_status';
+    }
+
+    function gzh_renderError(msg) {
+        var wrap = document.getElementById('gzh_img_wrap');
+        wrap.innerHTML =
+            '<div class="gzh_error">' +
+                '<div>加载失败</div>' +
+                '<div style="font-size:12px;">' + msg + '</div>' +
+            '</div>';
+        document.getElementById('gzh_breed').textContent = '请求失败';
+        document.getElementById('gzh_btn').disabled = false;
+        document.getElementById('gzh_status').textContent = '失败';
+        document.getElementById('gzh_status').className = 'gzh_status gzh_err';
+        document.getElementById('gzh_json').textContent = '// 错误信息: ' + msg;
+    }
+
+    function gzh_fetchDog() {
+        gzh_renderLoading();
+
+        fetch(gzh_URL)
+            .then(function(res) {
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                return res.json();
+            })
+            .then(function(data) {
+                // 渲染原始 JSON
+                document.getElementById('gzh_json').innerHTML =
+                    gzh_jsonHighlight(JSON.stringify(data, null, 2));
+                document.getElementById('gzh_status').textContent = '成功';
+                document.getElementById('gzh_status').className = 'gzh_status gzh_ok';
+
+                if (data.status !== 'success') {
+                    throw new Error('接口返回 status: ' + data.status);
+                }
+
+                // 渲染图片
+                var wrap = document.getElementById('gzh_img_wrap');
+                var img = document.createElement('img');
+                img.src = data.message;
+                img.alt = '随机狗狗';
+                img.onload = function() {
+                    wrap.innerHTML = '';
+                    wrap.appendChild(img);
+                    document.getElementById('gzh_breed').innerHTML =
+                        gzh_parseBreed(data.message) +
+                        ' <small>点击图片查看原图</small>';
+                    document.getElementById('gzh_btn').disabled = false;
+                };
+                img.onerror = function() {
+                    gzh_renderError('图片加载失败');
+                };
+            })
+            .catch(function(err) {
+                gzh_renderError(err.message);
+            });
+    }
+
+    // 页面加载自动请求一次
+    gzh_fetchDog();
+</script>
+</body>
+</html>

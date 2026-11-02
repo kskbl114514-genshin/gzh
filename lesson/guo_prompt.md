@@ -172,6 +172,12 @@
 
 ---
 
+## 2026-11-02
+**模型:** trae/Kimi-K3
+**Prompt:** 完成17-2.html获取一个接口：https://dog.ceo/api/breeds/image/random的数据并展示。接口可以跨域访问。使用fetch和原生代码实现。
+
+---
+
 ## 2026-10-29
 **模型:** WorkBuddy(快速)/Claude
 **Prompt:** 进入D:\Gaojiwangye\lesson，参考桌面上的报告模板（新建 DOCX 文档.docx），完成《高级网页设计I》图像解决方案项目报告（选题：拼多多首页）：补充下导航原图与实现图、iconfont图标截图、核心代码、多视口多浏览器测试截图和项目总结，按"学号-姓名"命名提交文件。
