@@ -178,6 +178,12 @@
 
 ---
 
+## 2026-11-02
+**模型:** trae/Kimi-K3
+**Prompt:** 完成17-3.html和17-3-detai.html,显示列表和列表详情，数据来源于接口，使用fetch。列表:https://dummyjson. com/products?limit=8,默认商品列表。详情:https://du mmyjson.com/products/1,根据ID 获取单个商品。
+
+---
+
 ## 2026-10-29
 **模型:** WorkBuddy(快速)/Claude
 **Prompt:** 进入D:\Gaojiwangye\lesson，参考桌面上的报告模板（新建 DOCX 文档.docx），完成《高级网页设计I》图像解决方案项目报告（选题：拼多多首页）：补充下导航原图与实现图、iconfont图标截图、核心代码、多视口多浏览器测试截图和项目总结，按"学号-姓名"命名提交文件。

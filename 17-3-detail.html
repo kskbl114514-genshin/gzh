@@ -1,0 +1,342 @@
+<!-- 姓名：郭兹寒，建立时间：2026-11-02 13:50，使用的大模型：trae/Kimi-K3，功能：fetch调用dummyjson商品详情接口 -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品详情 · Fetch API</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: #f1f5f9;
+            min-height: 100vh;
+            padding: 24px 20px 60px;
+        }
+        .gzh_wrap { max-width: 960px; margin: 0 auto; }
+
+        /* ============ 返回 ============ */
+        .gzh_back {
+            display: inline-flex; align-items: center; gap: 6px;
+            color: #0ea5e9; text-decoration: none; font-size: 14px;
+            margin-bottom: 18px; padding: 8px 14px;
+            background: #fff; border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(15,23,42,.06);
+            transition: transform .15s;
+        }
+        .gzh_back:hover { transform: translateX(-2px); }
+
+        /* ============ 主体 ============ */
+        .gzh_main {
+            display: grid;
+            grid-template-columns: 1fr 1.1fr;
+            gap: 28px;
+            background: #fff;
+            border-radius: 14px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(15,23,42,.06);
+            margin-bottom: 20px;
+        }
+        @media (max-width: 768px) {
+            .gzh_main { grid-template-columns: 1fr; }
+        }
+
+        /* ============ 左：图片 ============ */
+        .gzh_photos {
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .gzh_hero {
+            width: 100%; aspect-ratio: 1 / 1;
+            background: #f8fafc; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        .gzh_hero img {
+            width: 100%; height: 100%; object-fit: cover;
+        }
+        .gzh_hero .gzh_discount {
+            position: absolute; top: 12px; left: 12px;
+            background: linear-gradient(135deg,#ef4444,#dc2626);
+            color: #fff; font-size: 14px; font-weight: 700;
+            padding: 5px 12px; border-radius: 6px;
+        }
+        .gzh_thumbs {
+            display: flex; gap: 8px; overflow-x: auto;
+        }
+        .gzh_thumb {
+            width: 64px; height: 64px; border-radius: 6px;
+            background: #f1f5f9; flex-shrink: 0;
+            border: 2px solid transparent;
+            overflow: hidden; cursor: pointer;
+            transition: border-color .15s;
+        }
+        .gzh_thumb:hover, .gzh_thumb.gzh_active { border-color: #0ea5e9; }
+        .gzh_thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* ============ 右：详情 ============ */
+        .gzh_right { display: flex; flex-direction: column; }
+        .gzh_cat_tag {
+            display: inline-block;
+            background: #f1f5f9; color: #0ea5e9;
+            font-size: 12px; padding: 3px 10px; border-radius: 4px;
+            text-transform: uppercase; letter-spacing: .5px;
+            align-self: flex-start; margin-bottom: 10px;
+        }
+        .gzh_title {
+            font-size: 22px; color: #0f172a; font-weight: 700;
+            line-height: 1.35; margin-bottom: 6px;
+        }
+        .gzh_brand { font-size: 14px; color: #64748b; margin-bottom: 10px; }
+        .gzh_desc {
+            font-size: 14px; color: #475569; line-height: 1.7;
+            margin-bottom: 16px;
+        }
+
+        /* 价格区 */
+        .gzh_price_block {
+            background: #fef2f2;
+            border-radius: 10px; padding: 14px 16px;
+            margin-bottom: 14px;
+            display: flex; align-items: baseline; gap: 12px;
+        }
+        .gzh_price_now {
+            font-size: 30px; color: #ef4444; font-weight: 700;
+        }
+        .gzh_price_now::before { content: "$"; font-size: 16px; margin-right: 2px; }
+        .gzh_price_old {
+            font-size: 15px; color: #94a3b8; text-decoration: line-through;
+        }
+        .gzh_price_saved {
+            margin-left: auto;
+            background: #ef4444; color: #fff;
+            font-size: 12px; padding: 3px 10px; border-radius: 12px; font-weight: 600;
+        }
+
+        /* 星级 */
+        .gzh_rating {
+            display: flex; align-items: center; gap: 10px;
+            font-size: 14px; color: #475569; margin-bottom: 16px;
+        }
+        .gzh_rating .gzh_stars { color: #f59e0b; font-size: 18px; }
+
+        /* 信息表 */
+        .gzh_info_grid {
+            display: grid;
+            grid-template-columns: 110px 1fr;
+            gap: 10px 14px;
+            font-size: 13px; margin-bottom: 18px;
+        }
+        .gzh_info_grid .gzh_k { color: #94a3b8; }
+        .gzh_info_grid .gzh_v { color: #0f172a; font-weight: 500; }
+        .gzh_info_grid .gzh_v.gzh_ok { color: #16a34a; font-weight: 600; }
+        .gzh_info_grid .gzh_v.gzh_low { color: #ea580c; font-weight: 600; }
+
+        /* tags */
+        .gzh_tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+        .gzh_tag {
+            background: #f1f5f9; color: #475569;
+            font-size: 12px; padding: 3px 10px; border-radius: 12px;
+        }
+
+        /* 按钮 */
+        .gzh_btns { display: flex; gap: 12px; }
+        .gzh_btn {
+            flex: 1; padding: 12px;
+            border: none; border-radius: 8px;
+            font-size: 14px; font-weight: 600; cursor: pointer;
+            transition: transform .15s, box-shadow .15s;
+        }
+        .gzh_btn:active { transform: translateY(0); }
+        .gzh_btn_add {
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(14,165,233,.35);
+        }
+        .gzh_btn_add:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(14,165,233,.45); }
+        .gzh_btn_buy {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(249,115,22,.35);
+        }
+        .gzh_btn_buy:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(249,115,22,.45); }
+
+        /* ============ 评价区 ============ */
+        .gzh_reviews {
+            background: #fff; border-radius: 14px; padding: 22px;
+            box-shadow: 0 4px 20px rgba(15,23,42,.06);
+        }
+        .gzh_reviews h2 {
+            font-size: 17px; color: #0f172a; margin-bottom: 14px; font-weight: 700;
+        }
+        .gzh_review {
+            padding: 12px 0; border-bottom: 1px solid #f1f5f9;
+        }
+        .gzh_review:last-child { border-bottom: none; }
+        .gzh_review_head {
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 13px; margin-bottom: 6px;
+        }
+        .gzh_reviewer { color: #0f172a; font-weight: 600; }
+        .gzh_review_stars { color: #f59e0b; font-size: 12px; }
+        .gzh_review_date { color: #94a3b8; font-size: 12px; }
+        .gzh_review_comment { color: #475569; font-size: 13.5px; line-height: 1.6; }
+
+        /* ============ Loading / Error ============ */
+        .gzh_loading_page, .gzh_error_page {
+            text-align: center; padding: 80px 20px; color: #64748b;
+        }
+        .gzh_error_page { color: #dc2626; }
+    </style>
+</head>
+<body>
+<div class="gzh_wrap">
+
+    <a href="17-3.html" class="gzh_back">← 返回列表</a>
+
+    <div id="gzh_page">
+        <div class="gzh_loading_page">⏳ 加载中…</div>
+    </div>
+
+</div>
+
+<script>
+    /* 从 URL 读取 id */
+    function gzh_getId() {
+        var m = location.search.match(/[?&]id=(\d+)/);
+        return m ? m[1] : null;
+    }
+
+    function gzh_priceNow(p) { return p.price.toFixed(2); }
+    function gzh_priceOld(p) {
+        if (!p.discountPercentage) return null;
+        return (p.price / (1 - p.discountPercentage / 100)).toFixed(2);
+    }
+    function gzh_stars(rating) {
+        var full = Math.round(rating);
+        var html = '';
+        for (var i = 0; i < 5; i++) html += i < full ? '★' : '☆';
+        return html;
+    }
+
+    function gzh_render(p) {
+        var old = gzh_priceOld(p);
+        var stockClass = p.stock > 20 ? 'gzh_ok' : (p.stock > 0 ? 'gzh_low' : '');
+        var stockText = p.stock > 20 ? '充足（' + p.stock + ' 件）' :
+                        (p.stock > 0 ? '仅剩 ' + p.stock + ' 件' : '已售罄');
+        var stars = gzh_stars(p.rating);
+
+        /* 图片缩略图 */
+        var thumbsHtml = (p.images || []).map(function(url, i) {
+            return '<div class="gzh_thumb' + (i === 0 ? ' gzh_active' : '') + '" onclick="gzh_swapImg(this,\'' + url + '\')">' +
+                '<img src="' + url + '" alt=""></div>';
+        }).join('');
+
+        /* 评价 */
+        var reviewsHtml = (p.reviews || []).map(function(r) {
+            return '<div class="gzh_review">' +
+                '<div class="gzh_review_head">' +
+                    '<span>' +
+                        '<span class="gzh_reviewer">' + r.reviewerName + '</span>' +
+                        ' <span class="gzh_review_stars">' + gzh_stars(r.rating) + '</span>' +
+                    '</span>' +
+                    '<span class="gzh_review_date">' + new Date(r.date).toLocaleDateString() + '</span>' +
+                '</div>' +
+                '<div class="gzh_review_comment">"' + r.comment + '"</div>' +
+            '</div>';
+        }).join('');
+
+        document.title = p.title + ' · 商品详情';
+
+        document.getElementById('gzh_page').innerHTML =
+            /* 主体 */
+            '<div class="gzh_main">' +
+                /* 左：图片 */
+                '<div class="gzh_photos">' +
+                    '<div class="gzh_hero">' +
+                        (p.discountPercentage ? '<div class="gzh_discount">-' + Math.round(p.discountPercentage) + '%</div>' : '') +
+                        '<img id="gzh_hero_img" src="' + (p.images && p.images[0] ? p.images[0] : p.thumbnail) + '" alt="' + p.title + '">' +
+                    '</div>' +
+                    (thumbsHtml ? '<div class="gzh_thumbs">' + thumbsHtml + '</div>' : '') +
+                '</div>' +
+
+                /* 右：详情 */
+                '<div class="gzh_right">' +
+                    '<span class="gzh_cat_tag">' + p.category + '</span>' +
+                    '<h1 class="gzh_title">' + p.title + '</h1>' +
+                    '<div class="gzh_brand">品牌：' + (p.brand || '—') + ' · SKU：' + p.sku + '</div>' +
+                    '<div class="gzh_desc">' + p.description + '</div>' +
+
+                    /* 价格 */
+                    '<div class="gzh_price_block">' +
+                        '<span class="gzh_price_now">' + gzh_priceNow(p) + '</span>' +
+                        (old ? '<span class="gzh_price_old">$' + old + '</span>' : '') +
+                        (p.discountPercentage ? '<span class="gzh_price_saved">省 ' + Math.round(p.discountPercentage) + '%</span>' : '') +
+                    '</div>' +
+
+                    /* 星级 */
+                    '<div class="gzh_rating">' +
+                        '<span class="gzh_stars">' + stars + '</span>' +
+                        '<span>' + p.rating + ' · ' + (p.reviews ? p.reviews.length : 0) + ' 条评价</span>' +
+                    '</div>' +
+
+                    /* 信息表 */
+                    '<div class="gzh_info_grid">' +
+                        '<div class="gzh_k">库存状态</div><div class="gzh_v ' + stockClass + '">' + stockText + '</div>' +
+                        '<div class="gzh_k">重量</div><div class="gzh_v">' + p.weight + ' g</div>' +
+                        '<div class="gzh_k">尺寸</div><div class="gzh_v">' + p.dimensions.width + '×' + p.dimensions.height + '×' + p.dimensions.depth + ' cm</div>' +
+                        '<div class="gzh_k">保修</div><div class="gzh_v">' + p.warrantyInformation + '</div>' +
+                        '<div class="gzh_k">配送</div><div class="gzh_v">' + p.shippingInformation + '</div>' +
+                        '<div class="gzh_k">退换</div><div class="gzh_v">' + p.returnPolicy + '</div>' +
+                        '<div class="gzh_k">最小起订</div><div class="gzh_v">' + p.minimumOrderQuantity + ' 件</div>' +
+                    '</div>' +
+
+                    /* tags */
+                    (p.tags && p.tags.length ? '<div class="gzh_tags">' +
+                        p.tags.map(function(t) { return '<span class="gzh_tag">#' + t + '</span>'; }).join('') +
+                    '</div>' : '') +
+
+                    /* 按钮 */
+                    '<div class="gzh_btns">' +
+                        '<button class="gzh_btn gzh_btn_add">🛒 加入购物车</button>' +
+                        '<button class="gzh_btn gzh_btn_buy">⚡ 立即购买</button>' +
+                    '</div>' +
+                '</div>' +
+            '</div>' +
+
+            /* 评价区 */
+            (p.reviews && p.reviews.length ?
+                '<div class="gzh_reviews"><h2>用户评价（' + p.reviews.length + '）</h2>' + reviewsHtml + '</div>'
+            : '');
+    }
+
+    /* 缩略图切换 */
+    function gzh_swapImg(el, url) {
+        document.querySelectorAll('.gzh_thumb').forEach(function(t) { t.classList.remove('gzh_active'); });
+        el.classList.add('gzh_active');
+        document.getElementById('gzh_hero_img').src = url;
+    }
+
+    /* 启动 */
+    var gzh_id = gzh_getId();
+    if (!gzh_id) {
+        document.getElementById('gzh_page').innerHTML =
+            '<div class="gzh_error_page">❌ 缺少商品 ID（URL 需要 ?id=数字）<br><a href="17-3.html" style="color:#0ea5e9;">返回列表</a></div>';
+    } else {
+        fetch('https://dummyjson.com/products/' + gzh_id)
+            .then(function(res) {
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                return res.json();
+            })
+            .then(function(data) {
+                if (!data.id) throw new Error('商品不存在');
+                gzh_render(data);
+            })
+            .catch(function(err) {
+                document.getElementById('gzh_page').innerHTML =
+                    '<div class="gzh_error_page">❌ ' + err.message + '<br><a href="17-3.html" style="color:#0ea5e9;">返回列表</a></div>';
+            });
+    }
+</script>
+</body>
+</html>
