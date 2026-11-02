@@ -1,0 +1,527 @@
+<!-- 姓名：郭兹寒，建立时间：2026-11-02 14:28，使用的大模型：trae/Kimi-K3，功能：展示 setTimeout 与 setInterval 两种定时器 -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JS 定时器 · setTimeout vs setInterval</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", Consolas, monospace;
+            background: linear-gradient(135deg, #1e1b4b, #312e81);
+            min-height: 100vh;
+            padding: 32px 20px 60px;
+            color: #e0e7ff;
+        }
+        .gzh_wrap { max-width: 960px; margin: 0 auto; }
+
+        /* ============ 标题 ============ */
+        .gzh_head { text-align: center; margin-bottom: 28px; }
+        .gzh_head h1 { font-size: 24px; font-weight: 700; letter-spacing: 2px; color: #fff; }
+        .gzh_head h1::before { content: "⏱️ "; }
+        .gzh_head p { color: #a5b4fc; font-size: 13px; margin-top: 8px; }
+
+        /* ============ 概念对比 ============ */
+        .gzh_compare {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        @media (max-width: 768px) { .gzh_compare { grid-template-columns: 1fr; } }
+        .gzh_concept {
+            background: rgba(255,255,255,.06);
+            border: 1px solid rgba(255,255,255,.1);
+            border-radius: 12px;
+            padding: 18px;
+        }
+        .gzh_concept h3 {
+            font-size: 16px; margin-bottom: 8px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .gzh_concept h3 .gzh_tag {
+            font-size: 11px; padding: 2px 8px; border-radius: 10px;
+            font-weight: 600;
+        }
+        .gzh_concept.gzh_st h3 { color: #fcd34d; }
+        .gzh_concept.gzh_st .gzh_tag { background: #78350f; color: #fcd34d; }
+        .gzh_concept.gzh_it h3 { color: #86efac; }
+        .gzh_concept.gzh_it .gzh_tag { background: #14532d; color: #86efac; }
+        .gzh_concept p { font-size: 13px; color: #c7d2fe; line-height: 1.7; margin-bottom: 8px; }
+        .gzh_concept code {
+            background: rgba(0,0,0,.3); color: #fbbf24;
+            padding: 1px 6px; border-radius: 3px; font-size: 12.5px;
+            font-family: Consolas, monospace;
+        }
+
+        /* ============ 卡片通用 ============ */
+        .gzh_card {
+            background: rgba(255,255,255,.06);
+            border: 1px solid rgba(255,255,255,.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 18px;
+        }
+        .gzh_card h2 {
+            font-size: 16px; font-weight: 700;
+            margin-bottom: 14px; padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,.1);
+        }
+        .gzh_card h2 .gzh_icon { margin-right: 6px; }
+
+        /* ============ setTimeout 演示：倒计时 ==================== */
+        .gzh_st_demo h2 { color: #fcd34d; }
+        .gzh_timer_display {
+            font-family: Consolas, monospace;
+            font-size: 64px; font-weight: 700;
+            text-align: center;
+            padding: 20px;
+            color: #fcd34d;
+            text-shadow: 0 0 24px rgba(252,211,77,.5);
+            letter-spacing: 4px;
+            transition: color .2s, text-shadow .2s;
+        }
+        .gzh_timer_display.gzh_finished {
+            color: #86efac;
+            text-shadow: 0 0 32px rgba(134,239,172,.6);
+            animation: gzh_pulse .6s ease-in-out infinite alternate;
+        }
+        @keyframes gzh_pulse {
+            from { transform: scale(1); }
+            to   { transform: scale(1.05); }
+        }
+        .gzh_timer_btns {
+            display: flex; gap: 10px; justify-content: center; margin-top: 10px;
+        }
+        .gzh_input_group {
+            display: flex; gap: 8px; align-items: center; justify-content: center;
+            margin-bottom: 12px;
+        }
+        .gzh_input_group label { font-size: 13px; color: #a5b4fc; }
+        .gzh_input_group input {
+            background: rgba(0,0,0,.3);
+            border: 1px solid rgba(255,255,255,.15);
+            color: #fcd34d;
+            font-size: 14px; font-family: Consolas, monospace;
+            padding: 6px 10px; border-radius: 6px; width: 80px;
+            text-align: center;
+        }
+        .gzh_input_group input:focus { outline: none; border-color: #fcd34d; }
+
+        /* ============ setInterval 演示：数字跳动 ==================== */
+        .gzh_it_demo h2 { color: #86efac; }
+        .gzh_anim_row {
+            display: flex; gap: 16px; align-items: center;
+            margin-bottom: 16px; flex-wrap: wrap;
+        }
+        .gzh_big_num {
+            font-family: Consolas, monospace;
+            font-size: 56px; font-weight: 700;
+            color: #86efac;
+            text-shadow: 0 0 20px rgba(134,239,172,.4);
+            min-width: 140px; text-align: center;
+            padding: 10px 0;
+            background: rgba(0,0,0,.25);
+            border-radius: 10px;
+            transition: transform .1s;
+        }
+        .gzh_big_num.gzh_pop { transform: scale(1.12); }
+
+        /* 进度条 */
+        .gzh_progress {
+            flex: 1; min-width: 180px;
+            background: rgba(0,0,0,.3);
+            height: 14px; border-radius: 7px; overflow: hidden;
+            border: 1px solid rgba(255,255,255,.1);
+        }
+        .gzh_progress_bar {
+            height: 100%; width: 0%;
+            background: linear-gradient(90deg, #22c55e, #86efac);
+            transition: width .08s linear;
+            border-radius: 7px;
+        }
+
+        /* 时钟 */
+        .gzh_clock {
+            text-align: center;
+            font-family: Consolas, monospace;
+            font-size: 28px; color: #fff;
+            padding: 16px;
+            background: rgba(0,0,0,.3); border-radius: 10px;
+            letter-spacing: 3px; font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        /* 秒表 */
+        .gzh_stopwatch {
+            text-align: center;
+            font-family: Consolas, monospace;
+            font-size: 48px; font-weight: 700;
+            color: #f0abfc;
+            text-shadow: 0 0 16px rgba(240,171,252,.4);
+            padding: 14px;
+            background: rgba(0,0,0,.25); border-radius: 10px;
+            letter-spacing: 2px;
+        }
+        .gzh_laps {
+            font-family: Consolas, monospace;
+            font-size: 13px;
+            color: #c4b5fd;
+            max-height: 110px; overflow-y: auto;
+            margin-top: 10px;
+            background: rgba(0,0,0,.2); border-radius: 6px;
+            padding: 8px 12px;
+        }
+        .gzh_laps div { padding: 2px 0; border-bottom: 1px dashed rgba(255,255,255,.08); }
+        .gzh_laps div:last-child { border-bottom: none; }
+
+        /* ============ 按钮通用 ============ */
+        .gzh_btn {
+            padding: 9px 18px;
+            background: rgba(255,255,255,.1);
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 8px;
+            color: #e0e7ff;
+            font-size: 13px; font-weight: 600;
+            cursor: pointer;
+            transition: transform .15s, background .15s;
+        }
+        .gzh_btn:hover:not(:disabled) {
+            transform: translateY(-1px); background: rgba(255,255,255,.18);
+        }
+        .gzh_btn:active:not(:disabled) { transform: translateY(0); }
+        .gzh_btn:disabled { opacity: .4; cursor: not-allowed; }
+        .gzh_btn.gzh_start { background: linear-gradient(135deg,#22c55e,#16a34a); border-color: transparent; }
+        .gzh_btn.gzh_stop  { background: linear-gradient(135deg,#ef4444,#dc2626); border-color: transparent; }
+        .gzh_btn.gzh_reset { background: linear-gradient(135deg,#64748b,#475569); border-color: transparent; }
+        .gzh_btn.gzh_pace  { background: linear-gradient(135deg,#f59e0b,#d97706); border-color: transparent; }
+
+        /* ============ 日志 ============ */
+        .gzh_log {
+            background: rgba(0,0,0,.4);
+            border-radius: 6px;
+            padding: 10px 12px;
+            font-family: Consolas, monospace;
+            font-size: 12px;
+            line-height: 1.7;
+            max-height: 140px; overflow-y: auto;
+            color: #a5b4fc;
+        }
+        .gzh_log .gzh_ts { color: #64748b; margin-right: 6px; }
+        .gzh_log .gzh_msg_ok { color: #86efac; }
+        .gzh_log .gzh_msg_warn { color: #fbbf24; }
+
+        /* ============ 代码示例 ============ */
+        .gzh_code_box {
+            background: #0f172a;
+            border-radius: 8px; padding: 14px 16px;
+            font-family: Consolas, monospace;
+            font-size: 12.5px; line-height: 1.7;
+            color: #cbd5e1;
+            overflow-x: auto;
+        }
+        .gzh_code_box .gzh_cmt { color: #64748b; }
+        .gzh_code_box .gzh_kw  { color: #c084fc; }
+        .gzh_code_box .gzh_fn  { color: #60a5fa; }
+        .gzh_code_box .gzh_str { color: #86efac; }
+        .gzh_code_box .gzh_num { color: #fbbf24; }
+    </style>
+</head>
+<body>
+<div class="gzh_wrap">
+
+    <div class="gzh_head">
+        <h1>setTimeout vs setInterval</h1>
+        <p>两种 JavaScript 定时器 · 区别 / 场景 / 交互演示</p>
+    </div>
+
+    <!-- 概念对比 -->
+    <div class="gzh_compare">
+        <div class="gzh_concept gzh_st">
+            <h3>⏰ setTimeout <span class="gzh_tag">单次</span></h3>
+            <p><code>setTimeout(fn, 2000)</code> 表示"2 秒后执行一次 fn"，执行完毕自动结束，不会重复。</p>
+            <p>用 <code>clearTimeout(id)</code> 取消还没到点的定时器。</p>
+        </div>
+        <div class="gzh_concept gzh_it">
+            <h3>🔁 setInterval <span class="gzh_tag">重复</span></h3>
+            <p><code>setInterval(fn, 1000)</code> 表示"每 1 秒执行一次 fn"，永不停止直到主动取消。</p>
+            <p>用 <code>clearInterval(id)</code> 停止，否则会一直跑到页面关闭。</p>
+        </div>
+    </div>
+
+    <!-- ============ 演示 1：setTimeout 倒计时 ============ -->
+    <div class="gzh_card gzh_st_demo">
+        <h2>⏰ 演示一：setTimeout — 火箭倒计时</h2>
+
+        <div class="gzh_input_group">
+            <label>起始秒数：</label>
+            <input type="number" id="gzh_st_sec" value="5" min="1" max="30">
+        </div>
+
+        <div class="gzh_timer_display" id="gzh_st_display">Ready</div>
+
+        <div class="gzh_timer_btns">
+            <button class="gzh_btn gzh_start" onclick="gzh_st_start()">▶ 开始倒计时</button>
+            <button class="gzh_btn gzh_stop"  onclick="gzh_st_stop()">■ 取消</button>
+            <button class="gzh_btn gzh_reset" onclick="gzh_st_reset()">↺ 重置</button>
+        </div>
+
+        <div class="gzh_log" id="gzh_st_log" style="margin-top:14px;">
+            <div><span class="gzh_ts">等待</span> 点击"开始倒计时"触发 <span class="gzh_msg_ok">setTimeout</span> 链</div>
+        </div>
+
+        <div class="gzh_code_box" style="margin-top:14px;">
+<span class="gzh_cmt">// 用递归 setTimeout 实现"看起来像"的倒计时</span>
+<span class="gzh_kw">function</span> gzh_countdown(n) {
+  gzh_display(n);
+  <span class="gzh_kw">if</span> (n <= <span class="gzh_num">0</span>) {
+    console.<span class="gzh_fn">log</span>(<span class="gzh_str">"🚀 发射！"</span>);
+    <span class="gzh_kw">return</span>;
+  }
+  <span class="gzh_kw">var</span> id = <span class="gzh_fn">setTimeout</span>(<span class="gzh_kw">function</span>() {
+    gzh_countdown(n - <span class="gzh_num">1</span>);
+  }, <span class="gzh_num">1000</span>);
+}
+        </div>
+    </div>
+
+    <!-- ============ 演示 2：setInterval 实时时钟 ============ -->
+    <div class="gzh_card gzh_it_demo">
+        <h2>🔁 演示二：setInterval — 实时时钟</h2>
+        <p style="color:#a5b4fc;font-size:13px;margin-bottom:12px;">每秒刷新一次系统时间。这是 setInterval 最经典的使用场景。</p>
+
+        <div class="gzh_clock" id="gzh_clock">--:--:--</div>
+
+        <div class="gzh_timer_btns">
+            <button class="gzh_btn gzh_start" onclick="gzh_it_clock_start()" id="gzh_it_clock_btn">▶ 启动时钟</button>
+            <button class="gzh_btn gzh_stop"  onclick="gzh_it_clock_stop()">■ 停止</button>
+        </div>
+    </div>
+
+    <!-- ============ 演示 3：setInterval 数字跳动 + clearInterval ============ -->
+    <div class="gzh_card gzh_it_demo">
+        <h2>🔁 演示三：setInterval — 到点自动停</h2>
+        <p style="color:#a5b4fc;font-size:13px;margin-bottom:12px;">计数器每秒 +1，到达上限时 <b>用 clearInterval 自动停止</b>（这是必须做的事，否则定时器会一直跑）。</p>
+
+        <div class="gzh_anim_row">
+            <div class="gzh_big_num" id="gzh_num_disp">0</div>
+            <div class="gzh_progress"><div class="gzh_progress_bar" id="gzh_prog"></div></div>
+        </div>
+
+        <div class="gzh_input_group">
+            <label>每秒加：</label>
+            <input type="number" id="gzh_it_step" value="1" min="1" max="5">
+            <label style="margin-left:10px;">上限：</label>
+            <input type="number" id="gzh_it_max" value="20" min="2" max="999">
+        </div>
+
+        <div class="gzh_timer_btns">
+            <button class="gzh_btn gzh_start" onclick="gzh_it_num_start()">▶ 开始</button>
+            <button class="gzh_btn gzh_stop"  onclick="gzh_it_num_stop()">■ 停止</button>
+            <button class="gzh_btn gzh_reset" onclick="gzh_it_num_reset()">↺ 重置</button>
+        </div>
+
+        <div class="gzh_log" id="gzh_it_log" style="margin-top:14px;">
+            <div><span class="gzh_ts">等待</span> 点击"开始"触发 <span class="gzh_msg_ok">setInterval</span></div>
+        </div>
+    </div>
+
+    <!-- ============ 演示 4：秒表（setInterval 高精度 + clearInterval） ============ -->
+    <div class="gzh_card gzh_it_demo">
+        <h2>🔁 演示四：setInterval — 毫秒级秒表</h2>
+        <p style="color:#a5b4fc;font-size:13px;margin-bottom:12px;">使用 <b>10ms 间隔</b> + Date.now() 差值计算，比累加数字更准确（不受浏览器节流影响）。</p>
+
+        <div class="gzh_stopwatch" id="gzh_sw">00:00.00</div>
+
+        <div class="gzh_timer_btns">
+            <button class="gzh_btn gzh_start" onclick="gzh_sw_start()" id="gzh_sw_btn">▶ 开始</button>
+            <button class="gzh_btn gzh_stop"  onclick="gzh_sw_stop()">■ 停止</button>
+            <button class="gzh_btn gzh_pace"  onclick="gzh_sw_lap()">🏁 计次</button>
+            <button class="gzh_btn gzh_reset" onclick="gzh_sw_reset()">↺ 重置</button>
+        </div>
+
+        <div class="gzh_laps" id="gzh_sw_laps" style="margin-top:14px;">
+            <div style="color:#64748b;text-align:center;">计次记录将出现在这里</div>
+        </div>
+    </div>
+
+    <!-- 代码对比 -->
+    <div class="gzh_card">
+        <h2>📖 清除函数 & 实战建议</h2>
+        <div class="gzh_code_box" style="margin-bottom:12px;">
+<span class="gzh_cmt">// setTimeout → clearTimeout</span>
+<span class="gzh_kw">var</span> st = <span class="gzh_fn">setTimeout</span>(<span class="gzh_kw">function</span>(){}, <span class="gzh_num">3000</span>);
+<span class="gzh_fn">clearTimeout</span>(st);  <span class="gzh_cmt">// 还没到 3 秒就取消</span>
+
+<span class="gzh_cmt">// setInterval → clearInterval</span>
+<span class="gzh_kw">var</span> it = <span class="gzh_fn">setInterval</span>(<span class="gzh_kw">function</span>(){}, <span class="gzh_num">1000</span>);
+<span class="gzh_fn">clearInterval</span>(it);  <span class="gzh_cmt">// 永久停止</span>
+        </div>
+        <p style="font-size:12.5px;color:#a5b4fc;line-height:1.8;">
+            <b style="color:#fcd34d;">⚠️ 常见坑</b>：<br>
+            • setInterval 不会管上一次回调是否执行完毕，网络请求/重计算场景可能堆叠 → 用 <b>setTimeout 递归</b> 替代<br>
+            • 页面切到后台时浏览器会把间隔拉大到至少 1 秒甚至 1 分钟 → 高精度场景用 <code>requestAnimationFrame</code> 或 <code>Date.now()</code> 差值<br>
+            • 组件销毁/页面卸载时记得 clearInterval，否则会内存泄漏
+        </p>
+    </div>
+</div>
+
+<script>
+    /* ============ 演示一：setTimeout 倒计时 ============ */
+    var gzh_st_timer = null;
+    function gzh_st_log(msg, cls) {
+        var box = document.getElementById('gzh_st_log');
+        var d = new Date();
+        var ts = (''+d.getSeconds()).padStart(2,'0') + '.' + (''+d.getMilliseconds()).padStart(3,'0');
+        box.innerHTML = '<div><span class="gzh_ts">' + ts + '</span><span class="' + (cls||'') + '">' + msg + '</span></div>' + box.innerHTML;
+        if (box.children.length > 12) box.removeChild(box.lastChild);
+    }
+    function gzh_st_display(n) {
+        var el = document.getElementById('gzh_st_display');
+        el.textContent = n;
+        el.classList.remove('gzh_finished');
+    }
+    function gzh_st_start() {
+        gzh_st_stop();
+        var sec = parseInt(document.getElementById('gzh_st_sec').value) || 5;
+        gzh_st_log('开始倒计时 ' + sec + ' 秒，递归调用 setTimeout');
+        gzh_st_display(sec);
+        gzh_st_next(sec);
+    }
+    function gzh_st_next(n) {
+        if (n <= 0) {
+            document.getElementById('gzh_st_display').textContent = '🚀 GO!';
+            document.getElementById('gzh_st_display').classList.add('gzh_finished');
+            gzh_st_log('倒计时结束！最后一次 setTimeout 执行完毕后自动结束', 'gzh_msg_ok');
+            return;
+        }
+        gzh_st_timer = setTimeout(function() {
+            gzh_st_display(n - 1);
+            gzh_st_log('setTimeout 触发，n → ' + (n - 1));
+            gzh_st_next(n - 1);
+        }, 1000);
+    }
+    function gzh_st_stop() {
+        if (gzh_st_timer) { clearTimeout(gzh_st_timer); gzh_st_timer = null; gzh_st_log('已 clearTimeout，定时器取消', 'gzh_msg_warn'); }
+    }
+    function gzh_st_reset() {
+        gzh_st_stop();
+        document.getElementById('gzh_st_display').textContent = 'Ready';
+        document.getElementById('gzh_st_display').classList.remove('gzh_finished');
+    }
+
+    /* ============ 演示二：setInterval 时钟 ============ */
+    var gzh_it_clock = null;
+    function gzh_it_clock_start() {
+        if (gzh_it_clock) return;
+        gzh_it_clock = setInterval(function() {
+            var d = new Date();
+            document.getElementById('gzh_clock').textContent =
+                (''+d.getHours()).padStart(2,'0') + ':' +
+                (''+d.getMinutes()).padStart(2,'0') + ':' +
+                (''+d.getSeconds()).padStart(2,'0');
+        }, 1000);
+        document.getElementById('gzh_it_clock_btn').disabled = true;
+    }
+    function gzh_it_clock_stop() {
+        clearInterval(gzh_it_clock); gzh_it_clock = null;
+        document.getElementById('gzh_it_clock_btn').disabled = false;
+    }
+
+    /* ============ 演示三：setInterval 自动停止 ============ */
+    var gzh_it_num = null;
+    var gzh_it_val = 0;
+    function gzh_it_log(msg, cls) {
+        var box = document.getElementById('gzh_it_log');
+        var d = new Date();
+        var ts = (''+d.getSeconds()).padStart(2,'0') + '.' + (''+d.getMilliseconds()).padStart(3,'0');
+        box.innerHTML = '<div><span class="gzh_ts">' + ts + '</span><span class="' + (cls||'') + '">' + msg + '</span></div>' + box.innerHTML;
+        if (box.children.length > 12) box.removeChild(box.lastChild);
+    }
+    function gzh_it_num_start() {
+        gzh_it_num_stop();
+        gzh_it_val = 0;
+        var step = parseInt(document.getElementById('gzh_it_step').value) || 1;
+        var max  = parseInt(document.getElementById('gzh_it_max').value)  || 20;
+        var numEl = document.getElementById('gzh_num_disp');
+        var barEl = document.getElementById('gzh_prog');
+        gzh_it_num = setInterval(function() {
+            gzh_it_val += step;
+            if (gzh_it_val >= max) {
+                gzh_it_val = max;
+                numEl.textContent = gzh_it_val;
+                barEl.style.width = '100%';
+                numEl.classList.add('gzh_pop');
+                setTimeout(function(){ numEl.classList.remove('gzh_pop'); }, 120);
+                gzh_it_log('到达上限 ' + max + '，自动 clearInterval 停止 ✅', 'gzh_msg_ok');
+                clearInterval(gzh_it_num);
+                gzh_it_num = null;
+                return;
+            }
+            numEl.textContent = gzh_it_val;
+            barEl.style.width = (gzh_it_val / max * 100) + '%';
+            numEl.classList.add('gzh_pop');
+            setTimeout(function(){ numEl.classList.remove('gzh_pop'); }, 120);
+            gzh_it_log('+ ' + step + ' → ' + gzh_it_val);
+        }, 1000);
+        gzh_it_log('启动 setInterval，每 1s +' + step + '，上限 ' + max);
+    }
+    function gzh_it_num_stop() {
+        if (gzh_it_num) { clearInterval(gzh_it_num); gzh_it_num = null; gzh_it_log('手动 clearInterval', 'gzh_msg_warn'); }
+    }
+    function gzh_it_num_reset() {
+        gzh_it_num_stop();
+        gzh_it_val = 0;
+        document.getElementById('gzh_num_disp').textContent = '0';
+        document.getElementById('gzh_prog').style.width = '0%';
+    }
+
+    /* ============ 演示四：秒表 ============ */
+    var gzh_sw_id = null;
+    var gzh_sw_startTime = 0;
+    var gzh_sw_acc = 0;    // 累计毫秒（暂停时冻结）
+    var gzh_sw_lapNo = 0;
+    function gzh_sw_format(ms) {
+        var m = Math.floor(ms / 60000);
+        var s = Math.floor((ms % 60000) / 1000);
+        var cs = Math.floor((ms % 1000) / 10);
+        return (''+m).padStart(2,'0') + ':' + (''+s).padStart(2,'0') + '.' + (''+cs).padStart(2,'0');
+    }
+    function gzh_sw_tick() {
+        var now = Date.now();
+        var elapsed = gzh_sw_acc + (now - gzh_sw_startTime);
+        document.getElementById('gzh_sw').textContent = gzh_sw_format(elapsed);
+    }
+    function gzh_sw_start() {
+        if (gzh_sw_id) return;
+        gzh_sw_startTime = Date.now();
+        gzh_sw_id = setInterval(gzh_sw_tick, 10);
+        document.getElementById('gzh_sw_btn').textContent = '⏸ 暂停';
+    }
+    function gzh_sw_stop() {
+        if (!gzh_sw_id) return;
+        gzh_sw_acc += Date.now() - gzh_sw_startTime;
+        clearInterval(gzh_sw_id); gzh_sw_id = null;
+        document.getElementById('gzh_sw_btn').textContent = '▶ 继续';
+    }
+    function gzh_sw_lap() {
+        if (!gzh_sw_id && !gzh_sw_acc) return;
+        var now = Date.now();
+        var total = gzh_sw_acc + (gzh_sw_id ? (now - gzh_sw_startTime) : 0);
+        gzh_sw_lapNo++;
+        var laps = document.getElementById('gzh_sw_laps');
+        laps.innerHTML = '<div>🏁 #' + gzh_sw_lapNo + '　' + gzh_sw_format(total) + '</div>' + laps.innerHTML;
+    }
+    function gzh_sw_reset() {
+        clearInterval(gzh_sw_id); gzh_sw_id = null;
+        gzh_sw_acc = 0; gzh_sw_startTime = 0;
+        gzh_sw_lapNo = 0;
+        document.getElementById('gzh_sw').textContent = '00:00.00';
+        document.getElementById('gzh_sw_btn').textContent = '▶ 开始';
+        document.getElementById('gzh_sw_laps').innerHTML =
+            '<div style="color:#64748b;text-align:center;">计次记录将出现在这里</div>';
+    }
+</script>
+</body>
+</html>
