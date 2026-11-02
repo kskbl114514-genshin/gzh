@@ -1,0 +1,480 @@
+<!-- 姓名：郭兹寒，建立时间：2026-11-02 13:32，使用的大模型：trae/Kimi-K3，功能：JSON可视化展示页面 -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON · 可视化展示</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", Consolas, monospace;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: #e2e8f0;
+        }
+        .gzh_wrap {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        /* ============ 标题 ============ */
+        .gzh_title {
+            text-align: center;
+            margin-bottom: 36px;
+        }
+        .gzh_title h1 {
+            font-size: 32px;
+            color: #f1f5f9;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+        .gzh_title h1 span { color: #22d3ee; }
+        .gzh_title p {
+            color: #94a3b8;
+            margin-top: 8px;
+            font-size: 14px;
+        }
+
+        /* ============ 通用卡片 ============ */
+        .gzh_card {
+            background: rgba(30, 41, 59, .7);
+            border: 1px solid rgba(148, 163, 184, .15);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            backdrop-filter: blur(8px);
+        }
+        .gzh_card h2 {
+            font-size: 17px;
+            color: #22d3ee;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(148, 163, 184, .2);
+            font-weight: 600;
+        }
+        .gzh_card h2::before {
+            content: "▸";
+            margin-right: 8px;
+        }
+
+        /* ============ 语法规则区 ============ */
+        .gzh_rules {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+        .gzh_rule {
+            background: rgba(15, 23, 42, .8);
+            border-left: 3px solid #22d3ee;
+            padding: 12px 14px;
+            border-radius: 4px;
+        }
+        .gzh_rule b {
+            color: #fbbf24;
+            font-size: 13px;
+            display: block;
+            margin-bottom: 4px;
+        }
+        .gzh_rule span {
+            color: #94a3b8;
+            font-size: 12px;
+        }
+
+        /* ============ JSON 树形视图 ============ */
+        .gzh_tree_box {
+            background: #0f172a;
+            border-radius: 8px;
+            padding: 18px 20px;
+            font-family: "Consolas", "Monaco", monospace;
+            font-size: 13px;
+            line-height: 1.7;
+            max-height: 360px;
+            overflow-y: auto;
+            border: 1px solid rgba(148, 163, 184, .1);
+        }
+        .gzh_tree_box::-webkit-scrollbar { width: 8px; }
+        .gzh_tree_box::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+
+        /* JSON 语法高亮 */
+        .gzh_key    { color: #93c5fd; }
+        .gzh_str    { color: #86efac; }
+        .gzh_num    { color: #fbbf24; }
+        .gzh_bool   { color: #f472b6; }
+        .gzh_null   { color: #94a3b8; font-style: italic; }
+        .gzh_brace  { color: #e2e8f0; }
+        .gzh_comma  { color: #475569; }
+        .gzh_colon  { color: #64748b; }
+
+        /* 折叠行 */
+        .gzh_fold {
+            cursor: pointer;
+            user-select: none;
+        }
+        .gzh_fold:hover .gzh_key { color: #22d3ee; }
+        .gzh_caret {
+            display: inline-block;
+            width: 14px;
+            color: #64748b;
+            transition: transform .15s;
+        }
+        .gzh_fold.gzh_collapsed > .gzh_caret { transform: rotate(-90deg); }
+        .gzh_children { padding-left: 16px; border-left: 1px dashed #334155; margin-left: 4px; }
+        .gzh_fold.gzh_collapsed + .gzh_children { display: none; }
+        .gzh_summary { color: #64748b; font-size: 12px; margin-left: 4px; }
+
+        /* ============ stringify / parse ============ */
+        .gzh_io_row {
+            display: grid;
+            grid-template-columns: 1fr 40px 1fr;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+        .gzh_io_col {
+            background: #0f172a;
+            border-radius: 8px;
+            padding: 14px 16px;
+            font-family: "Consolas", monospace;
+            font-size: 12.5px;
+            line-height: 1.65;
+            min-height: 120px;
+            border: 1px solid rgba(148, 163, 184, .1);
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .gzh_io_col.gzh_warn { border-color: #ef4444; color: #fca5a5; }
+        .gzh_arrow {
+            text-align: center;
+            font-size: 20px;
+            color: #22d3ee;
+            font-weight: 700;
+        }
+        .gzh_io_label {
+            text-align: center;
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 6px;
+        }
+
+        /* ============ 按钮组 ============ */
+        .gzh_btns {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 16px;
+        }
+        .gzh_btn {
+            padding: 9px 18px;
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            border: none;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform .15s, box-shadow .15s;
+        }
+        .gzh_btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(14, 165, 233, .4);
+        }
+        .gzh_btn:active { transform: translateY(0); }
+        .gzh_btn.gzh_alt {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+        .gzh_btn.gzh_danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
+        /* ============ 对比区 ============ */
+        .gzh_compare {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+        @media (max-width: 768px) {
+            .gzh_compare { grid-template-columns: 1fr; }
+            .gzh_io_row { grid-template-columns: 1fr; }
+            .gzh_arrow { transform: rotate(90deg); }
+        }
+        .gzh_compare .gzh_io_col { min-height: 90px; font-size: 12px; }
+        .gzh_compare h4 {
+            font-size: 13px;
+            color: #fbbf24;
+            margin-bottom: 8px;
+        }
+
+        /* ============ 底部小提示 ============ */
+        .gzh_tip {
+            background: rgba(34, 211, 238, .08);
+            border: 1px solid rgba(34, 211, 238, .3);
+            border-radius: 6px;
+            padding: 12px 16px;
+            font-size: 12.5px;
+            color: #a5f3fc;
+            line-height: 1.7;
+        }
+        .gzh_tip code {
+            background: rgba(15, 23, 42, .6);
+            padding: 1px 6px;
+            border-radius: 3px;
+            color: #fbbf24;
+            font-family: Consolas, monospace;
+        }
+    </style>
+</head>
+<body>
+<div class="gzh_wrap">
+
+    <!-- 标题 -->
+    <div class="gzh_title">
+        <h1>什么是 <span>JSON</span></h1>
+        <p>JavaScript Object Notation · 轻量级数据交换格式</p>
+    </div>
+
+    <!-- 语法规则 -->
+    <div class="gzh_card">
+        <h2>语法核心规则</h2>
+        <div class="gzh_rules">
+            <div class="gzh_rule"><b>① 键必须双引号</b><span>"name": "小明"</span></div>
+            <div class="gzh_rule"><b>② 值的类型</b><span>字符串 / 数字 / 布尔 / null</span></div>
+            <div class="gzh_rule"><b>③ 嵌套结构</b><span>{} 对象 &nbsp; [] 数组</span></div>
+            <div class="gzh_rule"><b>④ 无函数/undefined</b><span>不允许出现 JS 特有类型</span></div>
+        </div>
+    </div>
+
+    <!-- 树形视图 -->
+    <div class="gzh_card">
+        <h2>树形结构 · 点击折叠</h2>
+        <div class="gzh_tree_box" id="gzh_tree"></div>
+    </div>
+
+    <!-- stringify / parse -->
+    <div class="gzh_card">
+        <h2>两个核心方法</h2>
+
+        <div class="gzh_io_label">JSON.stringify() — 对象 → JSON 字符串</div>
+        <div class="gzh_io_row">
+            <div class="gzh_io_col" id="gzh_str_in"></div>
+            <div class="gzh_arrow">→</div>
+            <div class="gzh_io_col" id="gzh_str_out"></div>
+        </div>
+
+        <div class="gzh_io_label">JSON.parse() — JSON 字符串 → 对象</div>
+        <div class="gzh_io_row">
+            <div class="gzh_io_col" id="gzh_par_in"></div>
+            <div class="gzh_arrow">→</div>
+            <div class="gzh_io_col" id="gzh_par_out"></div>
+        </div>
+
+        <div class="gzh_btns">
+            <button class="gzh_btn" onclick="gzh_runStringify()">▶ 运行 stringify</button>
+            <button class="gzh_btn" onclick="gzh_runParse()">▶ 运行 parse</button>
+            <button class="gzh_btn gzh_alt" onclick="gzh_pretty()">✨ 美化 JSON</button>
+            <button class="gzh_btn gzh_alt" onclick="gzh_minify()">📦 压缩 JSON</button>
+            <button class="gzh_btn gzh_danger" onclick="gzh_reset()">↺ 重置全部</button>
+        </div>
+    </div>
+
+    <!-- JSON vs JS 对象 -->
+    <div class="gzh_card">
+        <h2>JSON vs JS 对象对比</h2>
+        <div class="gzh_compare">
+            <div>
+                <h4>❌ 这不是 JSON（是 JS 对象）</h4>
+                <div class="gzh_io_col">
+{ name: "小明",           // 键没加引号
+  age: 18,
+  sayHi: function(){}     // JSON 不允许函数
+}
+                </div>
+            </div>
+            <div>
+                <h4>✅ 这才是合法的 JSON</h4>
+                <div class="gzh_io_col">
+{ "name": "小明",
+  "age": 18,
+  "score": null
+}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 小提示 -->
+    <div class="gzh_tip">
+        💡 JSON 只能表示 <code>string</code>、<code>number</code>、<code>boolean</code>、<code>null</code>、<code>array</code>、<code>object</code> 六种类型。函数、日期、undefined 等需要手动转换。
+    </div>
+
+</div>
+
+<script>
+    /* ============ 示例数据 ============ */
+    var gzh_sample = {
+        name: "小明",
+        age: 18,
+        isStudent: true,
+        hobbies: ["编程", "篮球", "阅读"],
+        address: {
+            city: "北京",
+            district: "海淀区",
+            street: "中关村大街 1 号"
+        },
+        scores: [
+            { subject: "语文", score: 92 },
+            { subject: "数学", score: 88 },
+            { subject: "英语", score: 95 }
+        ],
+        nickname: null
+    };
+
+    /* ============ 树形渲染 ============ */
+    function gzh_highlight(str) {
+        // 简单语法高亮
+        return str
+            .replace(/(&)/g, '&amp;').replace(/(</g, '&lt;').replace(/(>)/g, '&gt;')
+            .replace(/("(?:\\.|[^"\\])*")(\s*:)/g, '<span class="gzh_key">$1</span><span class="gzh_colon">$2</span>')
+            .replace(/("(?:\\.|[^"\\])*")/g, '<span class="gzh_str">$1</span>')
+            .replace(/\b(-?\d+\.?\d*)\b/g, '<span class="gzh_num">$1</span>')
+            .replace(/\b(true|false)\b/g, '<span class="gzh_bool">$1</span>')
+            .replace(/\b(null)\b/g, '<span class="gzh_null">$1</span>')
+            .replace(/([{}\[\]])/g, '<span class="gzh_brace">$1</span>')
+            .replace(/(,)/g, '<span class="gzh_comma">$1</span>');
+    }
+
+    function gzh_renderTree(obj, indent) {
+        indent = indent || 0;
+        var pad = '  ';
+        var html = '';
+        var isArr = Array.isArray(obj);
+
+        if (isArr) {
+            html += '<span class="gzh_brace">[</span>\n';
+            obj.forEach(function(v, i) {
+                if (typeof v === 'object' && v !== null) {
+                    var label = Array.isArray(v) ? '[数组]' : '{对象}';
+                    var summary = Array.isArray(v) ? v.length + ' 项' : Object.keys(v).length + ' 键';
+                    html += pad.repeat(indent + 1);
+                    html += '<span class="gzh_fold" onclick="this.classList.toggle(\'gzh_collapsed\')">';
+                    html += '<span class="gzh_caret">▼</span>';
+                    html += '<span class="gzh_brace">' + (Array.isArray(v) ? '[' : '{') + '</span>';
+                    html += '<span class="gzh_summary">' + label + ' · ' + summary + '</span>';
+                    html += '<span class="gzh_brace">' + (Array.isArray(v) ? ']' : '}') + '</span>';
+                    html += '</span>\n';
+                    html += '<div class="gzh_children">';
+                    html += gzh_renderTree(v, indent + 2);
+                    html += '</div>';
+                } else {
+                    html += pad.repeat(indent + 1) + gzh_highlight(JSON.stringify(v));
+                }
+                if (i < obj.length - 1) html += '<span class="gzh_comma">,</span>';
+                html += '\n';
+            });
+            html += pad.repeat(indent) + '<span class="gzh_brace">]</span>';
+        } else if (typeof obj === 'object' && obj !== null) {
+            html += '<span class="gzh_brace">{</span>\n';
+            var keys = Object.keys(obj);
+            keys.forEach(function(k, i) {
+                var v = obj[k];
+                if (typeof v === 'object' && v !== null) {
+                    var summary2 = Array.isArray(v) ? v.length + ' 项' : Object.keys(v).length + ' 键';
+                    html += pad.repeat(indent + 1);
+                    html += '<span class="gzh_fold" onclick="this.classList.toggle(\'gzh_collapsed\')">';
+                    html += '<span class="gzh_caret">▼</span>';
+                    html += '<span class="gzh_key">"' + k + '"</span><span class="gzh_colon">: </span>';
+                    html += '<span class="gzh_brace">' + (Array.isArray(v) ? '[' : '{') + '</span>';
+                    html += '<span class="gzh_summary">' + summary2 + '</span>';
+                    html += '<span class="gzh_brace">' + (Array.isArray(v) ? ']' : '}') + '</span>';
+                    html += '</span>\n';
+                    html += '<div class="gzh_children">';
+                    html += gzh_renderTree(v, indent + 2);
+                    html += '</div>';
+                } else {
+                    html += pad.repeat(indent + 1);
+                    html += '<span class="gzh_key">"' + k + '"</span><span class="gzh_colon">: </span>';
+                    html += gzh_highlight(JSON.stringify(v));
+                }
+                if (i < keys.length - 1) html += '<span class="gzh_comma">,</span>';
+                html += '\n';
+            });
+            html += pad.repeat(indent) + '<span class="gzh_brace">}</span>';
+        } else {
+            html += gzh_highlight(JSON.stringify(obj));
+        }
+        return html;
+    }
+
+    /* ============ IO 方法 ============ */
+    var gzh_currentJSON = JSON.stringify(gzh_sample, null, 2);
+
+    function gzh_runStringify() {
+        var inp = document.getElementById('gzh_str_in').textContent;
+        try {
+            var obj = eval('(' + inp + ')');
+            var out = JSON.stringify(obj);
+            document.getElementById('gzh_str_out').textContent = out;
+            document.getElementById('gzh_str_out').classList.remove('gzh_warn');
+        } catch(e) {
+            document.getElementById('gzh_str_out').textContent = '❌ 输入无法求值: ' + e.message;
+            document.getElementById('gzh_str_out').classList.add('gzh_warn');
+        }
+    }
+
+    function gzh_runParse() {
+        var inp = document.getElementById('gzh_par_in').textContent;
+        try {
+            var obj = JSON.parse(inp);
+            document.getElementById('gzh_par_out').textContent =
+                '✅ 解析成功！\n对象类型: ' + (Array.isArray(obj) ? 'Array' : typeof obj) +
+                '\n键数量: ' + Object.keys(obj).length +
+                '\n\n访问示例:\nobj.name → ' + obj.name +
+                '\nobj.age → ' + obj.age +
+                '\nobj.hobbies[0] → ' + obj.hobbies[0];
+            document.getElementById('gzh_par_out').classList.remove('gzh_warn');
+            document.getElementById('gzh_par_out').textContent +=
+                '\n\n完整对象:\n' + JSON.stringify(obj, null, 2);
+            gzh_currentJSON = JSON.stringify(obj, null, 2);
+        } catch(e) {
+            document.getElementById('gzh_par_out').textContent = '❌ 解析失败: ' + e.message;
+            document.getElementById('gzh_par_out').classList.add('gzh_warn');
+        }
+    }
+
+    function gzh_pretty() {
+        try {
+            var obj = JSON.parse(gzh_currentJSON);
+            gzh_currentJSON = JSON.stringify(obj, null, 2);
+            document.getElementById('gzh_par_in').textContent = gzh_currentJSON;
+            document.getElementById('gzh_str_in').textContent = gzh_currentJSON;
+        } catch(e) {}
+    }
+
+    function gzh_minify() {
+        try {
+            var obj = JSON.parse(gzh_currentJSON);
+            gzh_currentJSON = JSON.stringify(obj);
+            document.getElementById('gzh_par_in').textContent = gzh_currentJSON;
+            document.getElementById('gzh_str_in').textContent = gzh_currentJSON;
+        } catch(e) {}
+    }
+
+    function gzh_reset() {
+        gzh_currentJSON = JSON.stringify(gzh_sample, null, 2);
+        gzh_init();
+    }
+
+    function gzh_init() {
+        document.getElementById('gzh_tree').innerHTML = gzh_renderTree(gzh_sample);
+        document.getElementById('gzh_str_in').textContent = JSON.stringify(gzh_sample, null, 2);
+        document.getElementById('gzh_str_out').textContent = '// 点"运行 stringify"查看压缩后的 JSON';
+        document.getElementById('gzh_par_in').textContent = JSON.stringify(gzh_sample, null, 2);
+        document.getElementById('gzh_par_out').textContent = '// 点"运行 parse"查看解析结果';
+    }
+
+    gzh_init();
+</script>
+</body>
+</html>
