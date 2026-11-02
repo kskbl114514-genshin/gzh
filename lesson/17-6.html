@@ -1,0 +1,464 @@
+<!-- 姓名：郭兹寒，建立时间：2026-11-02 14:34，使用的大模型：trae/Kimi-K3，功能：Promise+async/await 包饺子流程演示 -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>包饺子 · Promise 与 async/await 流程演示</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", Consolas, monospace;
+            background: linear-gradient(135deg, #7c2d12, #9a3412);
+            min-height: 100vh;
+            padding: 28px 20px 60px;
+            color: #fff7ed;
+        }
+        .gzh_wrap { max-width: 960px; margin: 0 auto; }
+
+        /* ============ 标题 ============ */
+        .gzh_head { text-align: center; margin-bottom: 22px; }
+        .gzh_head h1 { font-size: 26px; font-weight: 700; letter-spacing: 3px; }
+        .gzh_head h1::before { content: "🥟 "; }
+        .gzh_head p { color: #fed7aa; font-size: 13px; margin-top: 6px; }
+
+        /* ============ 步骤定义区 ============ */
+        .gzh_steps_def {
+            background: rgba(255,255,255,.08);
+            border: 1px solid rgba(255,255,255,.12);
+            border-radius: 12px;
+            padding: 16px 18px;
+            margin-bottom: 18px;
+        }
+        .gzh_steps_def h3 {
+            font-size: 14px; color: #fed7aa; margin-bottom: 12px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .gzh_steps_def h3::before { content: "📋"; }
+        .gzh_flow {
+            display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+            font-size: 13px; color: #fff7ed;
+        }
+        .gzh_flow_step {
+            background: rgba(239,68,68,.3);
+            padding: 5px 12px; border-radius: 6px;
+            border: 1px solid rgba(239,68,68,.5);
+        }
+        .gzh_flow_step.gzh_parallel {
+            background: rgba(34,197,94,.3);
+            border-color: rgba(34,197,94,.5);
+        }
+        .gzh_flow_arrow { color: #fdba74; font-size: 16px; }
+        .gzh_flow_label {
+            background: rgba(255,255,255,.1);
+            padding: 5px 10px; border-radius: 6px;
+            font-size: 12px; color: #fed7aa;
+        }
+
+        /* ============ 进度条（甘特图风格） ============ */
+        .gzh_gantt {
+            background: rgba(255,255,255,.08);
+            border: 1px solid rgba(255,255,255,.12);
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 18px;
+        }
+        .gzh_gantt h3 {
+            font-size: 14px; color: #fed7aa; margin-bottom: 14px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .gzh_gantt h3::before { content: "⏳"; }
+        .gzh_timeline_head {
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            font-size: 11px; color: #94a3b8; margin-bottom: 8px;
+            text-align: center;
+        }
+        .gzh_ticks {
+            position: relative; height: 16px;
+            border-bottom: 1px dashed rgba(255,255,255,.2);
+            margin-bottom: 12px;
+        }
+        .gzh_ticks span {
+            position: absolute; bottom: -14px; transform: translateX(-50%);
+            font-size: 10px; color: #fed7aa;
+        }
+        .gzh_row {
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+        .gzh_row_label { color: #fed7aa; font-size: 12.5px; padding-right: 10px; }
+        .gzh_bar_track {
+            height: 24px;
+            background: rgba(0,0,0,.2);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+        .gzh_bar {
+            height: 100%;
+            border-radius: 6px;
+            transition: width .1s linear;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: 600; color: #fff;
+            position: relative;
+            width: 0%;
+        }
+        .gzh_bar.gzh_idle     { background: rgba(255,255,255,.1); color: #94a3b8; }
+        .gzh_bar.gzh_running  { background: linear-gradient(90deg,#f59e0b,#f97316); animation: gzh_shine 1s infinite; }
+        .gzh_bar.gzh_done     { background: linear-gradient(90deg,#22c55e,#16a34a); }
+        @keyframes gzh_shine {
+            0%,100% { filter: brightness(1); }
+            50%     { filter: brightness(1.2); }
+        }
+        .gzh_clock {
+            text-align: right; font-size: 14px; color: #fed7aa;
+            margin-top: 12px; font-family: Consolas, monospace;
+        }
+        .gzh_clock b { color: #fbbf24; font-size: 20px; margin-left: 6px; }
+
+        /* ============ 步骤卡片 ============ */
+        .gzh_cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+        .gzh_card {
+            background: rgba(255,255,255,.08);
+            border: 2px solid rgba(255,255,255,.1);
+            border-radius: 10px;
+            padding: 14px 14px 12px;
+            text-align: center;
+            transition: all .3s;
+            position: relative;
+        }
+        .gzh_card .gzh_emoji { font-size: 30px; margin-bottom: 6px; display: block; }
+        .gzh_card .gzh_name { font-size: 13px; font-weight: 600; color: #fff; }
+        .gzh_card .gzh_dur  { font-size: 11px; color: #fed7aa; margin-top: 3px; }
+        .gzh_card.gzh_idle    { border-color: rgba(255,255,255,.1); opacity: .6; }
+        .gzh_card.gzh_running { border-color: #f59e0b; background: rgba(245,158,11,.15); box-shadow: 0 0 20px rgba(245,158,11,.3); }
+        .gzh_card.gzh_done    { border-color: #22c55e; background: rgba(34,197,94,.15); }
+        .gzh_card.gzh_done::after {
+            content: "✓"; position: absolute; top: 6px; right: 8px;
+            color: #22c55e; font-size: 14px; font-weight: 700;
+        }
+        .gzh_card.gzh_parallel::before {
+            content: "并行"; position: absolute; top: 6px; left: 8px;
+            background: #22c55e; color: #fff; font-size: 10px;
+            padding: 1px 6px; border-radius: 8px; font-weight: 600;
+        }
+
+        /* ============ 按钮 ============ */
+        .gzh_btns { display: flex; gap: 10px; justify-content: center; margin-bottom: 18px; flex-wrap: wrap; }
+        .gzh_btn {
+            padding: 10px 22px;
+            border: none; border-radius: 20px;
+            font-size: 14px; font-weight: 600; cursor: pointer;
+            transition: transform .15s, box-shadow .15s;
+        }
+        .gzh_btn:active:not(:disabled) { transform: translateY(0); }
+        .gzh_btn:disabled { opacity: .4; cursor: not-allowed; }
+        .gzh_btn_start {
+            background: linear-gradient(135deg,#22c55e,#16a34a); color: #fff;
+            box-shadow: 0 4px 14px rgba(34,197,94,.4);
+        }
+        .gzh_btn_start:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(34,197,94,.5); }
+        .gzh_btn_reset {
+            background: rgba(255,255,255,.15); color: #fff7ed;
+            border: 1px solid rgba(255,255,255,.2);
+        }
+        .gzh_btn_reset:hover:not(:disabled) { background: rgba(255,255,255,.25); }
+
+        /* ============ 日志 ============ */
+        .gzh_log {
+            background: rgba(0,0,0,.4);
+            border-radius: 8px;
+            padding: 14px 16px;
+            font-family: Consolas, monospace;
+            font-size: 12.5px;
+            line-height: 1.75;
+            max-height: 240px; overflow-y: auto;
+            color: #fed7aa;
+            margin-bottom: 18px;
+        }
+        .gzh_log .gzh_ts { color: #94a3b8; margin-right: 8px; }
+        .gzh_log .gzh_tag   { color: #93c5fd; }
+        .gzh_log .gzh_tag_p { color: #86efac; }
+        .gzh_log .gzh_ok    { color: #86efac; }
+        .gzh_log .gzh_ok::before { content: "✓ "; }
+        .gzh_log .gzh_msg   { color: #fed7aa; }
+
+        /* ============ 代码 ============ */
+        .gzh_code_box {
+            background: #0f172a;
+            border-radius: 10px; padding: 16px 18px;
+            font-family: Consolas, monospace;
+            font-size: 12.5px; line-height: 1.75;
+            color: #cbd5e1; overflow-x: auto;
+        }
+        .gzh_code_box .gzh_cmt { color: #64748b; }
+        .gzh_code_box .gzh_kw  { color: #c084fc; }
+        .gzh_code_box .gzh_fn  { color: #60a5fa; }
+        .gzh_code_box .gzh_str { color: #86efac; }
+        .gzh_code_box .gzh_num { color: #fbbf24; }
+        .gzh_code_box .gzh_tpl { color: #f97316; }
+    </style>
+</head>
+<body>
+<div class="gzh_wrap">
+
+    <div class="gzh_head">
+        <h1>Promise & async/await · 包饺子流程</h1>
+        <p>展示串行 await + Promise.all 并行 + setTimeout 模拟</p>
+    </div>
+
+    <!-- 步骤定义 -->
+    <div class="gzh_steps_def">
+        <h3>📋 流程图</h3>
+        <div class="gzh_flow">
+            <span class="gzh_flow_step">1️⃣ 买原料 6s</span>
+            <span class="gzh_flow_arrow">→</span>
+            <span class="gzh_flow_step">2️⃣ 取原料 1s</span>
+            <span class="gzh_flow_arrow">→</span>
+            <span class="gzh_flow_label">准备就绪，并行开始</span>
+            <span class="gzh_flow_arrow">→</span>
+            <span class="gzh_flow_step gzh_parallel">3️⃣ 和面 4s</span>
+            <span style="color:#94a3b8;font-size:12px;">└ Promise.all ┘</span>
+            <span class="gzh_flow_step gzh_parallel">4️⃣ 和馅 5s</span>
+            <span class="gzh_flow_arrow">→</span>
+            <span class="gzh_flow_step">5️⃣ 包饺子 3s</span>
+            <span class="gzh_flow_arrow">→</span>
+            <span class="gzh_flow_step">6️⃣ 吃饺子 1s</span>
+        </div>
+    </div>
+
+    <!-- 甘特图风格进度条 -->
+    <div class="gzh_gantt">
+        <h3>⏳ 甘特图进度（总时长 20s，并行节约 4s → 实际 16s）</h3>
+        <div class="gzh_ticks" id="gzh_ticks"></div>
+        <div class="gzh_timeline_head">
+            <div>步骤</div><div>时间轴</div>
+        </div>
+        <div id="gzh_gantt_rows"></div>
+        <div class="gzh_clock">已用时间：<b id="gzh_clock">0.0s</b></div>
+    </div>
+
+    <!-- 卡片 -->
+    <div class="gzh_cards" id="gzh_cards"></div>
+
+    <!-- 按钮 -->
+    <div class="gzh_btns">
+        <button class="gzh_btn gzh_btn_start" id="gzh_start_btn" onclick="gzh_run()">▶ 开始包饺子</button>
+        <button class="gzh_btn gzh_btn_reset" onclick="gzh_reset()">↺ 重置</button>
+    </div>
+
+    <!-- 日志 -->
+    <div class="gzh_log" id="gzh_log">
+        <div style="color:#64748b;text-align:center;padding:14px;">↑ 点击"开始包饺子"查看 Promise + async/await 执行流程</div>
+    </div>
+
+    <!-- 核心代码 -->
+    <div class="gzh_code_box">
+<span class="gzh_cmt">// 封装：把 setTimeout 变成 Promise</span>
+<span class="gzh_kw">function</span> <span class="gzh_fn">delay</span>(ms) {
+  <span class="gzh_kw">return new</span> <span class="gzh_fn">Promise</span>(<span class="gzh_kw">function</span>(resolve) {
+    <span class="gzh_fn">setTimeout</span>(resolve, ms);
+  });
+}
+
+<span class="gzh_kw">async function</span> <span class="gzh_fn">makeDumplings</span>() {
+  <span class="gzh_cmt">// 串行步骤：一个完成后再执行下一个</span>
+  <span class="gzh_kw">await</span> <span class="gzh_fn">buyIngredients</span>();    <span class="gzh_cmt">// 买原料 6s</span>
+  <span class="gzh_kw">await</span> <span class="gzh_fn">takeIngredients</span>();   <span class="gzh_cmt">// 取原料 1s</span>
+
+  <span class="gzh_cmt">// 并行步骤：同时开始，都完成后往下走</span>
+  <span class="gzh_kw">await</span> Promise.<span class="gzh_fn">all</span>([
+    <span class="gzh_fn">makeDough</span>(),    <span class="gzh_cmt">// 和面 4s</span>
+    <span class="gzh_fn">makeFilling</span>()   <span class="gzh_cmt">// 和馅 5s</span>
+  ]);
+
+  <span class="gzh_cmt">// 再次串行</span>
+  <span class="gzh_kw">await</span> <span class="gzh_fn">wrapDumplings</span>();  <span class="gzh_cmt">// 包饺子 3s</span>
+  <span class="gzh_kw">await</span> <span class="gzh_fn">eatDumplings</span>();  <span class="gzh_cmt">// 吃饺子 1s</span>
+}
+    </div>
+</div>
+
+<script>
+    /* ============ 步骤定义 ============ */
+    var gzh_STEPS = [
+        { id:'buy',  name:'买原料', emoji:'🛒', dur:6000, parallel:false, bar:'买原料 6s' },
+        { id:'take', name:'取原料', emoji:'📦', dur:1000, parallel:false, bar:'取原料 1s' },
+        { id:'dough',name:'和面',   emoji:'🥣', dur:4000, parallel:true,  bar:'和面 4s' },
+        { id:'fill', name:'和馅',   emoji:'🥕', dur:5000, parallel:true,  bar:'和馅 5s' },
+        { id:'wrap', name:'包饺子', emoji:'🥟', dur:3000, parallel:false, bar:'包饺子 3s' },
+        { id:'eat',  name:'吃饺子', emoji:'😋', dur:1000, parallel:false, bar:'吃饺子 1s' }
+    ];
+    var gzh_TOTAL_SEQ = gzh_STEPS.reduce(function(a,s){return a+s.dur;},0);
+    /* 实际执行时长：6+1+max(4,5)+3+1 = 16s */
+    var gzh_TOTAL_REAL = 6000 + 1000 + Math.max(4000,5000) + 3000 + 1000;
+
+    /* ============ 初始化 DOM ============ */
+    function gzh_initUI() {
+        /* 甘特刻度：0 ~ TOTAL_REAL / 1000 */
+        var ticksBox = document.getElementById('gzh_ticks');
+        ticksBox.innerHTML = '';
+        for (var s = 0; s <= gzh_TOTAL_REAL/1000; s += 2) {
+            var span = document.createElement('span');
+            span.style.left = (s / (gzh_TOTAL_REAL/1000) * 100) + '%';
+            span.textContent = s + 's';
+            ticksBox.appendChild(span);
+        }
+        /* 甘特行 */
+        var rows = document.getElementById('gzh_gantt_rows');
+        rows.innerHTML = '';
+        gzh_STEPS.forEach(function(step) {
+            var row = document.createElement('div');
+            row.className = 'gzh_row';
+            row.innerHTML =
+                '<div class="gzh_row_label">' + step.name + ' ' + (step.dur/1000) + 's</div>' +
+                '<div class="gzh_bar_track">' +
+                    '<div class="gzh_bar gzh_idle" id="bar_' + step.id + '">' + step.name + '</div>' +
+                '</div>';
+            rows.appendChild(row);
+        });
+        /* 卡片 */
+        var cards = document.getElementById('gzh_cards');
+        cards.innerHTML = '';
+        gzh_STEPS.forEach(function(step) {
+            var card = document.createElement('div');
+            card.className = 'gzh_card gzh_idle' + (step.parallel ? ' gzh_parallel' : '');
+            card.id = 'card_' + step.id;
+            card.innerHTML =
+                '<span class="gzh_emoji">' + step.emoji + '</span>' +
+                '<div class="gzh_name">' + step.name + '</div>' +
+                '<div class="gzh_dur">' + (step.dur/1000) + 's</div>';
+            cards.appendChild(card);
+        });
+    }
+    gzh_initUI();
+
+    /* ============ 日志 ============ */
+    function gzh_log(text, cls) {
+        var box = document.getElementById('gzh_log');
+        var d = new Date();
+        var ts = (''+d.getMinutes()).padStart(2,'0') + ':' + (''+d.getSeconds()).padStart(2,'0') + '.' + (''+d.getMilliseconds()).padStart(3,'0');
+        box.innerHTML = '<div><span class="gzh_ts">' + ts + '</span><span class="' + (cls||'gzh_msg') + '">' + text + '</span></div>' + box.innerHTML;
+    }
+
+    /* ============ Promise 封装 setTimeout ============ */
+    function gzh_delay(ms) {
+        return new Promise(function(resolve) { setTimeout(resolve, ms); });
+    }
+
+    /* ============ 状态驱动：让 bar 从 0% 动画到 100% ============ */
+    function gzh_animateBar(id, from, to, dur) {
+        var bar = document.getElementById('bar_' + id);
+        var card = document.getElementById('card_' + id);
+        card.classList.remove('gzh_idle', 'gzh_done');
+        card.classList.add('gzh_running');
+        bar.classList.remove('gzh_idle', 'gzh_done');
+        bar.classList.add('gzh_running');
+        bar.style.left = from + '%';
+        bar.style.width = '0%';
+        bar.style.right = 'auto';
+        var start = performance.now();
+        function tick(now) {
+            var pct = Math.min((now - start) / dur, 1);
+            bar.style.width = ((to - from) * pct) + '%';
+            if (pct < 1) requestAnimationFrame(tick);
+            else {
+                card.classList.remove('gzh_running');
+                card.classList.add('gzh_done');
+                bar.classList.remove('gzh_running');
+                bar.classList.add('gzh_done');
+                bar.style.width = (to - from) + '%';
+            }
+        }
+        requestAnimationFrame(tick);
+    }
+
+    /* ============ 甘特图中 start 时间（百分比位置） ============ */
+    /* buy@0%, take@6/16=37.5%, dough&fill@7/16=43.75%, wrap@12/16=75%, eat@15/16=93.75% */
+    function gzh_startPct(stepId) {
+        switch(stepId) {
+            case 'buy':   return 0 / (gzh_TOTAL_REAL/1000) * 100;
+            case 'take':  return 6 / (gzh_TOTAL_REAL/1000) * 100;
+            case 'dough':
+            case 'fill':  return 7 / (gzh_TOTAL_REAL/1000) * 100;
+            case 'wrap':  return 12 / (gzh_TOTAL_REAL/1000) * 100;
+            case 'eat':   return 15 / (gzh_TOTAL_REAL/1000) * 100;
+        }
+    }
+    function gzh_endPct(stepId) {
+        return gzh_startPct(stepId) + gzh_STEPS.find(function(s){return s.id===stepId;}).dur/(gzh_TOTAL_REAL) * 100;
+    }
+
+    /* ============ async 步骤函数 ============ */
+    var gzh_runStart = 0;
+    function gzh_step(stepId) {
+        var step = gzh_STEPS.find(function(s){return s.id===stepId;});
+        var pctS = gzh_startPct(stepId);
+        var pctE = gzh_endPct(stepId);
+        return async function() {
+            gzh_log('<span class="gzh_tag">' + (step.parallel ? '【并行】' : '【串行】') + '</span>开始 → ' + step.emoji + ' ' + step.name + '（预计 ' + step.dur/1000 + 's）');
+            gzh_animateBar(stepId, pctS, pctE, step.dur);
+            await gzh_delay(step.dur);
+            gzh_log('<span class="gzh_ok">' + step.emoji + ' ' + step.name + ' 完成</span>');
+        };
+    }
+
+    /* ============ 主流程 ============ */
+    async function gzh_run() {
+        document.getElementById('gzh_start_btn').disabled = true;
+        document.getElementById('gzh_log').innerHTML = '';
+        gzh_initUI();
+
+        gzh_log('🚀 === 包饺子流程开始 ===');
+        gzh_log('📊 总时长：串行 ' + (gzh_TOTAL_SEQ/1000) + 's → 并行优化后 ' + (gzh_TOTAL_REAL/1000) + 's');
+
+        gzh_runStart = performance.now();
+        /* 时钟 */
+        var clockTimer = setInterval(function() {
+            var elapsed = (performance.now() - gzh_runStart) / 1000;
+            document.getElementById('gzh_clock').textContent = elapsed.toFixed(1) + 's';
+        }, 100);
+
+        try {
+            await gzh_step('buy')();
+            await gzh_step('take')();
+
+            gzh_log('🎯 原料就绪！开始 <span class="gzh_tag_p">Promise.all</span> 同时和面 & 和馅');
+            gzh_log('   这是并行的优势：两个步骤同时开始，不再需要等一个做完再做另一个');
+
+            await Promise.all([ gzh_step('dough')(), gzh_step('fill')() ]);
+            gzh_log('✅ 和面、和馅 <span class="gzh_ok">都完成了</span>，继续下一步');
+
+            await gzh_step('wrap')();
+            await gzh_step('eat')();
+
+            var total = ((performance.now() - gzh_runStart) / 1000).toFixed(1);
+            gzh_log('🎉 全部完成！用时 <span class="gzh_ok">' + total + 's</span>（串行需要 ' + (gzh_TOTAL_SEQ/1000) + 's，Promise.all 节省了约 ' + ((gzh_TOTAL_SEQ - gzh_TOTAL_REAL)/1000) + 's）');
+        } catch(e) {
+            gzh_log('❌ 出错了：' + e.message, 'gzh_msg');
+        } finally {
+            clearInterval(clockTimer);
+            document.getElementById('gzh_start_btn').disabled = false;
+        }
+    }
+
+    function gzh_reset() {
+        clearInterval(window._clockTimer);
+        document.getElementById('gzh_log').innerHTML =
+            '<div style="color:#64748b;text-align:center;padding:14px;">↑ 点击"开始包饺子"查看 Promise + async/await 执行流程</div>';
+        document.getElementById('gzh_clock').textContent = '0.0s';
+        gzh_initUI();
+        document.getElementById('gzh_start_btn').disabled = false;
+    }
+</script>
+</body>
+</html>
