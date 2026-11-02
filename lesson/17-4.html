@@ -1,0 +1,521 @@
+<!-- 姓名：郭兹寒，建立时间：2026-11-02 14:19，使用的大模型：trae/Kimi-K3，功能：Fetch API 测试工具（类 Postman 简化版） -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API 测试工具 · Fetch Playground</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "Microsoft YaHei", Consolas, "PingFang SC", monospace;
+            background: #0f172a;
+            min-height: 100vh;
+            color: #e2e8f0;
+            padding: 24px 18px 60px;
+        }
+        .gzh_wrap { max-width: 1100px; margin: 0 auto; }
+
+        /* ============ 标题 ============ */
+        .gzh_head { text-align: center; margin-bottom: 22px; }
+        .gzh_head h1 { font-size: 22px; color: #f1f5f9; letter-spacing: 1px; font-weight: 700; }
+        .gzh_head h1::before { content: "🧪 "; }
+        .gzh_head p { color: #94a3b8; font-size: 12.5px; margin-top: 6px; }
+
+        /* ============ 请求区 ============ */
+        .gzh_req {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        .gzh_url_row {
+            display: grid;
+            grid-template-columns: 110px 1fr 110px;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .gzh_method {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            color: #22d3ee;
+            font-size: 13px; font-weight: 700;
+            padding: 10px 8px;
+            text-align: center;
+            appearance: none;
+            cursor: pointer;
+        }
+        .gzh_url {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            color: #e2e8f0;
+            font-size: 13px;
+            padding: 10px 12px;
+            width: 100%;
+            font-family: Consolas, monospace;
+        }
+        .gzh_url:focus, .gzh_method:focus { outline: none; border-color: #22d3ee; }
+        .gzh_send {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            border: none; border-radius: 6px;
+            color: #fff; font-size: 13px; font-weight: 700;
+            cursor: pointer;
+            transition: transform .15s, box-shadow .15s;
+        }
+        .gzh_send:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(34,197,94,.4); }
+        .gzh_send:active:not(:disabled) { transform: translateY(0); }
+        .gzh_send:disabled { opacity: .5; cursor: not-allowed; }
+
+        /* Tab 切换 */
+        .gzh_tabs {
+            display: flex; gap: 2px;
+            border-bottom: 1px solid #334155;
+            margin-bottom: 12px;
+        }
+        .gzh_tab {
+            padding: 8px 16px;
+            font-size: 13px;
+            color: #64748b;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: color .15s, border-color .15s;
+        }
+        .gzh_tab:hover { color: #94a3b8; }
+        .gzh_tab.gzh_active {
+            color: #22d3ee;
+            border-bottom-color: #22d3ee;
+            font-weight: 600;
+        }
+        .gzh_tab_panel { display: none; }
+        .gzh_tab_panel.gzh_active { display: block; }
+
+        /* Params */
+        .gzh_params_row {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .gzh_params_row input,
+        .gzh_headers_row input {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 4px;
+            color: #e2e8f0;
+            font-size: 12.5px;
+            padding: 8px 10px;
+            font-family: Consolas, monospace;
+        }
+        .gzh_params_row input:focus,
+        .gzh_headers_row input:focus { outline: none; border-color: #22d3ee; }
+        .gzh_del {
+            background: transparent; border: none;
+            color: #ef4444; font-size: 18px; cursor: pointer;
+            width: 28px; height: 32px;
+        }
+        .gzh_del:hover { color: #f87171; }
+        .gzh_add {
+            background: #334155; border: none; border-radius: 4px;
+            color: #22d3ee; font-size: 12px; padding: 7px 14px;
+            cursor: pointer; margin-top: 6px;
+        }
+        .gzh_add:hover { background: #475569; }
+
+        /* Body textarea */
+        .gzh_body {
+            width: 100%; min-height: 160px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            color: #e2e8f0;
+            font-size: 12.5px;
+            padding: 12px 14px;
+            font-family: Consolas, monospace;
+            resize: vertical;
+            line-height: 1.6;
+        }
+        .gzh_body:focus { outline: none; border-color: #22d3ee; }
+        .gzh_body_bar {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 8px;
+        }
+        .gzh_body_bar label { font-size: 12.5px; color: #94a3b8; }
+        .gzh_body_bar button {
+            background: #334155; border: none; border-radius: 4px;
+            color: #e2e8f0; font-size: 11.5px; padding: 5px 10px;
+            cursor: pointer; margin-left: 6px;
+        }
+        .gzh_body_bar button:hover { background: #475569; }
+
+        /* ============ 预设接口 ============ */
+        .gzh_presets {
+            display: flex; flex-wrap: wrap; gap: 6px;
+            margin-bottom: 16px;
+        }
+        .gzh_preset {
+            background: #334155; color: #cbd5e1;
+            font-size: 12px; padding: 5px 12px; border-radius: 16px;
+            cursor: pointer;
+            transition: background .15s, color .15s;
+        }
+        .gzh_preset:hover { background: #22d3ee; color: #0f172a; }
+        .gzh_preset b { color: #22d3ee; margin-right: 4px; }
+        .gzh_preset:hover b { color: #0f172a; }
+
+        /* ============ 响应区 ============ */
+        .gzh_resp {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .gzh_resp_head {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid #334155;
+            font-size: 13px;
+        }
+        .gzh_status_badge {
+            padding: 2px 10px; border-radius: 12px;
+            font-size: 12px; font-weight: 700;
+        }
+        .gzh_status_badge.gzh_ok { background: #166534; color: #bbf7d0; }
+        .gzh_status_badge.gzh_4xx { background: #b45309; color: #fde68a; }
+        .gzh_status_badge.gzh_5xx { background: #991b1b; color: #fecaca; }
+        .gzh_status_badge.gzh_err { background: #475569; color: #cbd5e1; }
+        .gzh_meta { color: #64748b; font-size: 12px; }
+        .gzh_meta span { margin-left: 10px; }
+
+        .gzh_resp_body {
+            padding: 16px;
+            background: #0f172a;
+            font-family: Consolas, monospace;
+            font-size: 12.5px;
+            line-height: 1.65;
+            max-height: 460px;
+            overflow: auto;
+        }
+        .gzh_resp_body::-webkit-scrollbar { width: 10px; height: 10px; }
+        .gzh_resp_body::-webkit-scrollbar-thumb { background: #334155; border-radius: 5px; }
+
+        /* JSON 高亮 */
+        .gzh_json .gzh_k { color: #93c5fd; }
+        .gzh_json .gzh_s { color: #86efac; }
+        .gzh_json .gzh_n { color: #fbbf24; }
+        .gzh_json .gzh_b { color: #f472b6; }
+        .gzh_json .gzh_l { color: #94a3b8; font-style: italic; }
+        .gzh_json .gzh_p { color: #64748b; }
+        .gzh_json .gzh_c { color: #64748b; }
+
+        /* 错误展示 */
+        .gzh_error_block {
+            background: rgba(239,68,68,.1);
+            border: 1px solid rgba(239,68,68,.3);
+            border-radius: 6px;
+            padding: 14px 16px;
+            color: #fca5a5;
+        }
+        .gzh_error_block h4 {
+            color: #f87171; font-size: 14px; margin-bottom: 8px; font-weight: 700;
+        }
+        .gzh_error_block code {
+            background: rgba(15,23,42,.6);
+            padding: 2px 6px; border-radius: 3px;
+            font-family: Consolas, monospace;
+        }
+
+        /* Headers 显示 */
+        .gzh_resp_headers {
+            background: #0f172a;
+            border-top: 1px solid #334155;
+            padding: 12px 16px;
+            font-family: Consolas, monospace;
+            font-size: 12px;
+            max-height: 180px; overflow: auto;
+            color: #94a3b8;
+        }
+        .gzh_resp_headers summary {
+            cursor: pointer; color: #22d3ee; margin-bottom: 6px; font-size: 12.5px;
+        }
+        .gzh_resp_headers code { display: block; white-space: pre-wrap; word-break: break-all; }
+
+        @media (max-width: 768px) {
+            .gzh_url_row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="gzh_wrap">
+
+    <!-- 标题 -->
+    <div class="gzh_head">
+        <h1>Fetch API 测试工具</h1>
+        <p>支持 GET / POST / PUT / DELETE · 参数区 · Headers · 请求体 · 错误捕获</p>
+    </div>
+
+    <!-- 预设 -->
+    <div class="gzh_presets">
+        <div class="gzh_preset" onclick="gzh_loadPreset(this)" data-method="GET" data-url="https://jsonplaceholder.typicode.com/posts/1"><b>GET</b> /posts/1</div>
+        <div class="gzh_preset" onclick="gzh_loadPreset(this)" data-method="GET" data-url="https://jsonplaceholder.typicode.com/posts"><b>GET</b> /posts</div>
+        <div class="gzh_preset" onclick="gzh_loadPreset(this)" data-method="POST" data-url="https://jsonplaceholder.typicode.com/posts" data-body='{"title":"foo","body":"bar","userId":1}'><b>POST</b> /posts</div>
+        <div class="gzh_preset" onclick="gzh_loadPreset(this)" data-method="PUT" data-url="https://jsonplaceholder.typicode.com/posts/1" data-body='{"id":1,"title":"update","body":"new body","userId":1}'><b>PUT</b> /posts/1</div>
+        <div class="gzh_preset" onclick="gzh_loadPreset(this)" data-method="DELETE" data-url="https://jsonplaceholder.typicode.com/posts/1"><b>DELETE</b> /posts/1</div>
+        <div class="gzh_preset" onclick="gzh_loadPreset(this)" data-method="GET" data-url="https://dummyjson.com/products?limit=5"><b>GET</b> dummyjson</div>
+        <div class="gzh_preset" onclick="gzh_loadPreset(this)" data-method="GET" data-url="https://httpstat.us/404"><b>GET</b> 测试 404</div>
+        <div class="gzh_preset" onclick="gzh_loadPreset(this)" data-method="GET" data-url="https://httpstat.us/500"><b>GET</b> 测试 500</div>
+    </div>
+
+    <!-- 请求区 -->
+    <div class="gzh_req">
+        <div class="gzh_url_row">
+            <select class="gzh_method" id="gzh_method">
+                <option>GET</option><option>POST</option><option>PUT</option>
+                <option>PATCH</option><option>DELETE</option><option>HEAD</option>
+            </select>
+            <input class="gzh_url" id="gzh_url" value="https://jsonplaceholder.typicode.com/posts/1" placeholder="输入接口 URL">
+            <button class="gzh_send" id="gzh_send" onclick="gzh_send()">▶ 发送</button>
+        </div>
+
+        <div class="gzh_tabs">
+            <div class="gzh_tab gzh_active" onclick="gzh_switchTab('params')">Query Params</div>
+            <div class="gzh_tab" onclick="gzh_switchTab('headers')">Headers</div>
+            <div class="gzh_tab" onclick="gzh_switchTab('body')">Body</div>
+        </div>
+
+        <!-- Params -->
+        <div class="gzh_tab_panel gzh_active" data-panel="params">
+            <div id="gzh_params"></div>
+            <button class="gzh_add" onclick="gzh_addRow('gzh_params')">+ 添加参数</button>
+        </div>
+
+        <!-- Headers -->
+        <div class="gzh_tab_panel" data-panel="headers">
+            <div id="gzh_headers"></div>
+            <button class="gzh_add" onclick="gzh_addRow('gzh_headers')">+ 添加 Header</button>
+        </div>
+
+        <!-- Body -->
+        <div class="gzh_tab_panel" data-panel="body">
+            <div class="gzh_body_bar">
+                <label><input type="checkbox" id="gzh_body_enabled" checked> 发送请求体（JSON）</label>
+                <div>
+                    <button onclick="gzh_formatBody()">✨ 美化 JSON</button>
+                    <button onclick="gzh_minifyBody()">📦 压缩</button>
+                    <button onclick="gzh_clearBody()">🗑️ 清空</button>
+                </div>
+            </div>
+            <textarea class="gzh_body" id="gzh_body" placeholder='{"key": "value"}'>{"title":"foo","body":"bar","userId":1}</textarea>
+        </div>
+    </div>
+
+    <!-- 响应区 -->
+    <div class="gzh_resp">
+        <div class="gzh_resp_head">
+            <span>📦 响应</span>
+            <span class="gzh_meta">
+                <span id="gzh_time">—</span>
+                <span id="gzh_size">—</span>
+            </span>
+        </div>
+        <div class="gzh_resp_body" id="gzh_resp">
+            <div style="color:#64748b;text-align:center;padding:60px 0;">
+                ↑ 点击"发送"查看响应结果
+            </div>
+        </div>
+        <details class="gzh_resp_headers" id="gzh_headers_box" style="display:none;">
+            <summary>Response Headers</summary>
+            <code id="gzh_headers_out"></code>
+        </details>
+    </div>
+</div>
+
+<script>
+    /* ============ Tab ============ */
+    function gzh_switchTab(name) {
+        document.querySelectorAll('.gzh_tab').forEach(function(t) {
+            t.classList.toggle('gzh_active', t.textContent.toLowerCase().includes(name.toLowerCase()) ||
+                (name === 'body' && t.textContent.includes('Body')) ||
+                (name === 'headers' && t.textContent.includes('Headers')) ||
+                (name === 'params' && t.textContent.includes('Params')));
+        });
+        document.querySelectorAll('.gzh_tab_panel').forEach(function(p) {
+            p.classList.toggle('gzh_active', p.dataset.panel === name);
+        });
+    }
+
+    /* ============ 动态行（Params / Headers） ============ */
+    function gzh_addRow(containerId, k, v) {
+        var box = document.getElementById(containerId);
+        var div = document.createElement('div');
+        div.className = containerId === 'gzh_params' ? 'gzh_params_row' : 'gzh_params_row gzh_headers_row';
+        div.innerHTML =
+            '<input placeholder="Key" value="' + (k || '') + '">' +
+            '<input placeholder="Value" value="' + (v || '') + '">' +
+            '<button class="gzh_del" onclick="this.parentElement.remove()">×</button>';
+        box.appendChild(div);
+    }
+    function gzh_collectRows(containerId) {
+        var box = document.getElementById(containerId);
+        var inputs = box.querySelectorAll('input');
+        var out = {};
+        for (var i = 0; i < inputs.length; i += 2) {
+            var k = inputs[i].value.trim();
+            var v = inputs[i+1] ? inputs[i+1].value.trim() : '';
+            if (k) out[k] = v;
+        }
+        return out;
+    }
+    /* 初始化 Header */
+    gzh_addRow('gzh_headers', 'Content-Type', 'application/json');
+
+    /* ============ JSON 高亮 ============ */
+    function gzh_jsonHighlight(str) {
+        str = str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return str
+            .replace(/("(?:\\.|[^"\\])*")(\s*:)/g, '<span class="gzh_k">$1</span><span class="gzh_c">$2</span>')
+            .replace(/("(?:\\.|[^"\\])*")/g, '<span class="gzh_s">$1</span>')
+            .replace(/\b(-?\d+\.?\d*)\b/g, '<span class="gzh_n">$1</span>')
+            .replace(/\b(true|false)\b/g, '<span class="gzh_b">$1</span>')
+            .replace(/\b(null)\b/g, '<span class="gzh_l">$1</span>')
+            .replace(/([{}\[\]])/g, '<span class="gzh_p">$1</span>')
+            .replace(/(,)/g, '<span class="gzh_c">$1</span>');
+    }
+
+    /* ============ Body 工具 ============ */
+    function gzh_formatBody() {
+        try {
+            var obj = JSON.parse(document.getElementById('gzh_body').value);
+            document.getElementById('gzh_body').value = JSON.stringify(obj, null, 2);
+        } catch(e) { alert('JSON 语法错误：' + e.message); }
+    }
+    function gzh_minifyBody() {
+        try {
+            var obj = JSON.parse(document.getElementById('gzh_body').value);
+            document.getElementById('gzh_body').value = JSON.stringify(obj);
+        } catch(e) { alert('JSON 语法错误：' + e.message); }
+    }
+    function gzh_clearBody() { document.getElementById('gzh_body').value = ''; }
+
+    /* ============ 预设加载 ============ */
+    function gzh_loadPreset(el) {
+        document.getElementById('gzh_method').value = el.dataset.method;
+        document.getElementById('gzh_url').value = el.dataset.url;
+        if (el.dataset.body) document.getElementById('gzh_body').value = el.dataset.body;
+        gzh_send();
+    }
+
+    /* ============ 发送请求 ============ */
+    async function gzh_send() {
+        var method = document.getElementById('gzh_method').value;
+        var url = document.getElementById('gzh_url').value.trim();
+        var params = gzh_collectRows('gzh_params');
+        var headers = gzh_collectRows('gzh_headers');
+        var bodyEnabled = document.getElementById('gzh_body_enabled').checked;
+        var bodyText = document.getElementById('gzh_body').value.trim();
+
+        /* URL 拼接 Params */
+        var qs = Object.keys(params).map(function(k) {
+            return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
+        }).join('&');
+        var fullUrl = url;
+        if (qs) fullUrl += (url.indexOf('?') === -1 ? '?' : '&') + qs;
+
+        /* 构造 fetch options */
+        var opts = { method: method, headers: headers };
+        var needBody = ['POST','PUT','PATCH','DELETE'].indexOf(method) !== -1 && bodyEnabled && bodyText;
+        if (needBody) opts.body = bodyText;
+
+        /* UI 状态 */
+        var sendBtn = document.getElementById('gzh_send');
+        var respBox = document.getElementById('gzh_resp');
+        sendBtn.disabled = true; sendBtn.textContent = '⏳ 请求中…';
+        respBox.innerHTML = '<div style="color:#64748b;text-align:center;padding:40px 0;">请求中…</div>';
+        document.getElementById('gzh_status_badge')?.remove();
+
+        var start = performance.now();
+        var size = 0;
+
+        try {
+            var res = await fetch(fullUrl, opts);
+            var elapsed = (performance.now() - start).toFixed(0);
+            var text = await res.text();
+            size = new Blob([text]).size;
+
+            /* 状态徽章 */
+            var badge = document.createElement('span');
+            badge.className = 'gzh_status_badge ' + (res.ok ? 'gzh_ok' : (res.status >= 500 ? 'gzh_5xx' : 'gzh_4xx'));
+            badge.textContent = res.status + ' ' + res.statusText;
+            var headArea = document.querySelector('.gzh_resp_head');
+            var oldBadge = headArea.querySelector('.gzh_status_badge');
+            if (oldBadge) oldBadge.remove();
+            headArea.insertBefore(badge, headArea.firstChild);
+
+            document.getElementById('gzh_time').textContent = '⏱ ' + elapsed + ' ms';
+            document.getElementById('gzh_size').textContent = '📦 ' +
+                (size > 1024 ? (size/1024).toFixed(1) + ' KB' : size + ' B');
+
+            /* Headers */
+            var headsBox = document.getElementById('gzh_headers_box');
+            var headsCode = document.getElementById('gzh_headers_out');
+            headsBox.style.display = 'block';
+            var headsArr = [];
+            res.headers.forEach(function(v, k) { headsArr.push(k + ': ' + v); });
+            headsCode.textContent = headsArr.join('\n') || '(空)';
+
+            /* 响应体 */
+            try {
+                var obj = JSON.parse(text);
+                respBox.innerHTML = '<div class="gzh_json">' + gzh_jsonHighlight(JSON.stringify(obj, null, 2)) + '</div>';
+            } catch(e) {
+                respBox.innerHTML = '<pre style="color:#cbd5e1;white-space:pre-wrap;word-break:break-all;">' +
+                    (text || '(空响应)') + '</pre>';
+            }
+
+            /* 非 2xx 提示 */
+            if (!res.ok) {
+                respBox.insertAdjacentHTML('afterbegin',
+                    '<div class="gzh_error_block" style="margin-bottom:12px;">' +
+                        '<h4>⚠️ HTTP ' + res.status + ' 错误</h4>' +
+                        '<div>服务器返回了非成功状态码，详情见下方响应体。</div>' +
+                    '</div>');
+            }
+        } catch(err) {
+            var elapsed2 = (performance.now() - start).toFixed(0);
+            var badge2 = document.createElement('span');
+            badge2.className = 'gzh_status_badge gzh_err';
+            badge2.textContent = 'NETWORK ERROR';
+            var headArea2 = document.querySelector('.gzh_resp_head');
+            var oldBadge2 = headArea2.querySelector('.gzh_status_badge');
+            if (oldBadge2) oldBadge2.remove();
+            headArea2.insertBefore(badge2, headArea2.firstChild);
+
+            document.getElementById('gzh_time').textContent = '⏱ ' + elapsed2 + ' ms';
+            document.getElementById('gzh_size').textContent = '📦 —';
+
+            respBox.innerHTML =
+                '<div class="gzh_error_block">' +
+                    '<h4>❌ 请求失败</h4>' +
+                    '<div><code>' + err.name + '</code>: ' + err.message + '</div>' +
+                    '<div style="margin-top:8px;color:#94a3b8;font-size:12px;">' +
+                        '可能原因：<br>' +
+                        '• URL 拼写错误<br>' +
+                        '• 网络断开或 DNS 解析失败<br>' +
+                        '• 跨域（CORS）被服务器拒绝<br>' +
+                        '• 请求被浏览器安全策略拦截' +
+                    '</div>' +
+                '</div>';
+        } finally {
+            sendBtn.disabled = false; sendBtn.textContent = '▶ 发送';
+        }
+    }
+
+    /* Enter 键快速发送 */
+    document.getElementById('gzh_url').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') gzh_send();
+    });
+</script>
+</body>
+</html>
