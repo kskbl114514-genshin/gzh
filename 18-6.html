@@ -1,0 +1,361 @@
+<!-- 姓名：郭兹寒，建立时间：2026-11-05 14:20，使用的大模型：DeepSeek-V4.1-Flash，功能：Mermaid 绘制智能客服系统流程图 + ER 图 -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mermaid · 智能客服系统流程图 & ER 图</title>
+    <script src="cdn/mermaid.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", Consolas, monospace;
+            background: linear-gradient(160deg, #0b1220 0%, #122048 55%, #0b1220 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+            padding: 28px 20px 60px;
+        }
+
+        .gzh_wrap { max-width: 1200px; margin: 0 auto; }
+
+        .gzh_head { text-align: center; margin-bottom: 20px; }
+        .gzh_head h1 {
+            font-size: 22px; font-weight: 700; letter-spacing: 2px;
+            background: linear-gradient(135deg, #34d399, #60a5fa, #a78bfa);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .gzh_head h1::before { content: "🌊 "; -webkit-text-fill-color: initial; color: #34d399; }
+        .gzh_head p { margin-top: 7px; font-size: 12.5px; color: #6b7c99; letter-spacing: .6px; }
+
+        .gzh_card {
+            background: rgba(15, 23, 42, 0.75);
+            border: 1px solid rgba(52, 211, 153, 0.18);
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+        }
+        .gzh_card h2 {
+            font-size: 15px; font-weight: 600; color: #cbd5e1;
+            padding-bottom: 12px; margin-bottom: 16px;
+            border-bottom: 1px dashed rgba(148, 163, 184, 0.2);
+            display: flex; align-items: center; gap: 10px;
+        }
+        .gzh_card h2 span {
+            font-size: 11px; font-weight: 500; padding: 2px 10px;
+            border-radius: 10px; font-family: Consolas, monospace;
+        }
+        .gzh_flow_tag { background: rgba(52, 211, 153, 0.18); color: #34d399; }
+        .gzh_er_tag   { background: rgba(96, 165, 250, 0.18); color: #60a5fa; }
+
+        .gzh_code {
+            margin-top: 14px;
+            background: rgba(9, 14, 25, 0.85);
+            border: 1px solid rgba(100, 116, 139, 0.2);
+            border-radius: 8px;
+            padding: 12px 14px;
+            font-family: Consolas, monospace;
+            font-size: 11.5px;
+            color: #94a3b8;
+            white-space: pre;
+            overflow-x: auto;
+            max-height: 220px;
+        }
+        .gzh_code b { color: #a78bfa; font-weight: 600; }
+        .gzh_code .gzh_c { color: #64748b; }
+        .gzh_code .gzh_k { color: #34d399; }
+
+        .gzh_notes {
+            margin-top: 16px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 14px;
+        }
+        .gzh_note {
+            background: rgba(9, 14, 25, 0.7);
+            border: 1px solid rgba(100, 116, 139, 0.22);
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-size: 12px;
+            color: #94a3b8;
+            line-height: 1.8;
+        }
+        .gzh_note b { color: #34d399; font-weight: 600; }
+        .gzh_note code {
+            color: #a78bfa; background: rgba(167, 139, 250, .1);
+            padding: 1px 6px; border-radius: 3px;
+            font-family: Consolas, monospace; font-size: 11.5px;
+        }
+
+        .gzh_src {
+            margin-top: 12px; text-align: center;
+            font-size: 11.5px; color: #4b5a75;
+        }
+        .gzh_src a { color: #60a5fa; text-decoration: none; }
+        .gzh_src a:hover { text-decoration: underline; }
+
+        /* Mermaid 容器暗色适配 */
+        .mermaid {
+            background: transparent !important;
+            display: flex;
+            justify-content: center;
+        }
+        .mermaid svg { max-width: 100%; height: auto; }
+    </style>
+</head>
+<body>
+<div class="gzh_wrap">
+
+    <div class="gzh_head">
+        <h1>Mermaid · 智能客服系统流程图 & ER 图</h1>
+        <p>纯静态页面 · 离线 mermaid.min.js · 科研方向（知识库 + RAG + Agent）</p>
+    </div>
+
+    <!-- ============ 流程图 ============ -->
+    <div class="gzh_card">
+        <h2>🔀 智能客服对话处理主流程 <span class="gzh_flow_tag">graph TD · flowchart</span></h2>
+        <div class="mermaid">
+flowchart TD
+    U([👤 用户提问]) --> G{网关鉴权<br/>WAF 防刷}
+    G -- 通过 --> A[Agent 编排入口]
+    G -- 拦截 --> X[返回风控提示]
+
+    A --> I{意图识别 BERT}
+    I -- FAQ 问答 --> R[RAG 检索增强]
+    I -- 业务办理 --> T[工具调用 Function Call]
+    I -- 闲聊陪伴 --> F[对话记忆回复]
+    I -- 转人工 --> H[人工客服坐席]
+
+    R --> Q[Query 改写<br/>HyDE / Step-back]
+    Q --> V[向量检索 Milvus]
+    V --> M[Rerank 重排序]
+    M --> C[上下文构建]
+    C --> L[LLM 生成答案]
+
+    T --> D[数据库 CRUD]
+    D --> L2[LLM 格式化回复]
+
+    F --> M2[多轮对话记忆]
+    M2 --> L3[LLM 自由生成]
+
+    H --> Z[人工接管 记录会话]
+
+    L --> S{安全护栏}
+    L2 --> S
+    L3 --> S
+    S -- 通过 --> O([💬 返回答案给用户])
+    S -- 拦截 --> Y[拒绝回答 提示合规]
+
+    U -.->|日志回流| E[点击House 对话日志]
+    E -.->|离线评测| P[Golden QA Pair]
+    P -.->|模型迭代| A
+
+    classDef user fill:#0ea5e9,stroke:#0369a1,color:#fff;
+    classDef agent fill:#8b5cf6,stroke:#6d28d9,color:#fff;
+    classDef rag fill:#10b981,stroke:#047857,color:#fff;
+    classDef llm fill:#f59e0b,stroke:#b45309,color:#fff;
+    classDef store fill:#ec4899,stroke:#be185d,color:#fff;
+    classDef eval fill:#f97316,stroke:#c2410c,color:#fff;
+    classDef reject fill:#64748b,stroke:#334155,color:#fff;
+
+    class U,O user;
+    class A,I,G,H agent;
+    class R,Q,V,M,C,F,M2 rag;
+    class L,L2,L3 llm;
+    class D,E,P store;
+    class eval;
+    class X,Y,Z,S reject;
+        </div>
+
+        <details>
+            <summary style="cursor:pointer;color:#94a3b8;font-size:12px;margin-top:12px;">📄 查看 Mermaid 源码</summary>
+            <pre class="gzh_code"><b>flowchart TD</b>
+    U([👤 用户提问]) --> G{网关鉴权<br/>WAF 防刷}
+    G -- 通过 --> A[Agent 编排入口]
+    G -- 拦截 --> X[返回风控提示]
+
+    A --> I{意图识别 BERT}
+    I -- FAQ 问答  --> R[RAG 检索增强]
+    I -- 业务办理  --> T[工具调用 Function Call]
+    I -- 闲聊陪伴  --> F[对话记忆回复]
+    I -- 转人工    --> H[人工客服坐席]
+
+    R --> Q[Query 改写 · HyDE]
+    Q --> V[向量检索 Milvus]
+    V --> M[Rerank 重排序]
+    M --> C[上下文构建]
+    C --> L[LLM 生成答案]
+
+    T --> D[数据库 CRUD]
+    F --> M2[多轮对话记忆]
+
+    <span class="gzh_c">// 反馈闭环（虚线）</span>
+    U -.->|日志回流| E[对话日志]
+    E -.->|离线评测| P[Golden QA Pair]</pre>
+        </details>
+    </div>
+
+    <!-- ============ ER 图 ============ -->
+    <div class="gzh_card">
+        <h2>🗄️ 智能客服核心数据模型 ER 图 <span class="gzh_er_tag">erDiagram</span></h2>
+        <div class="mermaid">
+erDiagram
+    USER {
+        bigint user_id PK "用户ID"
+        varchar phone "手机号"
+        varchar nickname "昵称"
+        tinyint gender "性别 0/1"
+        datetime created_at "注册时间"
+        tinyint vip_level "会员等级 0-3"
+        varchar status "状态 active/banned"
+    }
+
+    SESSION {
+        bigint session_id PK "会话ID"
+        bigint user_id FK "用户ID"
+        tinyint channel "渠道 1Web 2APP 3小程序"
+        datetime start_time "会话开始"
+        datetime end_time "会话结束"
+        tinyint transfer_human "是否转人工 0/1"
+        float duration_sec "会话时长(秒)"
+        varchar agent_id "当前处理Agent"
+    }
+
+    MESSAGE {
+        bigint message_id PK "消息ID"
+        bigint session_id FK "会话ID"
+        tinyint role "1用户 2机器人 3人工"
+        text content "消息内容"
+        int token_count "Token数"
+        datetime created_at "发送时间"
+        varchar model_name "使用模型"
+        float latency_ms "耗时(毫秒)"
+    }
+
+    KNOWLEDGE_DOC {
+        bigint doc_id PK "文档ID"
+        varchar title "标题"
+        tinyint doc_type "1PDF 2Markdown 3HTML"
+        bigint chunk_count "分块数量"
+        bigint char_count "字符总数"
+        tinyint status "0处理中 1已入库 2失败"
+        datetime created_at "创建时间"
+        bigint uploader_id FK "上传人"
+    }
+
+    KNOWLEDGE_CHUNK {
+        bigint chunk_id PK "分块ID"
+        bigint doc_id FK "文档ID"
+        int chunk_index "块序号"
+        text content "分块文本"
+        varchar vector_id "向量ID Milvus"
+        int char_count "字符数"
+        datetime embedded_at "Embedding时间"
+    }
+
+    FEEDBACK {
+        bigint feedback_id PK "反馈ID"
+        bigint message_id FK "机器人消息ID"
+        bigint user_id FK "用户ID"
+        tinyint rating "评分 1-5"
+        tinyint is_useful "是否有用 0/1"
+        text comment "补充评论"
+        datetime created_at "反馈时间"
+    }
+
+    PROMPT_TEMPLATE {
+        bigint template_id PK "模板ID"
+        varchar name "模板名称"
+        tinyint category "1FAQ 2业务 3闲聊 4转人工"
+        text system_prompt "系统提示词"
+        text user_prompt "用户模板"
+        tinyint version "版本号"
+        tinyint enabled "是否启用"
+        datetime updated_at "更新时间"
+    }
+
+    USER ||--o{ SESSION : "发起"
+    SESSION ||--o{ MESSAGE : "包含"
+    MESSAGE ||--o| FEEDBACK : "收到"
+    KNOWLEDGE_DOC ||--o{ KNOWLEDGE_CHUNK : "切分成"
+    USER }o--|| KNOWLEDGE_DOC : "上传"
+    PROMPT_TEMPLATE }o--|| KNOWLEDGE_CHUNK : "检索"
+    MESSAGE }o--|| PROMPT_TEMPLATE : "使用"
+        </div>
+
+        <details>
+            <summary style="cursor:pointer;color:#94a3b8;font-size:12px;margin-top:12px;">📄 查看 Mermaid 源码</summary>
+            <pre class="gzh_code"><b>erDiagram</b>
+    <span class="gzh_k">USER</span> {
+        bigint user_id PK
+        varchar phone
+        varchar nickname
+        tinyint vip_level
+        datetime created_at
+    }
+    <span class="gzh_k">SESSION</span> {
+        bigint session_id PK
+        bigint user_id FK
+        tinyint channel
+        float duration_sec
+        tinyint transfer_human
+    }
+    <span class="gzh_k">MESSAGE</span> {
+        bigint message_id PK
+        bigint session_id FK
+        tinyint role "1用户/2机器人/3人工"
+        text content
+        float latency_ms
+    }
+    <span class="gzh_k">KNOWLEDGE_DOC</span> ||--o{ KNOWLEDGE_CHUNK : "切分成"
+    <span class="gzh_k">PROMPT_TEMPLATE</span> }o--|| KNOWLEDGE_CHUNK : "检索"
+
+    USER ||--o{ SESSION : "发起"
+    SESSION ||--o{ MESSAGE : "包含"</pre>
+        </details>
+    </div>
+
+    <!-- ============ 说明 ============ -->
+    <div class="gzh_notes">
+        <div class="gzh_note">
+            <b>📊 流程图</b><br>
+            使用 <code>flowchart TD</code>（从上到下），7 种自定义 classDef 配色区分网关 / Agent / RAG / LLM / 存储 / 评测 / 拒绝。虚线箭头表示离线评测闭环。
+        </div>
+        <div class="gzh_note">
+            <b>🗄️ ER 图</b><br>
+            <code>erDiagram</code> 自动渲染实体矩形 + 关系线。PK / FK / 字段类型内置支持，一对多关系用 <code>||--o{</code>，多对一用 <code>}o--||</code>。
+        </div>
+        <div class="gzh_note">
+            <b>🌊 Mermaid 10.x</b><br>
+            本地离线 <code>cdn/mermaid.min.js</code>（~3.3 MB），无需外网。通过 <code>mermaid.initialize({ startOnLoad: true })</code> 自动渲染页面上所有 <code>.mermaid</code> 块。
+        </div>
+    </div>
+
+    <div class="gzh_src">
+        Mermaid 官网：<a href="https://mermaid.js.org/" target="_blank">mermaid.js.org</a> ·
+        Flowchart 语法：<a href="https://mermaid.js.org/syntax/flowchart.html" target="_blank">flowchart</a> ·
+        ER 图语法：<a href="https://mermaid.js.org/syntax/entityRelationshipDiagram.html" target="_blank">erDiagram</a>
+    </div>
+</div>
+
+<script>
+    mermaid.initialize({
+        startOnLoad: true,
+        securityLevel: "loose",
+        theme: "dark",
+        themeVariables: {
+            primaryColor: "#1e293b",
+            primaryTextColor: "#e2e8f0",
+            primaryBorderColor: "#475569",
+            lineColor: "#64748b",
+            secondaryColor: "#0f172a",
+            tertiaryColor: "#020617"
+        },
+        flowchart: { useMaxWidth: true, htmlLabels: true, curve: "basis" },
+        er: { useMaxWidth: true }
+    });
+</script>
+</body>
+</html>

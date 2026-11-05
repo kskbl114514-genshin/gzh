@@ -223,3 +223,9 @@
 ## 2026-11-05
 **模型:** DeepSeek-V4.1-Flash
 **Prompt:** 完成18-4.html，其中包括echarts的两个图: 柱状图和雷达图 ， cdn文件下载到cdn目录下，示例代码：
+
+---
+
+## 2026-11-05
+**模型:** DeepSeek-V4.1-Flash
+**Prompt:** 实现18-6.html，实现基于mermaid的智能客服系统的流程图和ER图，cdn文件下载到cdn目录下。
