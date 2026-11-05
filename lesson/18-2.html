@@ -1,0 +1,573 @@
+<!-- 姓名：郭兹寒，建立时间：2026-11-05 13:36，使用的大模型：DeepSeek-V4.1-Flash，功能：基于 Canvas 绘制拼多多电商系统全站架构图 -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>拼多多电商系统架构图 · Canvas 绘制</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", Consolas, monospace;
+            background: radial-gradient(circle at 50% 0%, #101a2e 0%, #070b14 60%, #04060c 100%);
+            min-height: 100vh;
+            color: #dbe7f5;
+            padding: 24px 18px 50px;
+        }
+
+        .gzh_wrap { max-width: 1120px; margin: 0 auto; }
+
+        .gzh_head { text-align: center; margin-bottom: 16px; }
+
+        .gzh_head h1 {
+            font-size: 23px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #f1f7ff;
+        }
+
+        .gzh_head h1 span { color: #e02e24; }
+
+        .gzh_head p {
+            margin-top: 7px;
+            font-size: 12.5px;
+            color: #6b7c99;
+            letter-spacing: .6px;
+        }
+
+        .gzh_stage {
+            position: relative;
+            width: 100%;
+            background: rgba(9, 14, 24, .72);
+            border: 1px solid rgba(86, 128, 180, .22);
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .55), inset 0 0 60px rgba(56, 189, 248, .04);
+        }
+
+        .gzh_stage canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            cursor: default;
+        }
+
+        .gzh_legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            justify-content: center;
+            margin-top: 16px;
+            font-size: 12px;
+            color: #93a6c2;
+        }
+
+        .gzh_legend i {
+            display: inline-block;
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+
+        .gzh_hint {
+            margin-top: 14px;
+            text-align: center;
+            font-size: 12.5px;
+            color: #64748b;
+            line-height: 1.9;
+        }
+
+        .gzh_hint code {
+            color: #38bdf8;
+            background: rgba(56, 189, 248, .08);
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-family: Consolas, monospace;
+        }
+
+        @media (max-width: 640px) {
+            .gzh_head h1 { font-size: 17px; }
+        }
+    </style>
+</head>
+<body>
+<div class="gzh_wrap">
+    <div class="gzh_head">
+        <h1>拼多多电商系统 · 全站架构图</h1>
+        <p>接入层 → 网关层 → 业务应用层 → 中间件层 → 数据层 → 基础设施</p>
+    </div>
+
+    <div class="gzh_stage">
+        <canvas id="gzh_canvas"></canvas>
+    </div>
+
+    <div class="gzh_legend">
+        <span><i style="background:#38bdf8"></i>接入层</span>
+        <span><i style="background:#a78bfa"></i>网关层</span>
+        <span><i style="background:#34d399"></i>业务应用层</span>
+        <span><i style="background:#fbbf24"></i>中间件层</span>
+        <span><i style="background:#f472b6"></i>数据层</span>
+        <span><i style="background:#94a3b8"></i>基础设施</span>
+        <span><i style="background:#22d3ee"></i>请求流</span>
+        <span><i style="background:#fb923c"></i>响应流</span>
+    </div>
+
+    <div class="gzh_hint">
+        鼠标悬停任意模块可查看职责说明 · 全部图形由 <code>Canvas 2D</code> 逐帧绘制（圆角矩形 / 贝塞尔箭头 / 粒子流动）
+    </div>
+</div>
+
+<script>
+    /* ============================================================
+       设计坐标系：1100 × 850，画布按容器宽度等比缩放
+       ============================================================ */
+    var GZH_W = 1100;
+    var GZH_H = 850;
+
+    var gzh_canvas, gzh_ctx;
+    var gzh_dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var gzh_scale = 1;
+    var gzh_boxes = [];          // 全部模块矩形
+    var gzh_bands = [];          // 层容器
+    var gzh_connectors = [];     // 层间连线
+    var gzh_hover = null;        // 当前悬停模块
+    var gzh_mouse = { x: -9999, y: -9999 };
+    var gzh_time = 0;
+
+    /* ============================ 数据定义 ============================ */
+    var gzh_LAYERS = [
+        {
+            name: "接入层",
+            color: "#38bdf8",
+            perRow: 4,
+            items: [
+                { t: "拼多多 App", d: "iOS / Android 客户端，全站最大流量入口，承载首页推荐、搜索、下单全链路。" },
+                { t: "微信小程序", d: "依托微信生态的拼团裂变入口，分享卡片、砍价、助力都从这里进入。" },
+                { t: "H5 商城", d: "商品分享链接的落地页，免安装浏览，承担社交传播带来的临时流量。" },
+                { t: "商家后台", d: "商家端 PC 后台：商品发布、订单处理、营销活动、数据看板。" }
+            ]
+        },
+        {
+            name: "网关层",
+            color: "#a78bfa",
+            perRow: 3,
+            items: [
+                { t: "CDN 边缘节点", d: "商品图片、视频、静态资源就近分发，把首屏加载压到毫秒级。" },
+                { t: "API 网关", d: "统一鉴权、限流、防刷、协议转换与灰度路由，是所有请求的唯一入口。" },
+                { t: "负载均衡", d: "LVS + Nginx 四层/七层分流，健康检查与故障节点自动摘除。" }
+            ]
+        },
+        {
+            name: "业务应用层",
+            color: "#34d399",
+            perRow: 4,
+            items: [
+                { t: "商品服务", d: "SPU / SKU 管理、类目属性、价格体系、库存扣减与预占。" },
+                { t: "订单服务", d: "下单、拆单、订单状态机、超时关单，是交易链路的核心。" },
+                { t: "支付服务", d: "微信 / 支付宝 / 多多支付对接，支付回调、对账与退款。" },
+                { t: "拼团服务", d: "成团规则、凑团算法、拼团倒计时与未成团自动退款。" },
+                { t: "搜索服务", d: "关键词分词、类目筛选、排序打分，驱动商品搜索页。" },
+                { t: "推荐服务", d: "千人千面推荐、猜你喜欢、相似商品召回与排序模型。" },
+                { t: "用户服务", d: "账号登录、会员等级、收货地址、优惠券与积分体系。" },
+                { t: "物流服务", d: "发货单、运费险、物流轨迹回传与签收状态同步。" }
+            ]
+        },
+        {
+            name: "中间件层",
+            color: "#fbbf24",
+            perRow: 5,
+            items: [
+                { t: "消息队列 Kafka", d: "大促削峰填谷、订单异步落库、服务间事件解耦。" },
+                { t: "分布式缓存 Redis", d: "热点商品缓存、库存预扣、秒杀计数器与分布式锁。" },
+                { t: "注册中心 Nacos", d: "服务注册发现、实例健康心跳、动态扩缩容感知。" },
+                { t: "配置中心 Apollo", d: "灰度开关、活动配置热更新，无需重启即可生效。" },
+                { t: "分布式事务 Seata", d: "跨服务数据一致性，保障订单与库存的最终一致。" }
+            ]
+        },
+        {
+            name: "数据层",
+            color: "#f472b6",
+            perRow: 5,
+            items: [
+                { t: "MySQL 分库分表", d: "订单库、商品库按用户/订单号水平拆分，主从读写分离。" },
+                { t: "Redis 集群", d: "缓存与计数的主力，Cluster 模式支撑超高 QPS 读写。" },
+                { t: "Elasticsearch", d: "商品搜索索引与聚合分析，支撑关键词检索和筛选。" },
+                { t: "对象存储 OSS", d: "商品主图、详情长图、短视频等非结构化文件的存储与分发。" },
+                { t: "数据仓库 Hive", d: "离线数仓与实时数仓，产出经营报表和推荐特征。" }
+            ]
+        },
+        {
+            name: "基础设施",
+            color: "#94a3b8",
+            perRow: 4,
+            items: [
+                { t: "容器云 K8s", d: "服务容器化部署、弹性伸缩、滚动发布与故障自愈。" },
+                { t: "监控告警", d: "Prometheus + Grafana 采集指标，异常自动告警到值班。" },
+                { t: "日志采集", d: "ELK 全链路日志收集，支持 TraceId 追踪单次请求。" },
+                { t: "安全防护", d: "WAF 防注入、风控反刷单、DDoS 清洗与数据脱敏。" }
+            ]
+        }
+    ];
+
+    /* ============================ 布局计算 ============================ */
+    function gzh_layout() {
+        gzh_boxes = [];
+        gzh_bands = [];
+        gzh_connectors = [];
+
+        var bandX = 40;
+        var bandW = GZH_W - 80;        // 1020
+        var labelW = 96;               // 左侧层名区
+        var padX = 16;
+        var padY = 16;
+        var boxH = 54;
+        var rowGap = 12;
+        var boxGap = 12;
+
+        var boxAreaX = bandX + labelW;
+        var boxAreaW = bandW - labelW - padX;
+        var y = 20;
+
+        gzh_LAYERS.forEach(function (layer, index) {
+            var perRow = layer.perRow || layer.items.length;
+            var rows = Math.ceil(layer.items.length / perRow);
+            var h = padY * 2 + rows * boxH + (rows - 1) * rowGap;
+
+            var band = {
+                name: layer.name,
+                color: layer.color,
+                x: bandX,
+                y: y,
+                w: bandW,
+                h: h,
+                labelX: bandX + 18,
+                labelY: y + h / 2
+            };
+            gzh_bands.push(band);
+
+            var boxW = (boxAreaW - (perRow - 1) * boxGap) / perRow;
+
+            layer.items.forEach(function (item, i) {
+                var r = Math.floor(i / perRow);
+                var c = i % perRow;
+                gzh_boxes.push({
+                    x: boxAreaX + c * (boxW + boxGap),
+                    y: y + padY + r * (boxH + rowGap),
+                    w: boxW,
+                    h: boxH,
+                    title: item.t,
+                    desc: item.d,
+                    color: layer.color,
+                    layer: layer.name,
+                    pulse: Math.random() * Math.PI * 2
+                });
+            });
+
+            y += h + 44;
+        });
+
+        /* 层间连接线：三层竖向箭头 */
+        var gap = 44;
+        var xs = [
+            boxAreaX + boxAreaW * 0.18,
+            boxAreaX + boxAreaW * 0.5,
+            boxAreaX + boxAreaW * 0.82
+        ];
+        for (var i = 0; i < gzh_bands.length - 1; i++) {
+            var top = gzh_bands[i].y + gzh_bands[i].h;
+            var bottom = gzh_bands[i + 1].y;
+            xs.forEach(function (x, xi) {
+                gzh_connectors.push({
+                    x: x,
+                    y1: top + 6,
+                    y2: bottom - 6,
+                    delay: (i * 0.3 + xi * 0.17) % 1,
+                    color: gzh_bands[i].color
+                });
+            });
+        }
+    }
+
+    /* ============================ 绘制工具 ============================ */
+    function gzh_roundRect(ctx, x, y, w, h, r) {
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.arcTo(x + w, y, x + w, y + h, r);
+        ctx.arcTo(x + w, y + h, x, y + h, r);
+        ctx.arcTo(x, y + h, x, y, r);
+        ctx.arcTo(x, y, x + w, y, r);
+        ctx.closePath();
+    }
+
+    function gzh_hexToRgba(hex, alpha) {
+        var r = parseInt(hex.slice(1, 3), 16);
+        var g = parseInt(hex.slice(3, 5), 16);
+        var b = parseInt(hex.slice(5, 7), 16);
+        return "rgba(" + r + ", " + g + ", " + b + ", " + alpha + ")";
+    }
+
+    /* ============================ 绘制主函数 ============================ */
+    function gzh_draw() {
+        var ctx = gzh_ctx;
+        ctx.clearRect(0, 0, GZH_W, GZH_H);
+
+        /* 背景网格 */
+        ctx.strokeStyle = "rgba(80, 120, 170, 0.06)";
+        ctx.lineWidth = 1;
+        for (var gx = 0; gx < GZH_W; gx += 55) {
+            ctx.beginPath();
+            ctx.moveTo(gx, 0);
+            ctx.lineTo(gx, GZH_H);
+            ctx.stroke();
+        }
+        for (var gy = 0; gy < GZH_H; gy += 55) {
+            ctx.beginPath();
+            ctx.moveTo(0, gy);
+            ctx.lineTo(GZH_W, gy);
+            ctx.stroke();
+        }
+
+        /* 层容器 */
+        gzh_bands.forEach(function (band) {
+            ctx.fillStyle = "rgba(13, 22, 38, 0.85)";
+            gzh_roundRect(ctx, band.x, band.y, band.w, band.h, 10);
+            ctx.fill();
+
+            ctx.strokeStyle = gzh_hexToRgba(band.color, 0.32);
+            ctx.lineWidth = 1;
+            gzh_roundRect(ctx, band.x, band.y, band.w, band.h, 10);
+            ctx.stroke();
+
+            /* 左侧色条 */
+            ctx.fillStyle = gzh_hexToRgba(band.color, 0.75);
+            gzh_roundRect(ctx, band.x, band.y, 5, band.h, 3);
+            ctx.fill();
+
+            /* 层名 */
+            ctx.fillStyle = band.color;
+            ctx.font = '600 13px "Microsoft YaHei", sans-serif';
+            ctx.textAlign = "left";
+            ctx.textBaseline = "middle";
+            ctx.fillText(band.name, band.labelX, band.labelY - 9);
+
+            ctx.fillStyle = "rgba(148, 163, 184, 0.55)";
+            ctx.font = '10px Consolas, monospace';
+            ctx.fillText("LAYER", band.labelX, band.labelY + 10);
+        });
+
+        /* 层间连接箭头 */
+        gzh_connectors.forEach(function (con) {
+            var ctx2 = gzh_ctx;
+            ctx2.strokeStyle = "rgba(100, 150, 200, 0.18)";
+            ctx2.lineWidth = 1.2;
+            ctx2.beginPath();
+            ctx2.moveTo(con.x, con.y1);
+            ctx2.lineTo(con.x, con.y2);
+            ctx2.stroke();
+
+            /* 请求流粒子：向下 */
+            var p1 = (gzh_time * 0.9 + con.delay) % 1;
+            var dy = con.y1 + (con.y2 - con.y1) * p1;
+            ctx2.fillStyle = "rgba(34, 211, 238, 0.9)";
+            ctx2.beginPath();
+            ctx2.arc(con.x, dy, 2.6, 0, Math.PI * 2);
+            ctx2.fill();
+
+            /* 响应流粒子：向上 */
+            var p2 = (1 - p1) % 1;
+            var uy = con.y1 + (con.y2 - con.y1) * p2;
+            ctx2.fillStyle = "rgba(251, 146, 60, 0.85)";
+            ctx2.beginPath();
+            ctx2.arc(con.x, uy, 2.2, 0, Math.PI * 2);
+            ctx2.fill();
+        });
+
+        /* 模块 */
+        gzh_boxes.forEach(function (box) {
+            var isHover = (gzh_hover === box);
+            var pulse = 0.5 + 0.5 * Math.sin(gzh_time * 1.8 + box.pulse);
+
+            ctx.fillStyle = isHover
+                ? gzh_hexToRgba(box.color, 0.3)
+                : gzh_hexToRgba(box.color, 0.12);
+            gzh_roundRect(ctx, box.x, box.y, box.w, box.h, 8);
+            ctx.fill();
+
+            ctx.strokeStyle = isHover
+                ? box.color
+                : gzh_hexToRgba(box.color, 0.42);
+            ctx.lineWidth = isHover ? 1.8 : 1;
+            gzh_roundRect(ctx, box.x, box.y, box.w, box.h, 8);
+            ctx.stroke();
+
+            if (isHover) {
+                ctx.shadowColor = box.color;
+                ctx.shadowBlur = 16;
+                gzh_roundRect(ctx, box.x, box.y, box.w, box.h, 8);
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+            }
+
+            /* 标题文字 */
+            ctx.fillStyle = isHover ? "#ffffff" : "#dbe7f5";
+            ctx.font = '600 13.5px "Microsoft YaHei", sans-serif';
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+
+            /* 超长名称自动缩字 */
+            var textW = ctx.measureText(box.title).width;
+            if (textW > box.w - 16) {
+                ctx.font = '600 11.5px "Microsoft YaHei", sans-serif';
+            }
+            ctx.fillText(box.title, box.x + box.w / 2, box.y + box.h / 2 - 1);
+
+            /* 左上角小灯 */
+            ctx.fillStyle = gzh_hexToRgba(box.color, 0.35 + pulse * 0.5);
+            ctx.beginPath();
+            ctx.arc(box.x + 10, box.y + 10, 2.4, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        /* 悬停提示框 */
+        if (gzh_hover) gzh_drawTooltip(gzh_hover);
+    }
+
+    /* ============================ 悬停提示 ============================ */
+    function gzh_drawTooltip(box) {
+        var ctx = gzh_ctx;
+        var padX = 14;
+        var padY = 12;
+        var maxW = 300;
+        var lineH = 18;
+        var titleH = 22;
+
+        ctx.font = '600 13px "Microsoft YaHei", sans-serif';
+        var titleW = ctx.measureText(box.title).width;
+
+        ctx.font = '12px "Microsoft YaHei", sans-serif';
+        var lines = gzh_wrapText(box.desc, maxW - padX * 2);
+
+        var boxW = Math.max(titleW + 26, maxW);
+        var boxH = titleH + lines.length * lineH + padY * 2;
+
+        var tx = gzh_mouse.x + 16;
+        var ty = gzh_mouse.y + 16;
+        if (tx + boxW > GZH_W - 8) tx = gzh_mouse.x - boxW - 16;
+        if (tx < 8) tx = 8;
+        if (ty + boxH > GZH_H - 8) ty = gzh_mouse.y - boxH - 16;
+        if (ty < 8) ty = 8;
+
+        ctx.fillStyle = "rgba(6, 12, 22, 0.96)";
+        gzh_roundRect(ctx, tx, ty, boxW, boxH, 8);
+        ctx.fill();
+
+        ctx.strokeStyle = gzh_hexToRgba(box.color, 0.7);
+        ctx.lineWidth = 1.4;
+        gzh_roundRect(ctx, tx, ty, boxW, boxH, 8);
+        ctx.stroke();
+
+        /* 顶部小色条 */
+        ctx.fillStyle = box.color;
+        ctx.fillRect(tx + 12, ty + 10, 3, 14);
+
+        ctx.fillStyle = "#f1f7ff";
+        ctx.font = '600 13px "Microsoft YaHei", sans-serif';
+        ctx.textAlign = "left";
+        ctx.textBaseline = "middle";
+        ctx.fillText(box.title, tx + 22, ty + padY + 8);
+
+        ctx.fillStyle = "#93a6c2";
+        ctx.font = '12px "Microsoft YaHei", sans-serif';
+        ctx.textBaseline = "top";
+        lines.forEach(function (line, i) {
+            ctx.fillText(line, tx + padX, ty + padY + titleH + i * lineH);
+        });
+    }
+
+    /* 文本换行（中文按字符） */
+    function gzh_wrapText(text, maxW) {
+        var ctx = gzh_ctx;
+        ctx.font = '12px "Microsoft YaHei", sans-serif';
+        var lines = [];
+        var line = "";
+        for (var i = 0; i < text.length; i++) {
+            var test = line + text[i];
+            if (ctx.measureText(test).width > maxW && line) {
+                lines.push(line);
+                line = text[i];
+            } else {
+                line = test;
+            }
+        }
+        if (line) lines.push(line);
+        return lines;
+    }
+
+    /* ============================ 交互 ============================ */
+    function gzh_hitTest(mx, my) {
+        for (var i = gzh_boxes.length - 1; i >= 0; i--) {
+            var b = gzh_boxes[i];
+            if (mx >= b.x && mx <= b.x + b.w && my >= b.y && my <= b.y + b.h) {
+                return b;
+            }
+        }
+        return null;
+    }
+
+    function gzh_bindEvents() {
+        gzh_canvas.addEventListener("mousemove", function (e) {
+            var rect = gzh_canvas.getBoundingClientRect();
+            var mx = (e.clientX - rect.left) / gzh_scale;
+            var my = (e.clientY - rect.top) / gzh_scale;
+            gzh_mouse.x = mx;
+            gzh_mouse.y = my;
+            gzh_hover = gzh_hitTest(mx, my);
+            gzh_canvas.style.cursor = gzh_hover ? "pointer" : "default";
+        });
+
+        gzh_canvas.addEventListener("mouseleave", function () {
+            gzh_hover = null;
+            gzh_mouse.x = -9999;
+            gzh_mouse.y = -9999;
+            gzh_canvas.style.cursor = "default";
+        });
+    }
+
+    /* ============================ 尺寸自适应 ============================ */
+    function gzh_resize() {
+        var cssW = gzh_canvas.parentElement.clientWidth;
+        gzh_scale = cssW / GZH_W;
+
+        gzh_canvas.width = Math.round(GZH_W * gzh_scale * gzh_dpr);
+        gzh_canvas.height = Math.round(GZH_H * gzh_scale * gzh_dpr);
+        gzh_canvas.style.height = (GZH_H * gzh_scale) + "px";
+
+        gzh_ctx.setTransform(gzh_scale * gzh_dpr, 0, 0, gzh_scale * gzh_dpr, 0, 0);
+    }
+
+    /* ============================ 动画循环 ============================ */
+    function gzh_loop() {
+        gzh_time += 0.016;
+        gzh_draw();
+        requestAnimationFrame(gzh_loop);
+    }
+
+    /* ============================ 启动 ============================ */
+    (function gzh_init() {
+        gzh_canvas = document.getElementById("gzh_canvas");
+        gzh_ctx = gzh_canvas.getContext("2d");
+
+        gzh_layout();
+        gzh_resize();
+        gzh_bindEvents();
+
+        window.addEventListener("resize", gzh_resize);
+
+        gzh_loop();
+    })();
+</script>
+</body>
+</html>

@@ -1,0 +1,435 @@
+<!-- 姓名：郭兹寒，建立时间：2026-11-05 13:36，使用的大模型：DeepSeek-V4.1-Flash，功能：Canvas 粒子文字动画（郭兹寒） -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas 粒子文字动画 · 郭兹寒</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", Consolas, monospace;
+            background: #05070f;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 22px 18px 40px;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        .gzh_head { text-align: center; margin-bottom: 14px; }
+
+        .gzh_head h1 {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: #e6f2ff;
+        }
+
+        .gzh_head h1::before { content: "✦ "; color: #22d3ee; }
+
+        .gzh_head p {
+            margin-top: 6px;
+            font-size: 12.5px;
+            color: #7c8db0;
+            letter-spacing: 1px;
+        }
+
+        .gzh_stage {
+            position: relative;
+            width: 100%;
+            max-width: 1040px;
+            height: 540px;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(56, 189, 248, .18);
+            background: radial-gradient(circle at 50% 46%, #131c36 0%, #0a0f1e 55%, #05070f 100%);
+            box-shadow: 0 18px 50px rgba(0, 0, 0, .55), inset 0 0 80px rgba(34, 211, 238, .05);
+        }
+
+        .gzh_stage canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            cursor: crosshair;
+        }
+
+        /* 四角装饰 */
+        .gzh_corner {
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            border: 1px solid rgba(34, 211, 238, .45);
+            pointer-events: none;
+        }
+        .gzh_corner.gzh_tl { top: 12px; left: 12px; border-right: none; border-bottom: none; }
+        .gzh_corner.gzh_tr { top: 12px; right: 12px; border-left: none; border-bottom: none; }
+        .gzh_corner.gzh_bl { bottom: 12px; left: 12px; border-right: none; border-top: none; }
+        .gzh_corner.gzh_br { bottom: 12px; right: 12px; border-left: none; border-top: none; }
+
+        .gzh_stats {
+            position: absolute;
+            left: 18px;
+            bottom: 16px;
+            font-family: Consolas, monospace;
+            font-size: 11.5px;
+            color: #4f6383;
+            letter-spacing: .5px;
+            pointer-events: none;
+            line-height: 1.7;
+        }
+        .gzh_stats b { color: #22d3ee; font-weight: 600; }
+
+        .gzh_tip {
+            position: absolute;
+            right: 18px;
+            bottom: 16px;
+            font-size: 11.5px;
+            color: #4f6383;
+            pointer-events: none;
+            letter-spacing: .5px;
+        }
+
+        .gzh_panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .gzh_btn {
+            padding: 9px 20px;
+            border: 1px solid rgba(56, 189, 248, .35);
+            border-radius: 22px;
+            background: rgba(56, 189, 248, .08);
+            color: #cfe9ff;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: transform .18s, background .18s, box-shadow .18s;
+        }
+
+        .gzh_btn:hover {
+            background: rgba(56, 189, 248, .2);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(34, 211, 238, .25);
+        }
+
+        .gzh_btn:active { transform: translateY(0); }
+
+        .gzh_btn.gzh_on {
+            background: linear-gradient(135deg, #22d3ee, #6366f1);
+            border-color: transparent;
+            color: #fff;
+        }
+
+        .gzh_note {
+            margin-top: 18px;
+            max-width: 760px;
+            font-size: 12.5px;
+            color: #64748b;
+            line-height: 1.9;
+            text-align: center;
+        }
+
+        .gzh_note code {
+            color: #22d3ee;
+            background: rgba(34, 211, 238, .08);
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-family: Consolas, monospace;
+        }
+
+        @media (max-width: 640px) {
+            .gzh_stage { height: 400px; }
+            .gzh_stats, .gzh_tip { font-size: 10.5px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="gzh_head">
+        <h1>Canvas 粒子文字动画</h1>
+        <p>文字像素采样 → 粒子聚合 → 鼠标排斥 / 点击炸散</p>
+    </div>
+
+    <div class="gzh_stage" id="gzh_stage">
+        <canvas id="gzh_canvas"></canvas>
+        <span class="gzh_corner gzh_tl"></span>
+        <span class="gzh_corner gzh_tr"></span>
+        <span class="gzh_corner gzh_bl"></span>
+        <span class="gzh_corner gzh_br"></span>
+        <div class="gzh_stats">
+            PARTICLES <b id="gzh_count">0</b><br>
+            FPS <b id="gzh_fps">0</b>
+        </div>
+        <div class="gzh_tip">鼠标靠近推开 · 点击炸散</div>
+    </div>
+
+    <div class="gzh_panel">
+        <button class="gzh_btn gzh_on" id="gzh_btn_join" onclick="gzh_join()">✦ 聚合文字</button>
+        <button class="gzh_btn" id="gzh_btn_boom" onclick="gzh_boom()">✸ 炸散粒子</button>
+        <button class="gzh_btn gzh_on" id="gzh_btn_mouse" onclick="gzh_toggleMouse(this)">◎ 鼠标交互</button>
+        <button class="gzh_btn" onclick="gzh_recolor()">◈ 换配色</button>
+    </div>
+
+    <div class="gzh_note">
+        核心原理：先在离屏 Canvas 上绘制文字，用 <code>getImageData()</code>
+        读取每个像素的 RGBA 值，把不透明的像素点变成粒子的目标位置，
+        再用弹簧模型 <code>v += (target - pos) * k</code> 让粒子飞回文字形状。
+    </div>
+
+<script>
+    /* ============================ 基础变量 ============================ */
+    var gzh_canvas, gzh_ctx;
+    var gzh_dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var gzh_w = 0, gzh_h = 0;          // 逻辑尺寸（CSS 像素）
+    var gzh_particles = [];            // 粒子数组
+    var gzh_text = "郭兹寒";
+    var gzh_mouse = { x: -9999, y: -9999, active: false };
+    var gzh_mouseMode = true;
+    var gzh_hueShift = 0;
+    var gzh_phase = 0;                 // 全局时间，用于呼吸/闪烁
+    var gzh_scatterTimer = null;
+    var gzh_fps = 0, gzh_lastFpsTime = 0, gzh_frameCount = 0;
+
+    /* ============================ 初始化 ============================ */
+    function gzh_init() {
+        gzh_canvas = document.getElementById("gzh_canvas");
+        gzh_ctx = gzh_canvas.getContext("2d");
+        gzh_resize();
+        window.addEventListener("resize", gzh_resize);
+
+        /* 鼠标交互 */
+        gzh_canvas.addEventListener("mousemove", function (e) {
+            var r = gzh_canvas.getBoundingClientRect();
+            gzh_mouse.x = e.clientX - r.left;
+            gzh_mouse.y = e.clientY - r.top;
+            gzh_mouse.active = true;
+        });
+        gzh_canvas.addEventListener("mouseleave", function () {
+            gzh_mouse.active = false;
+            gzh_mouse.x = -9999;
+            gzh_mouse.y = -9999;
+        });
+        gzh_canvas.addEventListener("click", function (e) {
+            /* 点击位置炸散 */
+            var r = gzh_canvas.getBoundingClientRect();
+            gzh_explode(e.clientX - r.left, e.clientY - r.top);
+        });
+
+        gzh_requestFrame();
+    }
+
+    /* 尺寸自适应 */
+    function gzh_resize() {
+        var stage = document.getElementById("gzh_stage");
+        gzh_w = stage.clientWidth;
+        gzh_h = stage.clientHeight;
+        gzh_canvas.width = Math.round(gzh_w * gzh_dpr);
+        gzh_canvas.height = Math.round(gzh_h * gzh_dpr);
+        gzh_canvas.style.width = gzh_w + "px";
+        gzh_canvas.style.height = gzh_h + "px";
+        gzh_ctx.setTransform(gzh_dpr, 0, 0, gzh_dpr, 0, 0);
+        gzh_sampleText();
+    }
+
+    /* ============================ 文字采样 ============================ */
+    function gzh_sampleText() {
+        gzh_particles = [];
+
+        var off = document.createElement("canvas");
+        off.width = gzh_w;
+        off.height = gzh_h;
+        var oct = off.getContext("2d");
+
+        /* 字号根据画布尺寸自适应 */
+        var fontSize = Math.min(gzh_w * 0.26, gzh_h * 0.52);
+        oct.font = "bold " + fontSize + 'px "Microsoft YaHei", "PingFang SC", sans-serif';
+        oct.textAlign = "center";
+        oct.textBaseline = "middle";
+        oct.fillStyle = "#ffffff";
+        oct.fillText(gzh_text, gzh_w / 2, gzh_h / 2);
+
+        var img = oct.getImageData(0, 0, gzh_w, gzh_h).data;
+
+        /* 采样步长：字越大，步长越大，控制粒子总量 */
+        var step = Math.max(4, Math.round(fontSize / 40));
+
+        for (var y = 0; y < gzh_h; y += step) {
+            for (var x = 0; x < gzh_w; x += step) {
+                var idx = (y * gzh_w + x) * 4;
+                if (img[idx + 3] > 128) {
+                    var hue = 185 + (x / gzh_w) * 130;   /* 青 → 紫 渐变 */
+                    gzh_particles.push({
+                        tx: x,
+                        ty: y,
+                        x: Math.random() * gzh_w,
+                        y: Math.random() * gzh_h,
+                        vx: 0,
+                        vy: 0,
+                        size: Math.random() * 1.5 + 1.2,
+                        hue: hue,
+                        phase: Math.random() * Math.PI * 2
+                    });
+                }
+            }
+        }
+        document.getElementById("gzh_count").textContent = gzh_particles.length;
+    }
+
+    /* ============================ 炸散 / 聚合 ============================ */
+    function gzh_boom() {
+        gzh_particles.forEach(function (p) {
+            var ang = Math.random() * Math.PI * 2;
+            var spd = Math.random() * 16 + 6;
+            p.vx += Math.cos(ang) * spd;
+            p.vy += Math.sin(ang) * spd;
+        });
+    }
+
+    function gzh_explode(cx, cy) {
+        gzh_particles.forEach(function (p) {
+            var dx = p.x - cx;
+            var dy = p.y - cy;
+            var d = Math.sqrt(dx * dx + dy * dy) || 1;
+            var force = Math.max(0, 140 - d) / 140 * 22;
+            p.vx += (dx / d) * force;
+            p.vy += (dy / d) * force;
+        });
+    }
+
+    function gzh_join() {
+        /* 先全部打乱到屏幕随机位置，再各自飞回目标 */
+        gzh_particles.forEach(function (p) {
+            p.x = Math.random() * gzh_w;
+            p.y = Math.random() * gzh_h;
+            p.vx = 0;
+            p.vy = 0;
+        });
+        clearTimeout(gzh_scatterTimer);
+    }
+
+    function gzh_toggleMouse(btn) {
+        gzh_mouseMode = !gzh_mouseMode;
+        btn.classList.toggle("gzh_on", gzh_mouseMode);
+    }
+
+    function gzh_recolor() {
+        gzh_hueShift = (gzh_hueShift + 70) % 360;
+        gzh_particles.forEach(function (p) {
+            p.hue = (185 + (p.x / gzh_w) * 130 + gzh_hueShift) % 360;
+        });
+    }
+
+    /* ============================ 动画主循环 ============================ */
+    function gzh_requestFrame() {
+        requestAnimationFrame(gzh_loop);
+    }
+
+    function gzh_loop(now) {
+        gzh_phase += 0.016;
+        gzh_draw();
+        gzh_updateFps(now);
+        requestAnimationFrame(gzh_loop);
+    }
+
+    function gzh_draw() {
+        var ctx = gzh_ctx;
+
+        /* 用 destination-out 半透明擦除 → 形成拖尾，同时保留 CSS 背景 */
+        ctx.globalCompositeOperation = "destination-out";
+        ctx.fillStyle = "rgba(0, 0, 0, 0.16)";
+        ctx.fillRect(0, 0, gzh_w, gzh_h);
+        ctx.globalCompositeOperation = "source-over";
+
+        /* 粒子物理更新 */
+        var i, p;
+        for (i = 0; i < gzh_particles.length; i++) {
+            p = gzh_particles[i];
+
+            /* 弹簧力拉向目标点 */
+            p.vx += (p.tx - p.x) * 0.045;
+            p.vy += (p.ty - p.y) * 0.045;
+
+            /* 鼠标排斥 */
+            if (gzh_mouseMode && gzh_mouse.active) {
+                var dx = p.x - gzh_mouse.x;
+                var dy = p.y - gzh_mouse.y;
+                var dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 80 && dist > 0) {
+                    var f = (80 - dist) / 80 * 3.2;
+                    p.vx += (dx / dist) * f;
+                    p.vy += (dy / dist) * f;
+                }
+            }
+
+            /* 阻尼 */
+            p.vx *= 0.86;
+            p.vy *= 0.86;
+
+            p.x += p.vx;
+            p.y += p.vy;
+
+            /* 边界反弹 */
+            if (p.x < 0 || p.x > gzh_w) { p.vx *= -0.7; p.x = Math.max(0, Math.min(gzh_w, p.x)); }
+            if (p.y < 0 || p.y > gzh_h) { p.vy *= -0.7; p.y = Math.max(0, Math.min(gzh_h, p.y)); }
+        }
+
+        /* 绘制：先画柔光层，再画实心点 */
+        ctx.globalCompositeOperation = "lighter";
+        for (i = 0; i < gzh_particles.length; i++) {
+            p = gzh_particles[i];
+            var breathe = 1 + Math.sin(gzh_phase * 1.6 + p.phase) * 0.28;
+            var alpha = 0.16 * breathe;
+            ctx.fillStyle = "hsla(" + p.hue + ", 100%, 62%, " + alpha + ")";
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size * 3.4, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        ctx.globalCompositeOperation = "source-over";
+        for (i = 0; i < gzh_particles.length; i++) {
+            p = gzh_particles[i];
+            var b = 0.92 + Math.sin(gzh_phase * 1.6 + p.phase) * 0.22;
+            ctx.fillStyle = "hsla(" + p.hue + ", 95%, " + (72 * b) + "%, 0.95)";
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        /* 鼠标光标提示环 */
+        if (gzh_mouseMode && gzh_mouse.active) {
+            var g = ctx.createRadialGradient(
+                gzh_mouse.x, gzh_mouse.y, 0,
+                gzh_mouse.x, gzh_mouse.y, 80
+            );
+            g.addColorStop(0, "rgba(34, 211, 238, 0.12)");
+            g.addColorStop(1, "rgba(34, 211, 238, 0)");
+            ctx.fillStyle = g;
+            ctx.beginPath();
+            ctx.arc(gzh_mouse.x, gzh_mouse.y, 80, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    /* ============================ FPS ============================ */
+    function gzh_updateFps(now) {
+        gzh_frameCount++;
+        if (now - gzh_lastFpsTime >= 1000) {
+            gzh_fps = Math.round((gzh_frameCount * 1000) / (now - gzh_lastFpsTime));
+            document.getElementById("gzh_fps").textContent = gzh_fps;
+            gzh_frameCount = 0;
+            gzh_lastFpsTime = now;
+        }
+    }
+
+    /* ============================ 启动 ============================ */
+    gzh_init();
+</script>
+</body>
+</html>
