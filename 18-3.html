@@ -1,0 +1,509 @@
+<!-- 姓名：郭兹寒，建立时间：2026-11-05 14:02，使用的大模型：DeepSeek-V4.1-Flash，功能：基于 SVG 绘制知识库智能客服系统架构图（科研方向） -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>知识库智能客服系统架构 · SVG</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", Consolas, monospace;
+            background: linear-gradient(160deg, #0a0f1c 0%, #0e1830 50%, #070d18 100%);
+            min-height: 100vh;
+            color: #dbe7f5;
+            padding: 28px 20px 60px;
+        }
+
+        .gzh_wrap { max-width: 1200px; margin: 0 auto; }
+
+        .gzh_head { text-align: center; margin-bottom: 18px; }
+        .gzh_head h1 {
+            font-size: 22px; font-weight: 700; letter-spacing: 1.5px;
+            background: linear-gradient(135deg, #60a5fa, #a78bfa, #38bdf8);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .gzh_head h1::before { content: "🔬 "; -webkit-text-fill-color: initial; color: #60a5fa; }
+        .gzh_head p { margin-top: 7px; font-size: 12.5px; color: #6b7c99; letter-spacing: .6px; }
+        .gzh_head .gzh_sub { font-size: 11px; color: #4b5a75; margin-top: 4px; }
+
+        .gzh_stage {
+            background: rgba(9, 15, 28, 0.7);
+            border: 1px solid rgba(96, 165, 250, 0.18);
+            border-radius: 14px;
+            padding: 22px;
+            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55), inset 0 0 60px rgba(59, 130, 246, 0.05);
+        }
+
+        .gzh_stage svg {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-width: 100%;
+        }
+
+        .gzh_legend {
+            display: flex; flex-wrap: wrap; gap: 14px;
+            justify-content: center;
+            margin-top: 18px;
+            font-size: 12px;
+            color: #93a6c2;
+        }
+        .gzh_legend i {
+            display: inline-block; width: 10px; height: 10px;
+            border-radius: 50%; margin-right: 6px; vertical-align: middle;
+        }
+
+        .gzh_annotations {
+            margin-top: 22px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 14px;
+        }
+        .gzh_ann_item {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(100, 116, 139, 0.22);
+            border-radius: 10px;
+            padding: 14px 16px;
+        }
+        .gzh_ann_item h4 {
+            font-size: 13px; font-weight: 600; margin-bottom: 6px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .gzh_ann_item p { font-size: 12px; color: #94a3b8; line-height: 1.8; }
+
+        @media (max-width: 640px) {
+            .gzh_head h1 { font-size: 17px; }
+            .gzh_stage { padding: 10px; }
+        }
+    </style>
+</head>
+<body>
+<div class="gzh_wrap">
+    <div class="gzh_head">
+        <h1>基于知识库的智能客服系统 · 总体架构</h1>
+        <p>Knowledge-Base-Augmented Intelligent Customer Service System Architecture</p>
+        <div class="gzh_sub">科研方向 · RAG · Agent · 向量检索 · 多模态 · 评测闭环</div>
+    </div>
+
+    <div class="gzh_stage">
+<svg viewBox="0 0 1200 880" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <!-- 渐变 -->
+        <linearGradient id="gzh_band_user"   x1="0" x2="1">
+            <stop offset="0" stop-color="#38bdf8" stop-opacity="0.20"/>
+            <stop offset="1" stop-color="#38bdf8" stop-opacity="0.05"/>
+        </linearGradient>
+        <linearGradient id="gzh_band_agent"  x1="0" x2="1">
+            <stop offset="0" stop-color="#a78bfa" stop-opacity="0.20"/>
+            <stop offset="1" stop-color="#a78bfa" stop-opacity="0.05"/>
+        </linearGradient>
+        <linearGradient id="gzh_band_rag"    x1="0" x2="1">
+            <stop offset="0" stop-color="#34d399" stop-opacity="0.20"/>
+            <stop offset="1" stop-color="#34d399" stop-opacity="0.05"/>
+        </linearGradient>
+        <linearGradient id="gzh_band_llm"    x1="0" x2="1">
+            <stop offset="0" stop-color="#fbbf24" stop-opacity="0.20"/>
+            <stop offset="1" stop-color="#fbbf24" stop-opacity="0.05"/>
+        </linearGradient>
+        <linearGradient id="gzh_band_data"   x1="0" x2="1">
+            <stop offset="0" stop-color="#f472b6" stop-opacity="0.20"/>
+            <stop offset="1" stop-color="#f472b6" stop-opacity="0.05"/>
+        </linearGradient>
+        <linearGradient id="gzh_band_eval"   x1="0" x2="1">
+            <stop offset="0" stop-color="#fb923c" stop-opacity="0.20"/>
+            <stop offset="1" stop-color="#fb923c" stop-opacity="0.05"/>
+        </linearGradient>
+
+        <!-- 节点框渐变 -->
+        <linearGradient id="gzh_node_blue" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#1e3a5f"/>
+            <stop offset="1" stop-color="#0f2338"/>
+        </linearGradient>
+        <linearGradient id="gzh_node_purple" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#2d2454"/>
+            <stop offset="1" stop-color="#1a1433"/>
+        </linearGradient>
+        <linearGradient id="gzh_node_green" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#1d4a3a"/>
+            <stop offset="1" stop-color="#0f2820"/>
+        </linearGradient>
+        <linearGradient id="gzh_node_yellow" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#4a3a1d"/>
+            <stop offset="1" stop-color="#281f0f"/>
+        </linearGradient>
+        <linearGradient id="gzh_node_pink" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#5a2d4a"/>
+            <stop offset="1" stop-color="#331528"/>
+        </linearGradient>
+        <linearGradient id="gzh_node_orange" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#5a3d1d"/>
+            <stop offset="1" stop-color="#332210"/>
+        </linearGradient>
+
+        <!-- 箭头 -->
+        <marker id="gzh_arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+        </marker>
+        <marker id="gzh_arrow_blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#60a5fa"/>
+        </marker>
+        <marker id="gzh_arrow_purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#a78bfa"/>
+        </marker>
+        <marker id="gzh_arrow_green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#34d399"/>
+        </marker>
+        <marker id="gzh_arrow_yellow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#fbbf24"/>
+        </marker>
+        <marker id="gzh_arrow_pink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#f472b6"/>
+        </marker>
+        <marker id="gzh_arrow_orange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#fb923c"/>
+        </marker>
+
+        <!-- 发光滤镜 -->
+        <filter id="gzh_glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="3" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+    </defs>
+
+    <!-- ============ 背景网格 ============ -->
+    <g opacity="0.05">
+        <pattern id="gzh_grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#60a5fa" stroke-width="0.5"/>
+        </pattern>
+        <rect width="1200" height="880" fill="url(#gzh_grid)"/>
+    </g>
+
+    <!-- ============ 层容器 ============ -->
+    <!-- 1. 用户交互层 -->
+    <rect x="40" y="20" width="1120" height="100" rx="10" fill="url(#gzh_band_user)" stroke="#38bdf8" stroke-opacity="0.25"/>
+    <rect x="40" y="20" width="5" height="100" rx="3" fill="#38bdf8"/>
+    <text x="60" y="75" fill="#38bdf8" font-size="13" font-weight="600">用户交互层</text>
+    <text x="60" y="95" fill="#4b5a75" font-size="9" font-family="Consolas,monospace">PRESENTATION</text>
+
+    <!-- 2. Agent 编排层 -->
+    <rect x="40" y="140" width="1120" height="150" rx="10" fill="url(#gzh_band_agent)" stroke="#a78bfa" stroke-opacity="0.25"/>
+    <rect x="40" y="140" width="5" height="150" rx="3" fill="#a78bfa"/>
+    <text x="60" y="215" fill="#a78bfa" font-size="13" font-weight="600">Agent 编排层</text>
+    <text x="60" y="235" fill="#4b5a75" font-size="9" font-family="Consolas,monospace">ORCHESTRATION</text>
+
+    <!-- 3. RAG 检索层 -->
+    <rect x="40" y="310" width="1120" height="150" rx="10" fill="url(#gzh_band_rag)" stroke="#34d399" stroke-opacity="0.25"/>
+    <rect x="40" y="310" width="5" height="150" rx="3" fill="#34d399"/>
+    <text x="60" y="385" fill="#34d399" font-size="13" font-weight="600">RAG 检索增强层</text>
+    <text x="60" y="405" fill="#4b5a75" font-size="9" font-family="Consolas,monospace">RETRIEVAL-AUGMENTED GENERATION</text>
+
+    <!-- 4. 大模型推理层 -->
+    <rect x="40" y="480" width="1120" height="130" rx="10" fill="url(#gzh_band_llm)" stroke="#fbbf24" stroke-opacity="0.25"/>
+    <rect x="40" y="480" width="5" height="130" rx="3" fill="#fbbf24"/>
+    <text x="60" y="545" fill="#fbbf24" font-size="13" font-weight="600">大模型推理层</text>
+    <text x="60" y="565" fill="#4b5a75" font-size="9" font-family="Consolas,monospace">LLM INFERENCE</text>
+
+    <!-- 5. 知识与数据层 -->
+    <rect x="40" y="630" width="1120" height="110" rx="10" fill="url(#gzh_band_data)" stroke="#f472b6" stroke-opacity="0.25"/>
+    <rect x="40" y="630" width="5" height="110" rx="3" fill="#f472b6"/>
+    <text x="60" y="685" fill="#f472b6" font-size="13" font-weight="600">知识与数据层</text>
+    <text x="60" y="705" fill="#4b5a75" font-size="9" font-family="Consolas,monospace">KNOWLEDGE BASE</text>
+
+    <!-- 6. 评测与反馈闭环（右侧独立竖排） -->
+    <rect x="980" y="200" width="170" height="260" rx="10" fill="url(#gzh_band_eval)" stroke="#fb923c" stroke-opacity="0.30"/>
+    <rect x="980" y="200" width="5" height="260" rx="3" fill="#fb923c"/>
+    <text x="1000" y="250" fill="#fb923c" font-size="12" font-weight="600">评测闭环</text>
+    <text x="1000" y="265" fill="#4b5a75" font-size="8.5" font-family="Consolas,monospace">EVALUATION LOOP</text>
+
+    <!-- ============ 节点 ============ -->
+    <!-- 1. 用户交互层 -->
+    <g filter="url(#gzh_glow)">
+        <rect x="140" y="40" width="140" height="60" rx="8" fill="url(#gzh_node_blue)" stroke="#38bdf8" stroke-width="1.2"/>
+        <text x="210" y="64" fill="#e6f2ff" font-size="13" font-weight="600" text-anchor="middle">Web 端</text>
+        <text x="210" y="82" fill="#6b84ad" font-size="10" text-anchor="middle">Vue3 / React</text>
+    </g>
+
+    <g filter="url(#gzh_glow)">
+        <rect x="310" y="40" width="140" height="60" rx="8" fill="url(#gzh_node_blue)" stroke="#38bdf8" stroke-width="1.2"/>
+        <text x="380" y="64" fill="#e6f2ff" font-size="13" font-weight="600" text-anchor="middle">移动端 App</text>
+        <text x="380" y="82" fill="#6b84ad" font-size="10" text-anchor="middle">iOS / Android</text>
+    </g>
+
+    <g filter="url(#gzh_glow)">
+        <rect x="480" y="40" width="140" height="60" rx="8" fill="url(#gzh_node_blue)" stroke="#38bdf8" stroke-width="1.2"/>
+        <text x="550" y="64" fill="#e6f2ff" font-size="13" font-weight="600" text-anchor="middle">微信小程序</text>
+        <text x="550" y="82" fill="#6b84ad" font-size="10" text-anchor="middle">UniApp</text>
+    </g>
+
+    <g filter="url(#gzh_glow)">
+        <rect x="650" y="40" width="140" height="60" rx="8" fill="url(#gzh_node_blue)" stroke="#38bdf8" stroke-width="1.2"/>
+        <text x="720" y="64" fill="#e6f2ff" font-size="13" font-weight="600" text-anchor="middle">开放 API</text>
+        <text x="720" y="82" fill="#6b84ad" font-size="10" text-anchor="middle">REST / WebSocket</text>
+    </g>
+
+    <g filter="url(#gzh_glow)">
+        <rect x="820" y="40" width="140" height="60" rx="8" fill="url(#gzh_node_blue)" stroke="#38bdf8" stroke-width="1.2"/>
+        <text x="890" y="64" fill="#e6f2ff" font-size="13" font-weight="600" text-anchor="middle">语音 / 多模态</text>
+        <text x="890" y="82" fill="#6b84ad" font-size="10" text-anchor="middle">ASR · OCR · CV</text>
+    </g>
+
+    <!-- 2. Agent 编排层 -->
+    <g filter="url(#gzh_glow)">
+        <rect x="100" y="170" width="140" height="70" rx="8" fill="url(#gzh_node_purple)" stroke="#a78bfa" stroke-width="1.2"/>
+        <text x="170" y="194" fill="#ede9fe" font-size="13" font-weight="600" text-anchor="middle">意图识别</text>
+        <text x="170" y="212" fill="#9c8cdc" font-size="10" text-anchor="middle">BERT / LLM 分类</text>
+        <text x="170" y="228" fill="#6b5fa0" font-size="9" text-anchor="middle">Slot Filling</text>
+    </g>
+
+    <g filter="url(#gzh_glow)">
+        <rect x="270" y="170" width="140" height="70" rx="8" fill="url(#gzh_node_purple)" stroke="#a78bfa" stroke-width="1.2"/>
+        <text x="340" y="194" fill="#ede9fe" font-size="13" font-weight="600" text-anchor="middle">多 Agent 调度</text>
+        <text x="340" y="212" fill="#9c8cdc" font-size="10" text-anchor="middle">Router / Planner</text>
+        <text x="340" y="228" fill="#6b5fa0" font-size="9" text-anchor="middle">ReAct / Tool-Use</text>
+    </g>
+
+    <g filter="url(#gzh_glow)">
+        <rect x="440" y="170" width="140" height="70" rx="8" fill="url(#gzh_node_purple)" stroke="#a78bfa" stroke-width="1.2"/>
+        <text x="510" y="194" fill="#ede9fe" font-size="13" font-weight="600" text-anchor="middle">Prompt 工程</text>
+        <text x="510" y="212" fill="#9c8cdc" font-size="10" text-anchor="middle">Template 模板库</text>
+        <text x="510" y="228" fill="#6b5fa0" font-size="9" text-anchor="middle">Few-shot 样本</text>
+    </g>
+
+    <g filter="url(#gzh_glow)">
+        <rect x="610" y="170" width="140" height="70" rx="8" fill="url(#gzh_node_purple)" stroke="#a78bfa" stroke-width="1.2"/>
+        <text x="680" y="194" fill="#ede9fe" font-size="13" font-weight="600" text-anchor="middle">对话状态管理</text>
+        <text x="680" y="212" fill="#9c8cdc" font-size="10" text-anchor="middle">Session · Memory</text>
+        <text x="680" y="228" fill="#6b5fa0" font-size="9" text-anchor="middle">Context 记忆链</text>
+    </g>
+
+    <g filter="url(#gzh_glow)">
+        <rect x="780" y="170" width="140" height="70" rx="8" fill="url(#gzh_node_purple)" stroke="#a78bfa" stroke-width="1.2"/>
+        <text x="850" y="194" fill="#ede9fe" font-size="13" font-weight="600" text-anchor="middle">外部工具调用</text>
+        <text x="850" y="212" fill="#9c8cdc" font-size="10" text-anchor="middle">API · 数据库</text>
+        <text x="850" y="228" fill="#6b5fa0" font-size="9" text-anchor="middle">Function Calling</text>
+    </g>
+
+    <!-- 3. RAG 检索层 -->
+    <g filter="url(#gzh_glow)">
+        <rect x="100" y="340" width="140" height="80" rx="8" fill="url(#gzh_node_green)" stroke="#34d399" stroke-width="1.2"/>
+        <text x="170" y="364" fill="#d1fae5" font-size="13" font-weight="600" text-anchor="middle">Query 改写</text>
+        <text x="170" y="382" fill="#6bbd9b" font-size="10" text-anchor="middle">HyDE · 扩展</text>
+        <text x="170" y="400" fill="#4a9a78" font-size="9" text-anchor="middle">Decomposition</text>
+        <text x="170" y="414" fill="#4a9a78" font-size="9" text-anchor="middle">Step-back Prompt</text>
+    </g>
+
+    <g filter="url(#gzh_glow)">
+        <rect x="270" y="340" width="140" height="80" rx="8" fill="url(#gzh_node_green)" stroke="#34d399" stroke-width="1.2"/>
+        <text x="340" y="364" fill="#d1fae5" font-size="13" font-weight="600" text-anchor="middle">向量检索</text>
+        <text x="340" y="382" fill="#6bbd9b" font-size="10" text-anchor="middle">HNSW · IVF</text>
+        <text x="340" y="400" fill="#4a9a78" font-size="9" text-anchor="middle">余弦 · Inner Product</text>
+        <text x="340" y="414" fill="#4a9a78" font-size="9" text-anchor="middle">ANN 近似最近邻</text>
+    </g>
+
+    <g filter="url(#gzh_glow)">
+        <rect x="440" y="340" width="140" height="80" rx="8" fill="url(#gzh_node_green)" stroke="#34d399" stroke-width="1.2"/>
+        <text x="510" y="364" fill="#d1fae5" font-size="13" font-weight="600" text-anchor="middle">重排序 Rerank</text>
+        <text x="510" y="382" fill="#6bbd9b" font-size="10" text-anchor="middle">Cross-Encoder</text>
+        <text x="510" y="400" fill="#4a9a78" font-size="9" text-anchor="middle">BGE-reranker</text>
+        <text x="510" y="414" fill="#4a9a78" font-size="9" text-anchor="middle">Cohere / Voyage</text>
+    </g>
+
+    <g filter="url(#gzh_glow)">
+        <rect x="610" y="340" width="140" height="80" rx="8" fill="url(#gzh_node_green)" stroke="#34d399" stroke-width="1.2"/>
+        <text x="680" y="364" fill="#d1fae5" font-size="13" font-weight="600" text-anchor="middle">混合检索</text>
+        <text x="680" y="382" fill="#6bbd9b" font-size="10" text-anchor="middle">Dense + Sparse</text>
+        <text x="680" y="400" fill="#4a9a78" font-size="9" text-anchor="middle">BM25 · Keyword</text>
+        <text x="680" y="414" fill="#4a9a78" font-size="9" text-anchor="middle">RRF 融合</text>
+    </g>
+
+    <g filter="url(#gzh_glow)">
+        <rect x="780" y="340" width="140" height="80" rx="8" fill="url(#gzh_node_green)" stroke="#34d399" stroke-width="1.2"/>
+        <text x="850" y="364" fill="#d1fae5" font-size="13" font-weight="600" text-anchor="middle">上下文构建</text>
+        <text x="850" y="382" fill="#6bbd9b" font-size="10" text-anchor="middle">Chunk · Snippet</text>
+        <text x="850" y="400" fill="#4a9a78" font-size="9" text-anchor="middle">Token Budget</text>
+        <text x="850" y="414" fill="#4a9a78" font-size="9" text-anchor="middle">Source Citation</text>
+    </g>
+
+    <!-- 4. 大模型推理层 -->
+    <g filter="url(#gzh_glow)">
+        <rect x="140" y="505" width="180" height="80" rx="8" fill="url(#gzh_node_yellow)" stroke="#fbbf24" stroke-width="1.2"/>
+        <text x="230" y="530" fill="#fef3c7" font-size="13" font-weight="600" text-anchor="middle">开源基座模型</text>
+        <text x="230" y="550" fill="#d4a93c" font-size="10" text-anchor="middle">Llama3 · Qwen2 · Mistral</text>
+        <text x="230" y="568" fill="#a98420" font-size="9" text-anchor="middle">本地私有化部署</text>
+        <text x="230" y="582" fill="#a98420" font-size="9" text-anchor="middle">vLLM / TensorRT 加速</text>
+    </g>
+
+    <g filter="url(#gzh_glow)">
+        <rect x="360" y="505" width="180" height="80" rx="8" fill="url(#gzh_node_yellow)" stroke="#fbbf24" stroke-width="1.2"/>
+        <text x="450" y="530" fill="#fef3c7" font-size="13" font-weight="600" text-anchor="middle">微调适配</text>
+        <text x="450" y="550" fill="#d4a93c" font-size="10" text-anchor="middle">SFT · LoRA · QLoRA</text>
+        <text x="450" y="568" fill="#a98420" font-size="9" text-anchor="middle">领域指令调优</text>
+        <text x="450" y="582" fill="#a98420" font-size="9" text-anchor="middle">DPO / RLHF 对齐</text>
+    </g>
+
+    <g filter="url(#gzh_glow)">
+        <rect x="580" y="505" width="180" height="80" rx="8" fill="url(#gzh_node_yellow)" stroke="#fbbf24" stroke-width="1.2"/>
+        <text x="670" y="530" fill="#fef3c7" font-size="13" font-weight="600" text-anchor="middle">Embedding 模型</text>
+        <text x="670" y="550" fill="#d4a93c" font-size="10" text-anchor="middle">BGE · M3E · E5</text>
+        <text x="670" y="568" fill="#a98420" font-size="9" text-anchor="middle">中英双语语义向量</text>
+        <text x="670" y="582" fill="#a98420" font-size="9" text-anchor="middle">Matryoshka 动态维度</text>
+    </g>
+
+    <g filter="url(#gzh_glow)">
+        <rect x="800" y="505" width="140" height="80" rx="8" fill="url(#gzh_node_yellow)" stroke="#fbbf24" stroke-width="1.2"/>
+        <text x="870" y="530" fill="#fef3c7" font-size="13" font-weight="600" text-anchor="middle">输出安全护栏</text>
+        <text x="870" y="550" fill="#d4a93c" font-size="10" text-anchor="middle">PII 脱敏</text>
+        <text x="870" y="568" fill="#a98420" font-size="9" text-anchor="middle">幻觉检测</text>
+        <text x="870" y="582" fill="#a98420" font-size="9" text-anchor="middle">合规审查</text>
+    </g>
+
+    <!-- 5. 知识与数据层 -->
+    <g filter="url(#gzh_glow)">
+        <rect x="140" y="655" width="140" height="60" rx="8" fill="url(#gzh_node_pink)" stroke="#f472b6" stroke-width="1.2"/>
+        <text x="210" y="678" fill="#fce7f3" font-size="13" font-weight="600" text-anchor="middle">向量数据库</text>
+        <text x="210" y="696" fill="#c979a3" font-size="10" text-anchor="middle">Milvus · Qdrant</text>
+    </g>
+
+    <g filter="url(#gzh_glow)">
+        <rect x="310" y="655" width="140" height="60" rx="8" fill="url(#gzh_node_pink)" stroke="#f472b6" stroke-width="1.2"/>
+        <text x="380" y="678" fill="#fce7f3" font-size="13" font-weight="600" text-anchor="middle">关系型数据库</text>
+        <text x="380" y="696" fill="#c979a3" font-size="10" text-anchor="middle">PostgreSQL</text>
+    </g>
+
+    <g filter="url(#gzh_glow)">
+        <rect x="480" y="655" width="140" height="60" rx="8" fill="url(#gzh_node_pink)" stroke="#f472b6" stroke-width="1.2"/>
+        <text x="550" y="678" fill="#fce7f3" font-size="13" font-weight="600" text-anchor="middle">文档存储</text>
+        <text x="550" y="696" fill="#c979a3" font-size="10" text-anchor="middle">PDF · Markdown</text>
+    </g>
+
+    <g filter="url(#gzh_glow)">
+        <rect x="650" y="655" width="140" height="60" rx="8" fill="url(#gzh_node_pink)" stroke="#f472b6" stroke-width="1.2"/>
+        <text x="720" y="678" fill="#fce7f3" font-size="13" font-weight="600" text-anchor="middle">对话日志</text>
+        <text x="720" y="696" fill="#c979a3" font-size="10" text-anchor="middle">ClickHouse · Kafka</text>
+    </g>
+
+    <g filter="url(#gzh_glow)">
+        <rect x="820" y="655" width="140" height="60" rx="8" fill="url(#gzh_node_pink)" stroke="#f472b6" stroke-width="1.2"/>
+        <text x="890" y="678" fill="#fce7f3" font-size="13" font-weight="600" text-anchor="middle">知识库构建</text>
+        <text x="890" y="696" fill="#c979a3" font-size="10" text-anchor="middle">ETL · 增量同步</text>
+    </g>
+
+    <!-- 6. 评测闭环 -->
+    <g filter="url(#gzh_glow)">
+        <rect x="1000" y="280" width="130" height="52" rx="8" fill="url(#gzh_node_orange)" stroke="#fb923c" stroke-width="1.2"/>
+        <text x="1065" y="302" fill="#ffedd5" font-size="12" font-weight="600" text-anchor="middle">离线评测集</text>
+        <text x="1065" y="318" fill="#c9825a" font-size="9" text-anchor="middle">Golden QA Pair</text>
+    </g>
+
+    <g filter="url(#gzh_glow)">
+        <rect x="1000" y="360" width="130" height="52" rx="8" fill="url(#gzh_node_orange)" stroke="#fb923c" stroke-width="1.2"/>
+        <text x="1065" y="382" fill="#ffedd5" font-size="12" font-weight="600" text-anchor="middle">自动评测 LLM-as-Judge</text>
+        <text x="1065" y="398" fill="#c9825a" font-size="9" text-anchor="middle">GPT-4 裁判打分</text>
+    </g>
+
+    <g filter="url(#gzh_glow)">
+        <rect x="1000" y="440" width="130" height="52" rx="8" fill="url(#gzh_node_orange)" stroke="#fb923c" stroke-width="1.2"/>
+        <text x="1065" y="462" fill="#ffedd5" font-size="12" font-weight="600" text-anchor="middle">指标仪表盘</text>
+        <text x="1065" y="478" fill="#c9825a" font-size="9" text-anchor="middle">Recall · F1 · Faithfulness</text>
+    </g>
+
+    <!-- ============ 连接线 ============ -->
+    <!-- 用户交互层 → Agent 层（蓝色） -->
+    <g stroke="#60a5fa" stroke-width="1.5" fill="none" marker-end="url(#gzh_arrow_blue)" opacity="0.7">
+        <line x1="210" y1="100" x2="170" y2="170"/>
+        <line x1="380" y1="100" x2="340" y2="170"/>
+        <line x1="550" y1="100" x2="510" y2="170"/>
+        <line x1="720" y1="100" x2="680" y2="170"/>
+        <line x1="890" y1="100" x2="850" y2="170"/>
+    </g>
+
+    <!-- Agent 层 → RAG 层（紫色虚线） -->
+    <g stroke="#a78bfa" stroke-width="1.5" fill="none" stroke-dasharray="4 3" marker-end="url(#gzh_arrow_purple)" opacity="0.7">
+        <path d="M 340 240 C 340 280, 340 310, 340 340"/>
+        <path d="M 510 240 C 510 280, 510 310, 510 340"/>
+        <path d="M 680 240 C 680 280, 680 310, 680 340"/>
+    </g>
+
+    <!-- RAG 层 → LLM 层（绿色） -->
+    <g stroke="#34d399" stroke-width="1.5" fill="none" marker-end="url(#gzh_arrow_green)" opacity="0.7">
+        <path d="M 510 420 C 510 470, 450 480, 450 505"/>
+        <path d="M 680 420 C 680 470, 670 480, 670 505"/>
+        <path d="M 850 420 C 850 470, 870 480, 870 505"/>
+    </g>
+
+    <!-- RAG 层 → Embedding 模型（绿色虚线，表示调用） -->
+    <g stroke="#34d399" stroke-width="1.2" fill="none" stroke-dasharray="3 3" opacity="0.55">
+        <path d="M 340 420 C 340 470, 670 480, 670 505"/>
+    </g>
+    <text x="500" y="470" fill="#34d399" font-size="9" opacity="0.7">Embedding 调用</text>
+
+    <!-- LLM 层 → 数据层（黄色） -->
+    <g stroke="#fbbf24" stroke-width="1.5" fill="none" marker-end="url(#gzh_arrow_yellow)" opacity="0.7">
+        <path d="M 230 585 C 230 620, 210 630, 210 655"/>
+        <path d="M 450 585 C 450 620, 380 630, 380 655"/>
+    </g>
+
+    <!-- 知识构建 → 向量库 -->
+    <g stroke="#f472b6" stroke-width="1.2" fill="none" stroke-dasharray="3 3" opacity="0.5">
+        <path d="M 820 685 C 500 685, 300 685, 280 685" marker-end="url(#gzh_arrow_pink)"/>
+    </g>
+    <text x="520" y="672" fill="#f472b6" font-size="9" opacity="0.7">知识入库 · Chunking · Embedding</text>
+
+    <!-- 对话日志 → 评测闭环（反馈循环） -->
+    <g stroke="#fb923c" stroke-width="1.5" fill="none" stroke-dasharray="5 3" opacity="0.7" marker-end="url(#gzh_arrow_orange)">
+        <path d="M 820 685 C 700 720, 1150 720, 1150 460 C 1150 400, 1150 330, 1130 332"/>
+    </g>
+    <text x="1030" y="740" fill="#fb923c" font-size="10" font-weight="600" opacity="0.8">📊 线上日志回流 → 离线评测 → 模型迭代</text>
+
+    <!-- 大模型基座 → 微调（内部箭头） -->
+    <g stroke="#fbbf24" stroke-width="1.2" fill="none" stroke-dasharray="3 3" opacity="0.45" marker-end="url(#gzh_arrow_yellow)">
+        <path d="M 320 545 C 340 545, 350 545, 360 545"/>
+    </g>
+    <text x="335" y="538" fill="#fbbf24" font-size="8.5" opacity="0.6">预训练 → 微调</text>
+
+    <!-- ============ 标题标注 ============ -->
+    <text x="70" y="860" fill="#4b5a75" font-size="10" font-family="Consolas,monospace">
+        GZH · 基于知识库的智能客服系统总体架构图 · SVG 原生绘制
+    </text>
+    <text x="700" y="860" fill="#4b5a75" font-size="10" font-family="Consolas,monospace">
+        科研方向 · RAG + Agent + 向量检索 + LLM 微调 + 评测闭环
+    </text>
+
+</svg>
+    </div>
+
+    <div class="gzh_legend">
+        <span><i style="background:#38bdf8"></i>用户交互层</span>
+        <span><i style="background:#a78bfa"></i>Agent 编排层</span>
+        <span><i style="background:#34d399"></i>RAG 检索层</span>
+        <span><i style="background:#fbbf24"></i>大模型推理层</span>
+        <span><i style="background:#f472b6"></i>知识与数据层</span>
+        <span><i style="background:#fb923c"></i>评测闭环</span>
+        <span><i style="background:#60a5fa"></i>用户请求流</span>
+        <span><i style="background:#fb923c"></i>反馈回流</span>
+    </div>
+
+    <div class="gzh_annotations">
+        <div class="gzh_ann_item">
+            <h4 style="color:#38bdf8;">💡 分层设计思想</h4>
+            <p>从前端交互到知识库存储，六层逐层解耦。每一层都可以独立替换技术实现而不影响其他层。Agent 编排层是中枢，负责意图识别后路由到不同专家链路。</p>
+        </div>
+        <div class="gzh_ann_item">
+            <h4 style="color:#34d399;">🔍 RAG 核心链路</h4>
+            <p>Query → 改写 → Embedding → 向量检索 → BM25 混合 → Rerank 重排 → 上下文构建。HyDE、Decomposition、Step-back 等科研技巧已落地。</p>
+        </div>
+        <div class="gzh_ann_item">
+            <h4 style="color:#fbbf24;">🧠 大模型技术栈</h4>
+            <p>基座模型 + SFT/LoRA 指令调优 + DPO/RLHF 对齐 → 生成。Embedding 单独部署以支持动态向量维度。vLLM 提升推理吞吐。</p>
+        </div>
+        <div class="gzh_ann_item">
+            <h4 style="color:#fb923c;">📈 评测闭环</h4>
+            <p>线上对话日志自动回流 → Golden QA Pair 扩充 → LLM-as-Judge 离线评测 → Faithfulness/Relevancy 指标 → 指导检索策略和 Prompt 调优。</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>
