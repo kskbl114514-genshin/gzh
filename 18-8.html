@@ -1,10 +1,10 @@
-<!-- 姓名：郭兹寒，建立时间：2026-11-05 14:30，使用的大模型：DeepSeek-V4.1-Flash，功能：ECharts 数据大屏（三列 · 中间地理图） -->
+<!-- 姓名：郭兹寒，建立时间：2026-11-05 15:00，使用的大模型：DeepSeek-V4.1-Flash，功能：ECharts 智能客服数据大屏 v2（增强版） -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>智能客服运营数据大屏</title>
+    <title>智能客服运营数据大屏 v2</title>
     <script src="cdn/echarts.min.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -30,68 +30,47 @@
         }
         .gzh_header::before,
         .gzh_header::after {
-            content: "";
-            position: absolute;
-            top: 50%;
-            width: 22%;
-            height: 1px;
+            content: ""; position: absolute; top: 50%;
+            width: 22%; height: 1px;
             background: linear-gradient(90deg, transparent, rgba(56,189,248,.45), transparent);
         }
         .gzh_header::before { left: 10%; }
         .gzh_header::after  { right: 10%; }
-
         .gzh_header h1 {
-            font-size: 26px;
-            font-weight: 700;
-            letter-spacing: 6px;
+            font-size: 26px; font-weight: 700; letter-spacing: 6px;
             background: linear-gradient(135deg, #38bdf8 0%, #60a5fa 40%, #a78bfa 100%);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             background-clip: text;
         }
         .gzh_header .gzh_time {
-            position: absolute;
-            left: 20px; top: 50%; transform: translateY(-50%);
-            font-size: 12px; font-family: Consolas, monospace;
-            color: #38bdf8;
+            position: absolute; left: 20px; top: 50%; transform: translateY(-50%);
+            font-size: 12px; font-family: Consolas, monospace; color: #38bdf8;
         }
         .gzh_header .gzh_status {
-            position: absolute;
-            right: 20px; top: 50%; transform: translateY(-50%);
-            font-size: 11px;
-            display: flex; gap: 12px; align-items: center;
+            position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
+            font-size: 11px; display: flex; gap: 12px; align-items: center;
         }
         .gzh_header .gzh_status span {
-            display: inline-flex; align-items: center; gap: 5px;
-            color: #64748b;
+            display: inline-flex; align-items: center; gap: 5px; color: #64748b;
         }
-        .gzh_header .gzh_status b {
-            color: #22d3ee; font-weight: 700;
-        }
+        .gzh_header .gzh_status b { color: #22d3ee; font-weight: 700; }
         .gzh_dot {
             display: inline-block; width: 6px; height: 6px; border-radius: 50%;
             background: #22d3ee; box-shadow: 0 0 8px #22d3ee;
+            animation: gzh_blink 1.5s ease-in-out infinite;
         }
+        @keyframes gzh_blink { 0%,100%{opacity:1;} 50%{opacity:.4;} }
 
         /* ============ 三列布局 ============ */
         .gzh_main {
             display: grid;
-            grid-template-columns: 1fr 1.45fr 1fr;
+            grid-template-columns: 1fr 1.5fr 1fr;
             gap: 14px;
             max-width: 1920px;
             margin: 0 auto;
         }
-        @media (max-width: 1400px) {
-            .gzh_main { grid-template-columns: 1fr 1.2fr 1fr; }
-        }
-        @media (max-width: 1100px) {
-            .gzh_main { grid-template-columns: 1fr; }
-        }
-
-        .gzh_col {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
+        @media (max-width: 1100px) { .gzh_main { grid-template-columns: 1fr; } }
+        .gzh_col { display: flex; flex-direction: column; gap: 14px; }
 
         /* ============ 卡片 ============ */
         .gzh_card {
@@ -102,127 +81,71 @@
             position: relative;
             box-shadow: inset 0 0 30px rgba(56,189,248,.04);
         }
-        /* 四角装饰 */
         .gzh_card::before,
         .gzh_card::after {
             content: ""; position: absolute; width: 14px; height: 14px;
             border-color: #38bdf8; border-style: solid;
         }
-        .gzh_card::before {
-            top: -1px; left: -1px;
-            border-width: 2px 0 0 2px;
-        }
-        .gzh_card::after {
-            bottom: -1px; right: -1px;
-            border-width: 0 2px 2px 0;
-        }
+        .gzh_card::before { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+        .gzh_card::after  { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
 
         .gzh_card h3 {
-            font-size: 13px;
-            font-weight: 600;
-            color: #38bdf8;
-            letter-spacing: 1px;
-            margin-bottom: 4px;
-            padding-left: 10px;
-            border-left: 3px solid #38bdf8;
+            font-size: 13px; font-weight: 600; color: #38bdf8; letter-spacing: 1px;
+            margin-bottom: 4px; padding-left: 10px; border-left: 3px solid #38bdf8;
         }
         .gzh_card h3 span {
-            font-size: 10px;
-            color: #4b5a75;
-            margin-left: 6px;
+            font-size: 10px; color: #4b5a75; margin-left: 6px;
             font-family: Consolas, monospace;
         }
-        .gzh_card .gzh_chart {
-            width: 100%;
-            height: 280px;
-        }
-        .gzh_col_center .gzh_card .gzh_chart { height: 380px; }
-
-        /* ============ 中心地图 ============ */
-        .gzh_card.gzh_map_card .gzh_chart { height: 460px; }
+        .gzh_card .gzh_chart { width: 100%; height: 260px; }
+        .gzh_col_center .gzh_card .gzh_chart { height: 340px; }
+        .gzh_card.gzh_map_card .gzh_chart { height: 440px; }
 
         /* ============ KPI 指标卡 ============ */
         .gzh_kpi_row {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            margin-bottom: 12px;
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px;
         }
         @media (max-width: 900px) { .gzh_kpi_row { grid-template-columns: repeat(2, 1fr); } }
-
         .gzh_kpi {
             background: linear-gradient(135deg, rgba(56,189,248,.12), rgba(99,102,241,.08));
             border: 1px solid rgba(56,189,248,.22);
-            border-radius: 6px;
-            padding: 10px 8px;
-            text-align: center;
+            border-radius: 6px; padding: 10px 8px; text-align: center;
         }
-        .gzh_kpi .gzh_label {
-            font-size: 10px;
-            color: #64748b;
-            letter-spacing: 1px;
-            margin-bottom: 3px;
-        }
+        .gzh_kpi .gzh_label { font-size: 10px; color: #64748b; letter-spacing: 1px; margin-bottom: 3px; }
         .gzh_kpi .gzh_val {
-            font-size: 22px;
-            font-weight: 700;
-            font-family: Consolas, monospace;
+            font-size: 22px; font-weight: 700; font-family: Consolas, monospace;
             background: linear-gradient(135deg, #22d3ee, #60a5fa);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            background-clip: text;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
         }
-        .gzh_kpi .gzh_delta {
-            font-size: 10px;
-            margin-top: 2px;
-        }
+        .gzh_kpi .gzh_delta { font-size: 10px; margin-top: 2px; }
         .gzh_kpi .gzh_delta.up   { color: #34d399; }
         .gzh_kpi .gzh_delta.down { color: #ef4444; }
 
-        /* ============ 滚动订单列表 ============ */
-        .gzh_scroll {
-            height: 200px;
-            overflow: hidden;
-            position: relative;
-        }
-        .gzh_scroll_inner {
-            animation: gzh_scrollup 20s linear infinite;
-        }
+        /* ============ 滚动工单 ============ */
+        .gzh_scroll { height: 200px; overflow: hidden; position: relative; }
+        .gzh_scroll_inner { animation: gzh_scrollup 24s linear infinite; }
         .gzh_scroll_inner:hover { animation-play-state: paused; }
-        @keyframes gzh_scrollup {
-            0%   { transform: translateY(0); }
-            100% { transform: translateY(-50%); }
-        }
+        @keyframes gzh_scrollup { 0%{transform:translateY(0);} 100%{transform:translateY(-50%);} }
         .gzh_scroll table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
         .gzh_scroll th {
             color: #4b5a75; font-weight: 500; text-align: left; padding: 6px 4px;
             border-bottom: 1px solid rgba(56,189,248,.15);
-            position: sticky; top: 0; background: rgba(2,6,20,.95);
         }
         .gzh_scroll td {
-            padding: 6px 4px; color: #94a3b8; border-bottom: 1px dashed rgba(56,189,248,.08);
+            padding: 6px 4px; color: #94a3b8;
+            border-bottom: 1px dashed rgba(56,189,248,.08);
         }
-        .gzh_scroll td.gzh_good { color: #34d399; font-weight: 600; }
-        .gzh_scroll td.gzh_bad  { color: #ef4444; font-weight: 600; }
         .gzh_scroll tr:hover td { background: rgba(56,189,248,.06); }
 
-        /* ============ 左列排行 ============ */
-        .gzh_rank {
-            list-style: none;
-            padding: 0; margin: 0;
-        }
+        /* ============ 排行榜 ============ */
+        .gzh_rank { list-style: none; padding: 0; margin: 0; }
         .gzh_rank li {
-            display: grid;
-            grid-template-columns: 22px 1fr 60px 60px;
-            align-items: center;
-            gap: 8px;
-            padding: 7px 4px;
-            border-bottom: 1px dashed rgba(56,189,248,.08);
-            font-size: 12px;
+            display: grid; grid-template-columns: 22px 1fr 60px 60px;
+            align-items: center; gap: 8px; padding: 7px 4px;
+            border-bottom: 1px dashed rgba(56,189,248,.08); font-size: 12px;
         }
         .gzh_rank .gzh_idx {
-            width: 20px; height: 20px;
-            border-radius: 3px;
-            text-align: center; line-height: 20px;
+            width: 20px; height: 20px; border-radius: 3px; text-align: center; line-height: 20px;
             font-size: 11px; font-weight: 700;
             background: rgba(56,189,248,.15); color: #38bdf8;
         }
@@ -231,57 +154,61 @@
         .gzh_rank li:nth-child(3) .gzh_idx { background: linear-gradient(135deg,#d97706,#92400e); color:#fff; }
         .gzh_rank .gzh_name { color: #e2e8f0; }
         .gzh_rank .gzh_bar {
-            height: 6px; border-radius: 3px; background: rgba(56,189,248,.1);
-            overflow: hidden;
+            height: 6px; border-radius: 3px; background: rgba(56,189,248,.1); overflow: hidden;
         }
         .gzh_rank .gzh_bar i {
             display: block; height: 100%;
             background: linear-gradient(90deg,#38bdf8,#60a5fa);
-            border-radius: 3px;
+            border-radius: 3px; transition: width 1s ease;
         }
         .gzh_rank .gzh_val { text-align: right; color: #22d3ee; font-family: Consolas, monospace; }
 
-        /* ============ 右侧进度 ============ */
-        .gzh_progress { margin-top: 8px; }
-        .gzh_progress_item { margin-bottom: 12px; }
-        .gzh_progress_head {
-            display: flex; justify-content: space-between;
-            font-size: 11.5px; margin-bottom: 4px;
+        /* ============ 告警 Toast ============ */
+        .gzh_toast_wrap { position: fixed; top: 80px; right: 20px; z-index: 999; display: flex; flex-direction: column; gap: 10px; }
+        .gzh_toast {
+            background: linear-gradient(135deg, rgba(239,68,68,.2), rgba(239,68,68,.05));
+            border: 1px solid rgba(239,68,68,.4);
+            border-left: 4px solid #ef4444;
+            border-radius: 6px; padding: 12px 16px; min-width: 260px;
+            box-shadow: 0 8px 24px rgba(239,68,68,.25);
+            animation: gzh_toast_in .5s ease, gzh_toast_out .5s ease 4.5s forwards;
         }
-        .gzh_progress_head .gzh_name { color: #cbd5e1; }
-        .gzh_progress_head .gzh_val { color: #22d3ee; font-family: Consolas, monospace; }
-        .gzh_progress_bar {
-            height: 8px; border-radius: 4px; background: rgba(56,189,248,.08); overflow: hidden;
-        }
-        .gzh_progress_bar i {
-            display: block; height: 100%;
-            border-radius: 4px;
-            background: linear-gradient(90deg,#34d399,#22d3ee,#60a5fa);
-            box-shadow: 0 0 8px rgba(56,189,248,.5);
-            animation: gzh_shine 2.5s ease-in-out infinite;
-        }
-        @keyframes gzh_shine {
-            0%,100% { filter: brightness(1); }
-            50%     { filter: brightness(1.3); }
-        }
+        .gzh_toast.gzh_warn  { border-left-color:#fbbf24; background: linear-gradient(135deg,rgba(251,191,36,.2),rgba(251,191,36,.05)); border-color:rgba(251,191,36,.4); box-shadow: 0 8px 24px rgba(251,191,36,.2); }
+        .gzh_toast.gzh_ok    { border-left-color:#34d399; background: linear-gradient(135deg,rgba(52,211,153,.2),rgba(52,211,153,.05)); border-color:rgba(52,211,153,.4); box-shadow: 0 8px 24px rgba(52,211,153,.2); }
+        .gzh_toast .gzh_t_title { font-size: 12px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+        .gzh_toast .gzh_t_body { font-size: 11px; color: #94a3b8; line-height: 1.6; }
+        @keyframes gzh_toast_in  { from{transform:translateX(120%);opacity:0;} to{transform:translateX(0);opacity:1;} }
+        @keyframes gzh_toast_out { from{transform:translateX(0);opacity:1;} to{transform:translateX(120%);opacity:0;} }
 
-        @media (max-width: 1400px) {
-            .gzh_card .gzh_chart { height: 230px; }
-            .gzh_col_center .gzh_card .gzh_chart { height: 320px; }
-            .gzh_card.gzh_map_card .gzh_chart { height: 380px; }
+        /* ============ 底部状态栏 ============ */
+        .gzh_footer {
+            max-width: 1920px; margin: 14px auto 0;
+            background: linear-gradient(180deg, rgba(15,30,60,.85), rgba(5,12,28,.9));
+            border: 1px solid rgba(56,189,248,.18); border-radius: 8px;
+            padding: 10px 16px;
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 11px; color: #64748b;
         }
+        .gzh_footer b { color: #22d3ee; font-family: Consolas, monospace; }
+        .gzh_footer span { display: inline-flex; gap: 12px; align-items: center; }
+
+        /* ============ 数字滚动动画 ============ */
+        .gzh_val { transition: transform .3s ease; }
     </style>
 </head>
 <body>
 
+<div class="gzh_toast_wrap" id="gzh_toast_wrap"></div>
+
 <!-- ============ 头部 ============ -->
 <div class="gzh_header">
-    <div class="gzh_time" id="gzh_clock">2026-11-05 14:30:00</div>
+    <div class="gzh_time" id="gzh_clock">2026-11-05 15:00:00</div>
     <h1>智能客服运营数据可视化大屏</h1>
     <div class="gzh_status">
         <span><span class="gzh_dot"></span> 系统运行中</span>
-        <span>在线坐席 <b>128</b></span>
-        <span>今日工单 <b>3,247</b></span>
+        <span>在线坐席 <b id="gzh_agents">128</b></span>
+        <span>今日工单 <b id="gzh_tickets">3,247</b></span>
+        <span>延迟 <b id="gzh_latency">42ms</b></span>
     </div>
 </div>
 
@@ -291,17 +218,17 @@
     <!-- ============ 左列 ============ -->
     <div class="gzh_col">
         <div class="gzh_card">
-            <h3>📈 咨询量趋势 <span>LAST 7 DAYS</span></h3>
+            <h3>📈 咨询量趋势 <span>AI vs HUMAN · 7D</span></h3>
             <div id="gzh_left_line" class="gzh_chart"></div>
         </div>
 
         <div class="gzh_card">
-            <h3>🥧 问题类型占比 <span>REAL-TIME</span></h3>
-            <div id="gzh_left_pie" class="gzh_chart"></div>
+            <h3>🎭 用户情绪雷达 <span>SENTIMENT</span></h3>
+            <div id="gzh_left_radar" class="gzh_chart"></div>
         </div>
 
         <div class="gzh_card">
-            <h3>🏆 热门问题 TOP 8 <span>RANKING</span></h3>
+            <h3>🏆 热门问题 TOP 8 <span>RANKING · LIVE</span></h3>
             <ul class="gzh_rank" id="gzh_rank"></ul>
         </div>
     </div>
@@ -309,44 +236,39 @@
     <!-- ============ 中列 ============ -->
     <div class="gzh_col gzh_col_center">
 
-        <!-- 地理图：中国地图 + 散点 + 热力 -->
         <div class="gzh_card gzh_map_card">
-            <h3>🗺️ 全国咨询分布热力图 <span>CHINA · GEODATA</span></h3>
+            <h3>🗺️ 全国咨询分布 · 跨区工单飞线 <span>CHINA · GEODATA</span></h3>
             <div id="gzh_map" class="gzh_chart"></div>
         </div>
 
-        <!-- KPI 指标 -->
         <div class="gzh_kpi_row">
             <div class="gzh_kpi">
                 <div class="gzh_label">今日咨询</div>
-                <div class="gzh_val">3,247</div>
+                <div class="gzh_val" id="gzh_k1">3,247</div>
                 <div class="gzh_delta up">↑ 12.5%</div>
             </div>
             <div class="gzh_kpi">
                 <div class="gzh_label">AI 解决率</div>
-                <div class="gzh_val">87.3%</div>
+                <div class="gzh_val" id="gzh_k2">87.3%</div>
                 <div class="gzh_delta up">↑ 3.2%</div>
             </div>
             <div class="gzh_kpi">
                 <div class="gzh_label">平均响应</div>
-                <div class="gzh_val">1.8s</div>
+                <div class="gzh_val" id="gzh_k3">1.8s</div>
                 <div class="gzh_delta down">↓ 0.3s</div>
             </div>
             <div class="gzh_kpi">
                 <div class="gzh_label">满意度</div>
-                <div class="gzh_val">96.1%</div>
+                <div class="gzh_val" id="gzh_k4">96.1%</div>
                 <div class="gzh_delta up">↑ 0.8%</div>
             </div>
         </div>
 
-        <!-- 实时滚动工单 -->
         <div class="gzh_card">
-            <h3>📋 实时工单处理流 <span>LIVE STREAM</span></h3>
+            <h3>📋 实时工单处理流 <span>LIVE STREAM · AUTO</span></h3>
             <div class="gzh_scroll">
-                <table>
-                    <thead>
-                        <tr><th>工单号</th><th>地区</th><th>类型</th><th>AI 判定</th><th>状态</th></tr>
-                    </thead>
+                <table style="width:100%;border-collapse:collapse;font-size:11.5px;">
+                    <thead><tr><th>工单号</th><th>地区</th><th>类型</th><th>AI 判定</th><th>状态</th></tr></thead>
                 </table>
                 <div class="gzh_scroll_inner" id="gzh_tbody"></div>
             </div>
@@ -356,7 +278,7 @@
     <!-- ============ 右列 ============ -->
     <div class="gzh_col">
         <div class="gzh_card">
-            <h3>📊 渠道来源对比 <span>CHANNEL</span></h3>
+            <h3>📊 渠道来源对比 <span>CHANNEL · 6 DIM</span></h3>
             <div id="gzh_right_bar" class="gzh_chart"></div>
         </div>
 
@@ -366,59 +288,149 @@
         </div>
 
         <div class="gzh_card">
-            <h3>⚡ 服务质量指标 <span>SLA</span></h3>
+            <h3>⚡ AI 引擎实时状态 <span>ENGINE · LIVE</span></h3>
+            <div id="gzh_gauge" class="gzh_chart" style="height:200px;"></div>
             <div class="gzh_progress" id="gzh_progress"></div>
         </div>
     </div>
 
 </div>
 
+<!-- ============ 底部状态栏 ============ -->
+<div class="gzh_footer">
+    <span>
+        <span>数据源：<b>dummyjson + mock</b></span>
+        <span>引擎：<b>GPT-4o-mini</b></span>
+        <span>模型：<b>DeepSeek-V4.1-Flash</b></span>
+    </span>
+    <span>
+        <span>运行时长 <b id="gzh_uptime">00:00:00</b></span>
+        <span>刷新间隔 <b>5s</b></span>
+        <span>版本 <b>v2.0</b></span>
+    </span>
+</div>
+
 <script>
-/* ============================ 时钟 ============================ */
+/* ============================ 时钟 + 运行时长 ============================ */
 (function gzh_clock() {
     var el = document.getElementById("gzh_clock");
+    var start = Date.now();
+    var up = document.getElementById("gzh_uptime");
+
+    function pad(n) { return n < 10 ? "0" + n : n; }
+
     function update() {
         var d = new Date();
-        var pad = function (n) { return n < 10 ? "0" + n : n; };
         el.textContent =
             d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) + " " +
             pad(d.getHours()) + ":" + pad(d.getMinutes()) + ":" + pad(d.getSeconds());
+
+        var s = Math.floor((Date.now() - start) / 1000);
+        up.textContent = pad(Math.floor(s / 3600)) + ":" + pad(Math.floor((s % 3600) / 60)) + ":" + pad(s % 60);
+
+        /* 模拟网络延迟 */
+        document.getElementById("gzh_latency").textContent = (20 + Math.floor(Math.random() * 80)) + "ms";
     }
     update();
     setInterval(update, 1000);
 })();
 
-/* ============================ 滚动工单 ============================ */
+/* ============================ 数字滚动动画 ============================ */
+function gzh_countUp(el, target, suffix) {
+    var start = 0;
+    var duration = 800;
+    var t0 = performance.now();
+    function step(now) {
+        var p = Math.min(1, (now - t0) / duration);
+        var ease = 1 - Math.pow(1 - p, 3);
+        var cur = Math.floor(start + (target - start) * ease);
+        el.textContent = cur.toLocaleString() + (suffix || "");
+        if (p < 1) requestAnimationFrame(step);
+        else el.textContent = target.toLocaleString() + (suffix || "");
+    }
+    requestAnimationFrame(step);
+}
+
+/* ============================ 顶部 KPI 自动涨落 ============================ */
+(function gzh_kpiAuto() {
+    var v1 = 3247, v2 = 87.3, v3 = 1.8, v4 = 96.1;
+    function tick() {
+        v1 += Math.floor(Math.random() * 7);
+        v2 = Math.min(99.5, Math.max(75, v2 + (Math.random() - .5) * .4));
+        v3 = Math.max(.8, Math.min(3.5, v3 + (Math.random() - .5) * .15));
+        v4 = Math.min(99.9, Math.max(88, v4 + (Math.random() - .5) * .25));
+
+        document.getElementById("gzh_k1").textContent = v1.toLocaleString();
+        document.getElementById("gzh_k2").textContent = v2.toFixed(1) + "%";
+        document.getElementById("gzh_k3").textContent = v3.toFixed(1) + "s";
+        document.getElementById("gzh_k4").textContent = v4.toFixed(1) + "%";
+
+        document.getElementById("gzh_agents").textContent = 120 + Math.floor(Math.random() * 20);
+        document.getElementById("gzh_tickets").textContent = v1.toLocaleString();
+    }
+    tick();
+    setInterval(tick, 3000);
+})();
+
+/* ============================ Toast 告警 ============================ */
+function gzh_toast(type, title, body) {
+    var wrap = document.getElementById("gzh_toast_wrap");
+    var el = document.createElement("div");
+    el.className = "gzh_toast gzh_" + (type || "info");
+    el.innerHTML = '<div class="gzh_t_title">' + (title || "通知") + '</div>' +
+                   '<div class="gzh_t_body">' + (body || "") + '</div>';
+    wrap.appendChild(el);
+    setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 5200);
+}
+
+/* 启动时演示两条告警 */
+setTimeout(function () { gzh_toast("warn", "⚠️ 系统告警", "华东节点 CPU 使用率达到 78%，建议扩容。"); }, 1500);
+setTimeout(function () { gzh_toast("ok", "✅ 工单自动分发", "TK202611050012 已由 AI 自动解决，耗时 1.2s。"); }, 3500);
+
+/* ============================ 滚动工单（新增随机行） ============================ */
 (function gzh_scroll() {
     var provinces = ["北京", "上海", "广东", "浙江", "四川", "湖北", "江苏", "福建", "山东", "河南"];
     var types = ["账号问题", "订单咨询", "退款申请", "物流查询", "活动规则", "技术故障"];
     var aiResult = ["通过", "转人工", "自动回复", "通过", "需审核", "通过"];
     var statuses = ["已解决", "处理中", "待回复", "已解决", "已解决", "处理中"];
-    var colors = ["gzh_good", "", "", "gzh_good", "", ""];
 
     function rand(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
-    var rows = "";
-    for (var i = 0; i < 12; i++) {
-        var ok = statuses[i % 6] === "已解决";
-        rows += '<table style="width:100%;border-collapse:collapse;font-size:11.5px;">' +
-            '<tr>' +
-            '<td style="padding:6px 4px;color:#94a3b8;border-bottom:1px dashed rgba(56,189,248,.08);">TK' +
-            (202611050000 + i) + '</td>' +
-            '<td style="padding:6px 4px;color:#94a3b8;border-bottom:1px dashed rgba(56,189,248,.08);">' +
-            rand(provinces) + '</td>' +
-            '<td style="padding:6px 4px;color:#94a3b8;border-bottom:1px dashed rgba(56,189,248,.08);">' +
-            rand(types) + '</td>' +
-            '<td style="padding:6px 4px;color:' + (aiResult[i % 6] === "通过" ? "#34d399" : "#fbbf24") +
-            ';border-bottom:1px dashed rgba(56,189,248,.08);">' + aiResult[i % 6] + '</td>' +
-            '<td style="padding:6px 4px;border-bottom:1px dashed rgba(56,189,248,.08);" class="' + colors[i % 6] +
-            '">' + statuses[i % 6] + '</td>' +
-            '</tr></table>';
+    function makeRows(n) {
+        var rows = "";
+        for (var i = 0; i < n; i++) {
+            var idx = Math.floor(Math.random() * 6);
+            rows += '<table style="width:100%;border-collapse:collapse;font-size:11.5px;">' +
+                '<tr>' +
+                '<td style="padding:6px 4px;color:#94a3b8;border-bottom:1px dashed rgba(56,189,248,.08);">TK' +
+                (202611050000 + Math.floor(Math.random() * 9999)) + '</td>' +
+                '<td style="padding:6px 4px;color:#94a3b8;border-bottom:1px dashed rgba(56,189,248,.08);">' +
+                rand(provinces) + '</td>' +
+                '<td style="padding:6px 4px;color:#94a3b8;border-bottom:1px dashed rgba(56,189,248,.08);">' +
+                rand(types) + '</td>' +
+                '<td style="padding:6px 4px;color:' + (aiResult[idx] === "通过" ? "#34d399" : "#fbbf24") +
+                ';border-bottom:1px dashed rgba(56,189,248,.08);">' + aiResult[idx] + '</td>' +
+                '<td style="padding:6px 4px;border-bottom:1px dashed rgba(56,189,248,.08);color:' +
+                (statuses[idx] === "已解决" ? "#34d399" : statuses[idx] === "处理中" ? "#fbbf24" : "#94a3b8") +
+                ';">' + statuses[idx] + '</td>' +
+                '</tr></table>';
+        }
+        return rows;
     }
-    document.getElementById("gzh_tbody").innerHTML = rows + rows;
+
+    var container = document.getElementById("gzh_tbody");
+    var initial = makeRows(14);
+    container.innerHTML = initial + initial;
+
+    /* 每 5s 在头部插入一条新的 */
+    setInterval(function () {
+        var newRow = makeRows(1);
+        var half = container.innerHTML.split("</table><table").slice(1).join("</table><table");
+        container.innerHTML = newRow + half;
+    }, 5000);
 })();
 
-/* ============================ 排行榜 ============================ */
+/* ============================ 排行榜（数据浮动） ============================ */
 (function gzh_rank() {
     var items = [
         { n: "如何修改收货地址", v: 1823 },
@@ -430,58 +442,52 @@
         { n: "发票怎么开",         v: 532 },
         { n: "App 登录失败",       v: 398 }
     ];
-    var max = items[0].v;
-    var html = "";
-    items.forEach(function (it, i) {
-        html += "<li>" +
-            '<span class="gzh_idx">' + (i + 1) + '</span>' +
-            '<span class="gzh_name">' + it.n + '</span>' +
-            '<span class="gzh_bar"><i style="width:' + (it.v / max * 100) + '%"></i></span>' +
-            '<span class="gzh_val">' + it.v + '</span>' +
-            "</li>";
-    });
-    document.getElementById("gzh_rank").innerHTML = html;
-})();
 
-/* ============================ 服务质量进度条 ============================ */
-(function gzh_progress() {
-    var items = [
-        { n: "首次响应达标率", v: 98.2 },
-        { n: "AI 解决率",     v: 87.3 },
-        { n: "转人工准确率",   v: 94.6 },
-        { n: "用户满意度",     v: 96.1 },
-        { n: "投诉处理时效",   v: 91.8 },
-        { n: "系统可用性",     v: 99.95 }
-    ];
-    var html = "";
-    items.forEach(function (it) {
-        html += '<div class="gzh_progress_item">' +
-            '<div class="gzh_progress_head">' +
-            '<span class="gzh_name">' + it.n + '</span>' +
-            '<span class="gzh_val">' + it.v + '%</span></div>' +
-            '<div class="gzh_progress_bar"><i style="width:' + it.v + '%"></i></div>' +
-            "</div>";
-    });
-    document.getElementById("gzh_progress").innerHTML = html;
+    function render() {
+        items.sort(function (a, b) { return b.v - a.v; });
+        var max = items[0].v;
+        var html = "";
+        items.forEach(function (it, i) {
+            html += "<li>" +
+                '<span class="gzh_idx">' + (i + 1) + '</span>' +
+                '<span class="gzh_name">' + it.n + '</span>' +
+                '<span class="gzh_bar"><i style="width:' + (it.v / max * 100) + '%"></i></span>' +
+                '<span class="gzh_val">' + it.v + '</span>' +
+                "</li>";
+        });
+        document.getElementById("gzh_rank").innerHTML = html;
+    }
+    render();
+
+    setInterval(function () {
+        items.forEach(function (it) { it.v += Math.floor(Math.random() * 15); });
+        render();
+    }, 6000);
 })();
 
 /* ============================ ECharts 通用 ============================ */
-function gzh_getW(dom) { return dom.clientWidth || 300; }
-function gzh_getH(dom) { return dom.clientHeight || 250; }
+var gzh_charts = [];
+function gzh_resizeAll() { gzh_charts.forEach(function (c) { c.resize(); }); }
+window.addEventListener("resize", gzh_resizeAll);
 
 /* ============================ 1. 左：咨询量折线 ============================ */
 function gzh_leftLine() {
     var dom = document.getElementById("gzh_left_line");
     var chart = echarts.init(dom, "dark");
+    gzh_charts.push(chart);
     var days = ["11-01", "11-02", "11-03", "11-04", "11-05", "11-06", "11-07"];
+    var aiData = [2100, 2400, 2350, 2780, 2900, 3100, 3247];
+    var huData = [320, 380, 410, 450, 480, 520, 534];
+
     chart.setOption({
         backgroundColor: "transparent",
         tooltip: { trigger: "axis" },
-        grid: { top: 20, left: 40, right: 20, bottom: 30 },
+        legend: { top: 2, right: 10, textStyle: { color: "#94a3b8", fontSize: 11 }, itemWidth: 10, itemHeight: 10 },
+        grid: { top: 30, left: 40, right: 16, bottom: 30 },
         xAxis: {
             type: "category", data: days, boundaryGap: false,
             axisLine: { lineStyle: { color: "#334155" } },
-            axisLabel: { color: "#64748b" }
+            axisLabel: { color: "#64748b", fontSize: 11 }
         },
         yAxis: {
             type: "value",
@@ -490,8 +496,7 @@ function gzh_leftLine() {
         },
         series: [
             {
-                name: "AI 咨询", type: "line", smooth: true,
-                data: [2100, 2400, 2350, 2780, 2900, 3100, 3247],
+                name: "AI 咨询", type: "line", smooth: true, data: aiData,
                 lineStyle: { color: "#22d3ee", width: 2.5 },
                 itemStyle: { color: "#22d3ee" },
                 areaStyle: {
@@ -500,58 +505,82 @@ function gzh_leftLine() {
                         { offset: 1, color: "rgba(34,211,238,0)" }
                     ])
                 },
-                symbol: "circle", symbolSize: 6
+                symbol: "circle", symbolSize: 6, animationDuration: 1500
             },
             {
-                name: "人工咨询", type: "line", smooth: true,
-                data: [320, 380, 410, 450, 480, 520, 534],
+                name: "人工咨询", type: "line", smooth: true, data: huData,
                 lineStyle: { color: "#a78bfa", width: 2 },
                 itemStyle: { color: "#a78bfa" },
-                symbol: "circle", symbolSize: 5
+                symbol: "circle", symbolSize: 5, animationDuration: 1500
             }
         ]
     });
-    window.addEventListener("resize", function () { chart.resize(); });
+
+    /* 自动尾部增长 */
+    setInterval(function () {
+        aiData.shift(); aiData.push(3000 + Math.floor(Math.random() * 400));
+        huData.shift(); huData.push(500 + Math.floor(Math.random() * 80));
+        chart.setOption({ series: [{ data: aiData }, { data: huData }] });
+    }, 5000);
 }
 
-/* ============================ 2. 左：问题类型饼 ============================ */
-function gzh_leftPie() {
-    var dom = document.getElementById("gzh_left_pie");
+/* ============================ 2. 左：情绪雷达 ============================ */
+function gzh_leftRadar() {
+    var dom = document.getElementById("gzh_left_radar");
     var chart = echarts.init(dom, "dark");
+    gzh_charts.push(chart);
+
     chart.setOption({
         backgroundColor: "transparent",
-        tooltip: { trigger: "item" },
-        legend: {
-            bottom: 0, textStyle: { color: "#94a3b8", fontSize: 10 },
-            itemWidth: 10, itemHeight: 10
+        tooltip: {},
+        legend: { bottom: 0, textStyle: { color: "#94a3b8", fontSize: 10 }, itemWidth: 10, itemHeight: 10 },
+        radar: {
+            indicator: [
+                { name: "满意度",  max: 100 },
+                { name: "专业度",  max: 100 },
+                { name: "响应速度", max: 100 },
+                { name: "解决率",  max: 100 },
+                { name: "转人工",  max: 100 },
+                { name: "投诉率",  max: 100 }
+            ],
+            shape: "polygon",
+            splitNumber: 4,
+            axisName: { color: "#94a3b8", fontSize: 10 },
+            splitArea: {
+                areaStyle: { color: ["rgba(56,189,248,.02)", "rgba(56,189,248,.04)"] }
+            },
+            axisLine: { lineStyle: { color: "#1e3a5f" } },
+            splitLine: { lineStyle: { color: "#1e3a5f" } }
         },
         series: [{
-            type: "pie",
-            radius: ["40%", "65%"],
-            center: ["50%", "45%"],
-            avoidLabelOverlap: true,
-            itemStyle: { borderColor: "#020614", borderWidth: 2 },
-            label: { show: false },
-            emphasis: { label: { show: true, fontSize: 13, fontWeight: "bold" } },
+            type: "radar",
             data: [
-                { value: 1247, name: "订单咨询",   itemStyle: { color: "#22d3ee" } },
-                { value: 893,  name: "物流查询",   itemStyle: { color: "#60a5fa" } },
-                { value: 745,  name: "账号问题",   itemStyle: { color: "#a78bfa" } },
-                { value: 512,  name: "退款售后",   itemStyle: { color: "#f472b6" } },
-                { value: 438,  name: "活动规则",   itemStyle: { color: "#fbbf24" } },
-                { value: 412,  name: "其他",       itemStyle: { color: "#34d399" } }
-            ]
+                {
+                    value: [96, 88, 92, 87, 78, 12],
+                    name: "本月均值",
+                    itemStyle: { color: "#22d3ee" },
+                    lineStyle: { width: 2, color: "#22d3ee" },
+                    areaStyle: { color: "rgba(34,211,238,.25)" }
+                },
+                {
+                    value: [92, 82, 85, 80, 85, 18],
+                    name: "上月均值",
+                    itemStyle: { color: "#a78bfa" },
+                    lineStyle: { width: 2, color: "#a78bfa", type: "dashed" },
+                    areaStyle: { color: "rgba(167,139,250,.18)" }
+                }
+            ],
+            animationDuration: 2000
         }]
     });
-    window.addEventListener("resize", function () { chart.resize(); });
 }
 
-/* ============================ 3. 中：中国地图 ============================ */
+/* ============================ 3. 中：中国地图 + 飞线 ============================ */
 function gzh_map() {
     var dom = document.getElementById("gzh_map");
     var chart = echarts.init(dom, "dark");
+    gzh_charts.push(chart);
 
-    /* 模拟各省数据 */
     var provinceData = [
         { name: "北京",   value: [116.46, 39.92, 1823] },
         { name: "上海",   value: [121.48, 31.22, 2145] },
@@ -575,12 +604,27 @@ function gzh_map() {
         { name: "海南",   value: [110.35, 20.02, 345]  }
     ];
 
-    /* 加载 China GeoJSON */
+    /* 飞线：中心（广东） → 各省份 */
+    var flyLines = provinceData.slice(1).map(function (p) {
+        return { coords: [[113.23, 23.16], [p.value[0], p.value[1]]], value: Math.floor(Math.random() * 500 + 100) };
+    });
+
     fetch("cdn/china.json").then(function (r) { return r.json(); }).then(function (geo) {
         echarts.registerMap("china", geo);
         chart.setOption({
             backgroundColor: "transparent",
-            tooltip: { trigger: "item", formatter: "{b}<br/>咨询量：{c}" },
+            tooltip: {
+                trigger: "item",
+                formatter: function (p) {
+                    if (p.seriesType === "effectScatter" || p.seriesType === "scatter") {
+                        return p.name + "<br/>咨询量：" + (p.value ? p.value[2] : "-");
+                    }
+                    if (p.seriesType === "lines") {
+                        return "跨区工单：" + p.value + " 单";
+                    }
+                    return p.name + "<br/>咨询量：" + p.value;
+                }
+            },
             visualMap: {
                 min: 200, max: 2600, left: 20, bottom: 20,
                 text: ["高", "低"], textStyle: { color: "#94a3b8" },
@@ -588,50 +632,42 @@ function gzh_map() {
                 calculable: true
             },
             geo: {
-                map: "china",
-                roam: true,
-                zoom: 1.2,
-                scaleLimit: { min: 0.8, max: 3 },
-                itemStyle: {
-                    areaColor: "#0f2550",
-                    borderColor: "#38bdf8",
-                    borderWidth: 0.8
-                },
-                emphasis: {
-                    itemStyle: { areaColor: "#1a4c8f" },
-                    label: { show: true, color: "#fff" }
-                },
+                map: "china", roam: true, zoom: 1.2, scaleLimit: { min: 0.8, max: 3 },
+                itemStyle: { areaColor: "#0f2550", borderColor: "#38bdf8", borderWidth: 0.8 },
+                emphasis: { itemStyle: { areaColor: "#1a4c8f" }, label: { show: true, color: "#fff" } },
                 label: { show: false }
             },
             series: [
-                /* 热力底图（地图本身） */
                 {
-                    type: "map", map: "china", geoIndex: 0,
+                    name: "热力底图", type: "map", map: "china", geoIndex: 0,
                     data: provinceData.map(function (d) { return { name: d.name, value: d.value[2] }; })
                 },
-                /* 散点 */
                 {
-                    type: "scatter", coordinateSystem: "geo",
+                    name: "散点", type: "scatter", coordinateSystem: "geo",
                     symbolSize: function (v) { return Math.max(6, Math.sqrt(v[2]) * 0.6); },
-                    itemStyle: {
-                        color: "#fbbf24", shadowBlur: 10, shadowColor: "#fbbf24", opacity: 0.85
-                    },
+                    itemStyle: { color: "#fbbf24", shadowBlur: 10, shadowColor: "#fbbf24", opacity: 0.85 },
                     data: provinceData
                 },
-                /* 涟漪特效（前 8 名） */
                 {
-                    type: "effectScatter", coordinateSystem: "geo",
-                    rippleEffect: { brushType: "stroke", scale: 4 },
+                    name: "涟漪 TOP 8", type: "effectScatter", coordinateSystem: "geo",
+                    rippleEffect: { brushType: "stroke", scale: 4, period: 3 },
                     label: { show: true, formatter: "{b}", color: "#fbbf24", fontSize: 11 },
                     itemStyle: { color: "#f97316", shadowBlur: 10, shadowColor: "#f97316" },
                     data: provinceData.slice(0, 8)
+                },
+                /* 飞线 */
+                {
+                    name: "跨区工单", type: "lines", coordinateSystem: "geo",
+                    zlevel: 2,
+                    effect: { show: true, period: 5, trailLength: 0.15, symbol: "arrow", symbolSize: 6, color: "#22d3ee" },
+                    lineStyle: { color: "#22d3ee", width: 1, opacity: 0.45, curveness: 0.22 },
+                    data: flyLines,
+                    animationDuration: 3000
                 }
             ]
         });
-        window.addEventListener("resize", function () { chart.resize(); });
-    }).catch(function (err) {
-        console.error("地图加载失败", err);
-        dom.innerHTML = '<div style="color:#ef4444;padding:40px;text-align:center;">地图 GeoJSON 加载失败，请确认 china.json 存在于 cdn/ 目录</div>';
+    }).catch(function () {
+        dom.innerHTML = '<div style="color:#ef4444;padding:40px;text-align:center;">地图 GeoJSON 加载失败</div>';
     });
 }
 
@@ -639,40 +675,41 @@ function gzh_map() {
 function gzh_rightBar() {
     var dom = document.getElementById("gzh_right_bar");
     var chart = echarts.init(dom, "dark");
+    gzh_charts.push(chart);
+
+    var names = ["App", "小程序", "Web", "抖音", "微信", "支付宝"];
+    var vals = [2847, 2156, 1645, 1287, 1023, 687];
+
     chart.setOption({
         backgroundColor: "transparent",
         tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
         grid: { top: 20, left: 60, right: 20, bottom: 30 },
-        xAxis: {
-            type: "category",
-            data: ["App", "小程序", "Web", "抖音", "微信", "支付宝"],
-            axisLine: { lineStyle: { color: "#334155" } },
-            axisLabel: { color: "#64748b", fontSize: 11 }
-        },
-        yAxis: {
-            type: "value",
-            splitLine: { lineStyle: { color: "#1e293b", type: "dashed" } },
-            axisLabel: { color: "#64748b" }
-        },
+        xAxis: { type: "category", data: names, axisLine: { lineStyle: { color: "#334155" } }, axisLabel: { color: "#64748b", fontSize: 11 } },
+        yAxis: { type: "value", splitLine: { lineStyle: { color: "#1e293b", type: "dashed" } }, axisLabel: { color: "#64748b" } },
         series: [{
             type: "bar", barWidth: 22,
             itemStyle: {
                 color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                    { offset: 0, color: "#38bdf8" },
-                    { offset: 1, color: "#1e40af" }
+                    { offset: 0, color: "#38bdf8" }, { offset: 1, color: "#1e40af" }
                 ]),
                 borderRadius: [3, 3, 0, 0]
             },
-            data: [2847, 2156, 1645, 1287, 1023, 687]
+            label: { show: true, position: "top", color: "#94a3b8", fontSize: 10, fontFamily: "Consolas,monospace" },
+            data: vals, animationDuration: 1500
         }]
     });
-    window.addEventListener("resize", function () { chart.resize(); });
+
+    setInterval(function () {
+        vals = vals.map(function (v) { return Math.max(500, v + Math.floor(Math.random() * 60 - 20)); });
+        chart.setOption({ series: [{ data: vals }] });
+    }, 6000);
 }
 
 /* ============================ 5. 右：漏斗图 ============================ */
 function gzh_funnel() {
     var dom = document.getElementById("gzh_right_funnel");
     var chart = echarts.init(dom, "dark");
+    gzh_charts.push(chart);
     chart.setOption({
         backgroundColor: "transparent",
         tooltip: { trigger: "item", formatter: "{b}: {c} ({d}%)" },
@@ -689,18 +726,80 @@ function gzh_funnel() {
                 { value: 3200,  name: "AI 解决",     itemStyle: { color: "#34d399" } },
                 { value: 1200,  name: "转人工",      itemStyle: { color: "#fbbf24" } },
                 { value: 480,   name: "产生投诉",    itemStyle: { color: "#ef4444" } }
-            ]
+            ],
+            animationDuration: 2000
         }]
     });
-    window.addEventListener("resize", function () { chart.resize(); });
+}
+
+/* ============================ 6. 仪表 + 进度 ============================ */
+function gzh_gauge() {
+    var dom = document.getElementById("gzh_gauge");
+    var chart = echarts.init(dom, "dark");
+    gzh_charts.push(chart);
+
+    chart.setOption({
+        backgroundColor: "transparent",
+        series: [{
+            type: "gauge",
+            startAngle: 210, endAngle: -30,
+            min: 0, max: 100,
+            radius: "90%",
+            progress: { show: true, width: 14, roundCap: true },
+            axisLine: { lineStyle: { width: 14, color: [[1, "#0f2550"]] } },
+            pointer: { length: "55%", width: 5, itemStyle: { color: "#22d3ee" } },
+            axisTick: { show: false },
+            splitLine: { length: 6, lineStyle: { color: "#475569", width: 1 } },
+            axisLabel: { color: "#64748b", fontSize: 10, distance: 18 },
+            anchor: { show: true, size: 10, itemStyle: { color: "#22d3ee" } },
+            title: { show: false },
+            detail: {
+                valueAnimation: true,
+                offsetCenter: [0, "30%"],
+                fontSize: 22, fontWeight: "bold",
+                color: "#22d3ee", fontFamily: "Consolas,monospace",
+                formatter: "{value}%"
+            },
+            data: [{ value: 87.3, name: "AI 引擎就绪率" }],
+            animationDuration: 1500
+        }]
+    });
+
+    setInterval(function () {
+        var v = (80 + Math.random() * 18).toFixed(1);
+        chart.setOption({ series: [{ data: [{ value: parseFloat(v) }] }] });
+    }, 4000);
+}
+
+function gzh_progress() {
+    var items = [
+        { n: "首次响应达标率", v: 98.2 },
+        { n: "AI 解决率",     v: 87.3 },
+        { n: "转人工准确率",   v: 94.6 },
+        { n: "用户满意度",     v: 96.1 },
+        { n: "投诉处理时效",   v: 91.8 },
+        { n: "系统可用性",     v: 99.95 }
+    ];
+    var html = "";
+    items.forEach(function (it) {
+        html += '<div class="gzh_progress_item">' +
+            '<div class="gzh_progress_head">' +
+            '<span class="gzh_name">' + it.n + '</span>' +
+            '<span class="gzh_val">' + it.v + '%</span></div>' +
+            '<div class="gzh_progress_bar"><i style="width:' + it.v + '%"></i></div>' +
+            "</div>";
+    });
+    document.getElementById("gzh_progress").innerHTML = html;
 }
 
 /* ============================ 启动 ============================ */
 gzh_leftLine();
-gzh_leftPie();
+gzh_leftRadar();
 gzh_map();
 gzh_rightBar();
 gzh_funnel();
+gzh_gauge();
+gzh_progress();
 </script>
 </body>
 </html>
