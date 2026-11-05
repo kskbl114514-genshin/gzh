@@ -1,0 +1,706 @@
+<!-- 姓名：郭兹寒，建立时间：2026-11-05 14:30，使用的大模型：DeepSeek-V4.1-Flash，功能：ECharts 数据大屏（三列 · 中间地理图） -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能客服运营数据大屏</title>
+    <script src="cdn/echarts.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", Consolas, monospace;
+            background:
+                radial-gradient(ellipse at 50% 0%, rgba(56,189,248,.08) 0%, transparent 55%),
+                linear-gradient(180deg, #040a1a 0%, #020614 100%);
+            min-height: 100vh;
+            color: #dbeafe;
+            padding: 14px;
+            overflow-x: hidden;
+        }
+
+        /* ============ 头部 ============ */
+        .gzh_header {
+            text-align: center;
+            position: relative;
+            padding: 10px 0 14px;
+            border-bottom: 1px solid rgba(56,189,248,.18);
+            margin-bottom: 14px;
+        }
+        .gzh_header::before,
+        .gzh_header::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            width: 22%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(56,189,248,.45), transparent);
+        }
+        .gzh_header::before { left: 10%; }
+        .gzh_header::after  { right: 10%; }
+
+        .gzh_header h1 {
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: 6px;
+            background: linear-gradient(135deg, #38bdf8 0%, #60a5fa 40%, #a78bfa 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .gzh_header .gzh_time {
+            position: absolute;
+            left: 20px; top: 50%; transform: translateY(-50%);
+            font-size: 12px; font-family: Consolas, monospace;
+            color: #38bdf8;
+        }
+        .gzh_header .gzh_status {
+            position: absolute;
+            right: 20px; top: 50%; transform: translateY(-50%);
+            font-size: 11px;
+            display: flex; gap: 12px; align-items: center;
+        }
+        .gzh_header .gzh_status span {
+            display: inline-flex; align-items: center; gap: 5px;
+            color: #64748b;
+        }
+        .gzh_header .gzh_status b {
+            color: #22d3ee; font-weight: 700;
+        }
+        .gzh_dot {
+            display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+            background: #22d3ee; box-shadow: 0 0 8px #22d3ee;
+        }
+
+        /* ============ 三列布局 ============ */
+        .gzh_main {
+            display: grid;
+            grid-template-columns: 1fr 1.45fr 1fr;
+            gap: 14px;
+            max-width: 1920px;
+            margin: 0 auto;
+        }
+        @media (max-width: 1400px) {
+            .gzh_main { grid-template-columns: 1fr 1.2fr 1fr; }
+        }
+        @media (max-width: 1100px) {
+            .gzh_main { grid-template-columns: 1fr; }
+        }
+
+        .gzh_col {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        /* ============ 卡片 ============ */
+        .gzh_card {
+            background: linear-gradient(180deg, rgba(15,30,60,.85) 0%, rgba(5,12,28,.9) 100%);
+            border: 1px solid rgba(56,189,248,.18);
+            border-radius: 8px;
+            padding: 10px 12px;
+            position: relative;
+            box-shadow: inset 0 0 30px rgba(56,189,248,.04);
+        }
+        /* 四角装饰 */
+        .gzh_card::before,
+        .gzh_card::after {
+            content: ""; position: absolute; width: 14px; height: 14px;
+            border-color: #38bdf8; border-style: solid;
+        }
+        .gzh_card::before {
+            top: -1px; left: -1px;
+            border-width: 2px 0 0 2px;
+        }
+        .gzh_card::after {
+            bottom: -1px; right: -1px;
+            border-width: 0 2px 2px 0;
+        }
+
+        .gzh_card h3 {
+            font-size: 13px;
+            font-weight: 600;
+            color: #38bdf8;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+            padding-left: 10px;
+            border-left: 3px solid #38bdf8;
+        }
+        .gzh_card h3 span {
+            font-size: 10px;
+            color: #4b5a75;
+            margin-left: 6px;
+            font-family: Consolas, monospace;
+        }
+        .gzh_card .gzh_chart {
+            width: 100%;
+            height: 280px;
+        }
+        .gzh_col_center .gzh_card .gzh_chart { height: 380px; }
+
+        /* ============ 中心地图 ============ */
+        .gzh_card.gzh_map_card .gzh_chart { height: 460px; }
+
+        /* ============ KPI 指标卡 ============ */
+        .gzh_kpi_row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        @media (max-width: 900px) { .gzh_kpi_row { grid-template-columns: repeat(2, 1fr); } }
+
+        .gzh_kpi {
+            background: linear-gradient(135deg, rgba(56,189,248,.12), rgba(99,102,241,.08));
+            border: 1px solid rgba(56,189,248,.22);
+            border-radius: 6px;
+            padding: 10px 8px;
+            text-align: center;
+        }
+        .gzh_kpi .gzh_label {
+            font-size: 10px;
+            color: #64748b;
+            letter-spacing: 1px;
+            margin-bottom: 3px;
+        }
+        .gzh_kpi .gzh_val {
+            font-size: 22px;
+            font-weight: 700;
+            font-family: Consolas, monospace;
+            background: linear-gradient(135deg, #22d3ee, #60a5fa);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .gzh_kpi .gzh_delta {
+            font-size: 10px;
+            margin-top: 2px;
+        }
+        .gzh_kpi .gzh_delta.up   { color: #34d399; }
+        .gzh_kpi .gzh_delta.down { color: #ef4444; }
+
+        /* ============ 滚动订单列表 ============ */
+        .gzh_scroll {
+            height: 200px;
+            overflow: hidden;
+            position: relative;
+        }
+        .gzh_scroll_inner {
+            animation: gzh_scrollup 20s linear infinite;
+        }
+        .gzh_scroll_inner:hover { animation-play-state: paused; }
+        @keyframes gzh_scrollup {
+            0%   { transform: translateY(0); }
+            100% { transform: translateY(-50%); }
+        }
+        .gzh_scroll table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+        .gzh_scroll th {
+            color: #4b5a75; font-weight: 500; text-align: left; padding: 6px 4px;
+            border-bottom: 1px solid rgba(56,189,248,.15);
+            position: sticky; top: 0; background: rgba(2,6,20,.95);
+        }
+        .gzh_scroll td {
+            padding: 6px 4px; color: #94a3b8; border-bottom: 1px dashed rgba(56,189,248,.08);
+        }
+        .gzh_scroll td.gzh_good { color: #34d399; font-weight: 600; }
+        .gzh_scroll td.gzh_bad  { color: #ef4444; font-weight: 600; }
+        .gzh_scroll tr:hover td { background: rgba(56,189,248,.06); }
+
+        /* ============ 左列排行 ============ */
+        .gzh_rank {
+            list-style: none;
+            padding: 0; margin: 0;
+        }
+        .gzh_rank li {
+            display: grid;
+            grid-template-columns: 22px 1fr 60px 60px;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 4px;
+            border-bottom: 1px dashed rgba(56,189,248,.08);
+            font-size: 12px;
+        }
+        .gzh_rank .gzh_idx {
+            width: 20px; height: 20px;
+            border-radius: 3px;
+            text-align: center; line-height: 20px;
+            font-size: 11px; font-weight: 700;
+            background: rgba(56,189,248,.15); color: #38bdf8;
+        }
+        .gzh_rank li:nth-child(1) .gzh_idx { background: linear-gradient(135deg,#fbbf24,#f59e0b); color:#fff; }
+        .gzh_rank li:nth-child(2) .gzh_idx { background: linear-gradient(135deg,#94a3b8,#64748b); color:#fff; }
+        .gzh_rank li:nth-child(3) .gzh_idx { background: linear-gradient(135deg,#d97706,#92400e); color:#fff; }
+        .gzh_rank .gzh_name { color: #e2e8f0; }
+        .gzh_rank .gzh_bar {
+            height: 6px; border-radius: 3px; background: rgba(56,189,248,.1);
+            overflow: hidden;
+        }
+        .gzh_rank .gzh_bar i {
+            display: block; height: 100%;
+            background: linear-gradient(90deg,#38bdf8,#60a5fa);
+            border-radius: 3px;
+        }
+        .gzh_rank .gzh_val { text-align: right; color: #22d3ee; font-family: Consolas, monospace; }
+
+        /* ============ 右侧进度 ============ */
+        .gzh_progress { margin-top: 8px; }
+        .gzh_progress_item { margin-bottom: 12px; }
+        .gzh_progress_head {
+            display: flex; justify-content: space-between;
+            font-size: 11.5px; margin-bottom: 4px;
+        }
+        .gzh_progress_head .gzh_name { color: #cbd5e1; }
+        .gzh_progress_head .gzh_val { color: #22d3ee; font-family: Consolas, monospace; }
+        .gzh_progress_bar {
+            height: 8px; border-radius: 4px; background: rgba(56,189,248,.08); overflow: hidden;
+        }
+        .gzh_progress_bar i {
+            display: block; height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(90deg,#34d399,#22d3ee,#60a5fa);
+            box-shadow: 0 0 8px rgba(56,189,248,.5);
+            animation: gzh_shine 2.5s ease-in-out infinite;
+        }
+        @keyframes gzh_shine {
+            0%,100% { filter: brightness(1); }
+            50%     { filter: brightness(1.3); }
+        }
+
+        @media (max-width: 1400px) {
+            .gzh_card .gzh_chart { height: 230px; }
+            .gzh_col_center .gzh_card .gzh_chart { height: 320px; }
+            .gzh_card.gzh_map_card .gzh_chart { height: 380px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ============ 头部 ============ -->
+<div class="gzh_header">
+    <div class="gzh_time" id="gzh_clock">2026-11-05 14:30:00</div>
+    <h1>智能客服运营数据可视化大屏</h1>
+    <div class="gzh_status">
+        <span><span class="gzh_dot"></span> 系统运行中</span>
+        <span>在线坐席 <b>128</b></span>
+        <span>今日工单 <b>3,247</b></span>
+    </div>
+</div>
+
+<!-- ============ 主体三列 ============ -->
+<div class="gzh_main">
+
+    <!-- ============ 左列 ============ -->
+    <div class="gzh_col">
+        <div class="gzh_card">
+            <h3>📈 咨询量趋势 <span>LAST 7 DAYS</span></h3>
+            <div id="gzh_left_line" class="gzh_chart"></div>
+        </div>
+
+        <div class="gzh_card">
+            <h3>🥧 问题类型占比 <span>REAL-TIME</span></h3>
+            <div id="gzh_left_pie" class="gzh_chart"></div>
+        </div>
+
+        <div class="gzh_card">
+            <h3>🏆 热门问题 TOP 8 <span>RANKING</span></h3>
+            <ul class="gzh_rank" id="gzh_rank"></ul>
+        </div>
+    </div>
+
+    <!-- ============ 中列 ============ -->
+    <div class="gzh_col gzh_col_center">
+
+        <!-- 地理图：中国地图 + 散点 + 热力 -->
+        <div class="gzh_card gzh_map_card">
+            <h3>🗺️ 全国咨询分布热力图 <span>CHINA · GEODATA</span></h3>
+            <div id="gzh_map" class="gzh_chart"></div>
+        </div>
+
+        <!-- KPI 指标 -->
+        <div class="gzh_kpi_row">
+            <div class="gzh_kpi">
+                <div class="gzh_label">今日咨询</div>
+                <div class="gzh_val">3,247</div>
+                <div class="gzh_delta up">↑ 12.5%</div>
+            </div>
+            <div class="gzh_kpi">
+                <div class="gzh_label">AI 解决率</div>
+                <div class="gzh_val">87.3%</div>
+                <div class="gzh_delta up">↑ 3.2%</div>
+            </div>
+            <div class="gzh_kpi">
+                <div class="gzh_label">平均响应</div>
+                <div class="gzh_val">1.8s</div>
+                <div class="gzh_delta down">↓ 0.3s</div>
+            </div>
+            <div class="gzh_kpi">
+                <div class="gzh_label">满意度</div>
+                <div class="gzh_val">96.1%</div>
+                <div class="gzh_delta up">↑ 0.8%</div>
+            </div>
+        </div>
+
+        <!-- 实时滚动工单 -->
+        <div class="gzh_card">
+            <h3>📋 实时工单处理流 <span>LIVE STREAM</span></h3>
+            <div class="gzh_scroll">
+                <table>
+                    <thead>
+                        <tr><th>工单号</th><th>地区</th><th>类型</th><th>AI 判定</th><th>状态</th></tr>
+                    </thead>
+                </table>
+                <div class="gzh_scroll_inner" id="gzh_tbody"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ 右列 ============ -->
+    <div class="gzh_col">
+        <div class="gzh_card">
+            <h3>📊 渠道来源对比 <span>CHANNEL</span></h3>
+            <div id="gzh_right_bar" class="gzh_chart"></div>
+        </div>
+
+        <div class="gzh_card">
+            <h3>🎯 用户旅程漏斗 <span>CONVERSION</span></h3>
+            <div id="gzh_right_funnel" class="gzh_chart"></div>
+        </div>
+
+        <div class="gzh_card">
+            <h3>⚡ 服务质量指标 <span>SLA</span></h3>
+            <div class="gzh_progress" id="gzh_progress"></div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+/* ============================ 时钟 ============================ */
+(function gzh_clock() {
+    var el = document.getElementById("gzh_clock");
+    function update() {
+        var d = new Date();
+        var pad = function (n) { return n < 10 ? "0" + n : n; };
+        el.textContent =
+            d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) + " " +
+            pad(d.getHours()) + ":" + pad(d.getMinutes()) + ":" + pad(d.getSeconds());
+    }
+    update();
+    setInterval(update, 1000);
+})();
+
+/* ============================ 滚动工单 ============================ */
+(function gzh_scroll() {
+    var provinces = ["北京", "上海", "广东", "浙江", "四川", "湖北", "江苏", "福建", "山东", "河南"];
+    var types = ["账号问题", "订单咨询", "退款申请", "物流查询", "活动规则", "技术故障"];
+    var aiResult = ["通过", "转人工", "自动回复", "通过", "需审核", "通过"];
+    var statuses = ["已解决", "处理中", "待回复", "已解决", "已解决", "处理中"];
+    var colors = ["gzh_good", "", "", "gzh_good", "", ""];
+
+    function rand(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+    var rows = "";
+    for (var i = 0; i < 12; i++) {
+        var ok = statuses[i % 6] === "已解决";
+        rows += '<table style="width:100%;border-collapse:collapse;font-size:11.5px;">' +
+            '<tr>' +
+            '<td style="padding:6px 4px;color:#94a3b8;border-bottom:1px dashed rgba(56,189,248,.08);">TK' +
+            (202611050000 + i) + '</td>' +
+            '<td style="padding:6px 4px;color:#94a3b8;border-bottom:1px dashed rgba(56,189,248,.08);">' +
+            rand(provinces) + '</td>' +
+            '<td style="padding:6px 4px;color:#94a3b8;border-bottom:1px dashed rgba(56,189,248,.08);">' +
+            rand(types) + '</td>' +
+            '<td style="padding:6px 4px;color:' + (aiResult[i % 6] === "通过" ? "#34d399" : "#fbbf24") +
+            ';border-bottom:1px dashed rgba(56,189,248,.08);">' + aiResult[i % 6] + '</td>' +
+            '<td style="padding:6px 4px;border-bottom:1px dashed rgba(56,189,248,.08);" class="' + colors[i % 6] +
+            '">' + statuses[i % 6] + '</td>' +
+            '</tr></table>';
+    }
+    document.getElementById("gzh_tbody").innerHTML = rows + rows;
+})();
+
+/* ============================ 排行榜 ============================ */
+(function gzh_rank() {
+    var items = [
+        { n: "如何修改收货地址", v: 1823 },
+        { n: "订单怎么申请退款",   v: 1567 },
+        { n: "优惠券使用规则",     v: 1342 },
+        { n: "物流到哪了",         v: 1128 },
+        { n: "账号被冻结怎么办",   v: 986 },
+        { n: "如何成为商家",       v: 745 },
+        { n: "发票怎么开",         v: 532 },
+        { n: "App 登录失败",       v: 398 }
+    ];
+    var max = items[0].v;
+    var html = "";
+    items.forEach(function (it, i) {
+        html += "<li>" +
+            '<span class="gzh_idx">' + (i + 1) + '</span>' +
+            '<span class="gzh_name">' + it.n + '</span>' +
+            '<span class="gzh_bar"><i style="width:' + (it.v / max * 100) + '%"></i></span>' +
+            '<span class="gzh_val">' + it.v + '</span>' +
+            "</li>";
+    });
+    document.getElementById("gzh_rank").innerHTML = html;
+})();
+
+/* ============================ 服务质量进度条 ============================ */
+(function gzh_progress() {
+    var items = [
+        { n: "首次响应达标率", v: 98.2 },
+        { n: "AI 解决率",     v: 87.3 },
+        { n: "转人工准确率",   v: 94.6 },
+        { n: "用户满意度",     v: 96.1 },
+        { n: "投诉处理时效",   v: 91.8 },
+        { n: "系统可用性",     v: 99.95 }
+    ];
+    var html = "";
+    items.forEach(function (it) {
+        html += '<div class="gzh_progress_item">' +
+            '<div class="gzh_progress_head">' +
+            '<span class="gzh_name">' + it.n + '</span>' +
+            '<span class="gzh_val">' + it.v + '%</span></div>' +
+            '<div class="gzh_progress_bar"><i style="width:' + it.v + '%"></i></div>' +
+            "</div>";
+    });
+    document.getElementById("gzh_progress").innerHTML = html;
+})();
+
+/* ============================ ECharts 通用 ============================ */
+function gzh_getW(dom) { return dom.clientWidth || 300; }
+function gzh_getH(dom) { return dom.clientHeight || 250; }
+
+/* ============================ 1. 左：咨询量折线 ============================ */
+function gzh_leftLine() {
+    var dom = document.getElementById("gzh_left_line");
+    var chart = echarts.init(dom, "dark");
+    var days = ["11-01", "11-02", "11-03", "11-04", "11-05", "11-06", "11-07"];
+    chart.setOption({
+        backgroundColor: "transparent",
+        tooltip: { trigger: "axis" },
+        grid: { top: 20, left: 40, right: 20, bottom: 30 },
+        xAxis: {
+            type: "category", data: days, boundaryGap: false,
+            axisLine: { lineStyle: { color: "#334155" } },
+            axisLabel: { color: "#64748b" }
+        },
+        yAxis: {
+            type: "value",
+            splitLine: { lineStyle: { color: "#1e293b", type: "dashed" } },
+            axisLabel: { color: "#64748b" }
+        },
+        series: [
+            {
+                name: "AI 咨询", type: "line", smooth: true,
+                data: [2100, 2400, 2350, 2780, 2900, 3100, 3247],
+                lineStyle: { color: "#22d3ee", width: 2.5 },
+                itemStyle: { color: "#22d3ee" },
+                areaStyle: {
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                        { offset: 0, color: "rgba(34,211,238,.35)" },
+                        { offset: 1, color: "rgba(34,211,238,0)" }
+                    ])
+                },
+                symbol: "circle", symbolSize: 6
+            },
+            {
+                name: "人工咨询", type: "line", smooth: true,
+                data: [320, 380, 410, 450, 480, 520, 534],
+                lineStyle: { color: "#a78bfa", width: 2 },
+                itemStyle: { color: "#a78bfa" },
+                symbol: "circle", symbolSize: 5
+            }
+        ]
+    });
+    window.addEventListener("resize", function () { chart.resize(); });
+}
+
+/* ============================ 2. 左：问题类型饼 ============================ */
+function gzh_leftPie() {
+    var dom = document.getElementById("gzh_left_pie");
+    var chart = echarts.init(dom, "dark");
+    chart.setOption({
+        backgroundColor: "transparent",
+        tooltip: { trigger: "item" },
+        legend: {
+            bottom: 0, textStyle: { color: "#94a3b8", fontSize: 10 },
+            itemWidth: 10, itemHeight: 10
+        },
+        series: [{
+            type: "pie",
+            radius: ["40%", "65%"],
+            center: ["50%", "45%"],
+            avoidLabelOverlap: true,
+            itemStyle: { borderColor: "#020614", borderWidth: 2 },
+            label: { show: false },
+            emphasis: { label: { show: true, fontSize: 13, fontWeight: "bold" } },
+            data: [
+                { value: 1247, name: "订单咨询",   itemStyle: { color: "#22d3ee" } },
+                { value: 893,  name: "物流查询",   itemStyle: { color: "#60a5fa" } },
+                { value: 745,  name: "账号问题",   itemStyle: { color: "#a78bfa" } },
+                { value: 512,  name: "退款售后",   itemStyle: { color: "#f472b6" } },
+                { value: 438,  name: "活动规则",   itemStyle: { color: "#fbbf24" } },
+                { value: 412,  name: "其他",       itemStyle: { color: "#34d399" } }
+            ]
+        }]
+    });
+    window.addEventListener("resize", function () { chart.resize(); });
+}
+
+/* ============================ 3. 中：中国地图 ============================ */
+function gzh_map() {
+    var dom = document.getElementById("gzh_map");
+    var chart = echarts.init(dom, "dark");
+
+    /* 模拟各省数据 */
+    var provinceData = [
+        { name: "北京",   value: [116.46, 39.92, 1823] },
+        { name: "上海",   value: [121.48, 31.22, 2145] },
+        { name: "广东",   value: [113.23, 23.16, 2567] },
+        { name: "浙江",   value: [120.19, 30.26, 1734] },
+        { name: "江苏",   value: [118.78, 32.04, 1645] },
+        { name: "四川",   value: [104.06, 30.67, 1287] },
+        { name: "湖北",   value: [114.31, 30.52, 986]  },
+        { name: "福建",   value: [119.30, 26.08, 876]  },
+        { name: "山东",   value: [117.00, 36.65, 1123] },
+        { name: "河南",   value: [113.65, 34.76, 892]  },
+        { name: "湖南",   value: [112.94, 28.23, 786]  },
+        { name: "安徽",   value: [117.27, 31.86, 654]  },
+        { name: "河北",   value: [114.51, 38.04, 745]  },
+        { name: "辽宁",   value: [123.38, 41.80, 534]  },
+        { name: "陕西",   value: [108.95, 34.27, 486]  },
+        { name: "重庆",   value: [106.54, 29.59, 645]  },
+        { name: "天津",   value: [117.20, 39.08, 512]  },
+        { name: "云南",   value: [102.73, 25.04, 378]  },
+        { name: "贵州",   value: [106.71, 26.57, 286]  },
+        { name: "海南",   value: [110.35, 20.02, 345]  }
+    ];
+
+    /* 加载 China GeoJSON */
+    fetch("cdn/china.json").then(function (r) { return r.json(); }).then(function (geo) {
+        echarts.registerMap("china", geo);
+        chart.setOption({
+            backgroundColor: "transparent",
+            tooltip: { trigger: "item", formatter: "{b}<br/>咨询量：{c}" },
+            visualMap: {
+                min: 200, max: 2600, left: 20, bottom: 20,
+                text: ["高", "低"], textStyle: { color: "#94a3b8" },
+                inRange: { color: ["#0e2d5a", "#1a4c8f", "#22d3ee", "#60a5fa", "#a78bfa"] },
+                calculable: true
+            },
+            geo: {
+                map: "china",
+                roam: true,
+                zoom: 1.2,
+                scaleLimit: { min: 0.8, max: 3 },
+                itemStyle: {
+                    areaColor: "#0f2550",
+                    borderColor: "#38bdf8",
+                    borderWidth: 0.8
+                },
+                emphasis: {
+                    itemStyle: { areaColor: "#1a4c8f" },
+                    label: { show: true, color: "#fff" }
+                },
+                label: { show: false }
+            },
+            series: [
+                /* 热力底图（地图本身） */
+                {
+                    type: "map", map: "china", geoIndex: 0,
+                    data: provinceData.map(function (d) { return { name: d.name, value: d.value[2] }; })
+                },
+                /* 散点 */
+                {
+                    type: "scatter", coordinateSystem: "geo",
+                    symbolSize: function (v) { return Math.max(6, Math.sqrt(v[2]) * 0.6); },
+                    itemStyle: {
+                        color: "#fbbf24", shadowBlur: 10, shadowColor: "#fbbf24", opacity: 0.85
+                    },
+                    data: provinceData
+                },
+                /* 涟漪特效（前 8 名） */
+                {
+                    type: "effectScatter", coordinateSystem: "geo",
+                    rippleEffect: { brushType: "stroke", scale: 4 },
+                    label: { show: true, formatter: "{b}", color: "#fbbf24", fontSize: 11 },
+                    itemStyle: { color: "#f97316", shadowBlur: 10, shadowColor: "#f97316" },
+                    data: provinceData.slice(0, 8)
+                }
+            ]
+        });
+        window.addEventListener("resize", function () { chart.resize(); });
+    }).catch(function (err) {
+        console.error("地图加载失败", err);
+        dom.innerHTML = '<div style="color:#ef4444;padding:40px;text-align:center;">地图 GeoJSON 加载失败，请确认 china.json 存在于 cdn/ 目录</div>';
+    });
+}
+
+/* ============================ 4. 右：渠道对比柱 ============================ */
+function gzh_rightBar() {
+    var dom = document.getElementById("gzh_right_bar");
+    var chart = echarts.init(dom, "dark");
+    chart.setOption({
+        backgroundColor: "transparent",
+        tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
+        grid: { top: 20, left: 60, right: 20, bottom: 30 },
+        xAxis: {
+            type: "category",
+            data: ["App", "小程序", "Web", "抖音", "微信", "支付宝"],
+            axisLine: { lineStyle: { color: "#334155" } },
+            axisLabel: { color: "#64748b", fontSize: 11 }
+        },
+        yAxis: {
+            type: "value",
+            splitLine: { lineStyle: { color: "#1e293b", type: "dashed" } },
+            axisLabel: { color: "#64748b" }
+        },
+        series: [{
+            type: "bar", barWidth: 22,
+            itemStyle: {
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                    { offset: 0, color: "#38bdf8" },
+                    { offset: 1, color: "#1e40af" }
+                ]),
+                borderRadius: [3, 3, 0, 0]
+            },
+            data: [2847, 2156, 1645, 1287, 1023, 687]
+        }]
+    });
+    window.addEventListener("resize", function () { chart.resize(); });
+}
+
+/* ============================ 5. 右：漏斗图 ============================ */
+function gzh_funnel() {
+    var dom = document.getElementById("gzh_right_funnel");
+    var chart = echarts.init(dom, "dark");
+    chart.setOption({
+        backgroundColor: "transparent",
+        tooltip: { trigger: "item", formatter: "{b}: {c} ({d}%)" },
+        legend: { bottom: 0, textStyle: { color: "#94a3b8", fontSize: 10 }, itemWidth: 10, itemHeight: 10 },
+        series: [{
+            type: "funnel", left: "5%", right: "5%", top: 20, bottom: 40,
+            sort: "descending", gap: 2,
+            label: { show: true, position: "inside", color: "#fff", fontSize: 11 },
+            itemStyle: { borderColor: "#020614", borderWidth: 1 },
+            data: [
+                { value: 10000, name: "访问首页",    itemStyle: { color: "#22d3ee" } },
+                { value: 7800,  name: "浏览商品",    itemStyle: { color: "#60a5fa" } },
+                { value: 5400,  name: "咨询客服",    itemStyle: { color: "#a78bfa" } },
+                { value: 3200,  name: "AI 解决",     itemStyle: { color: "#34d399" } },
+                { value: 1200,  name: "转人工",      itemStyle: { color: "#fbbf24" } },
+                { value: 480,   name: "产生投诉",    itemStyle: { color: "#ef4444" } }
+            ]
+        }]
+    });
+    window.addEventListener("resize", function () { chart.resize(); });
+}
+
+/* ============================ 启动 ============================ */
+gzh_leftLine();
+gzh_leftPie();
+gzh_map();
+gzh_rightBar();
+gzh_funnel();
+</script>
+</body>
+</html>
