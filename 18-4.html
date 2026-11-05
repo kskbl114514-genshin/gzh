@@ -1,0 +1,289 @@
+<!-- 姓名：郭兹寒，建立时间：2026-11-05 14:05，使用的大模型：DeepSeek-V4.1-Flash，功能：ECharts 柱状图 + 雷达图 -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECharts · 柱状图 & 雷达图</title>
+    <script src="cdn/echarts.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", Consolas, monospace;
+            background: linear-gradient(160deg, #0f172a 0%, #1e1b4b 55%, #0f172a 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+            padding: 28px 20px 60px;
+        }
+
+        .gzh_wrap { max-width: 1200px; margin: 0 auto; }
+
+        .gzh_head { text-align: center; margin-bottom: 20px; }
+        .gzh_head h1 {
+            font-size: 22px; font-weight: 700; letter-spacing: 2px;
+            background: linear-gradient(135deg, #60a5fa, #38bdf8, #a78bfa);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .gzh_head h1::before { content: "📊 "; -webkit-text-fill-color: initial; color: #38bdf8; }
+        .gzh_head p { margin-top: 7px; font-size: 12.5px; color: #6b7c99; letter-spacing: .6px; }
+
+        .gzh_grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+        @media (max-width: 820px) { .gzh_grid { grid-template-columns: 1fr; } }
+
+        .gzh_card {
+            background: rgba(15, 23, 42, 0.75);
+            border: 1px solid rgba(56, 189, 248, 0.18);
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+        }
+        .gzh_card h2 {
+            font-size: 15px; font-weight: 600; color: #cbd5e1;
+            padding-bottom: 10px; margin-bottom: 10px;
+            border-bottom: 1px dashed rgba(148, 163, 184, 0.2);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .gzh_card h2 span {
+            font-size: 11px; font-weight: 500; padding: 2px 9px;
+            border-radius: 10px;
+            font-family: Consolas, monospace;
+        }
+        .gzh_bar_tag   { background: rgba(96, 165, 250, 0.18); color: #60a5fa; }
+        .gzh_radar_tag { background: rgba(167, 139, 250, 0.18); color: #a78bfa; }
+
+        .gzh_chart { width: 100%; height: 420px; }
+        @media (max-width: 640px) { .gzh_chart { height: 340px; } }
+
+        .gzh_notes {
+            margin-top: 18px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 14px;
+        }
+        .gzh_note {
+            background: rgba(9, 14, 25, 0.7);
+            border: 1px solid rgba(100, 116, 139, 0.22);
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-size: 12px;
+            color: #94a3b8;
+            line-height: 1.8;
+        }
+        .gzh_note b { color: #38bdf8; font-weight: 600; }
+        .gzh_note code {
+            color: #a78bfa; background: rgba(167, 139, 250, .1);
+            padding: 1px 6px; border-radius: 3px;
+            font-family: Consolas, monospace;
+            font-size: 11.5px;
+        }
+
+        .gzh_src {
+            margin-top: 14px;
+            text-align: center;
+            font-size: 11.5px;
+            color: #4b5a75;
+        }
+        .gzh_src a { color: #60a5fa; text-decoration: none; }
+        .gzh_src a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+<div class="gzh_wrap">
+
+    <div class="gzh_head">
+        <h1>ECharts · 柱状图 & 雷达图</h1>
+        <p>纯静态页面 · 离线 echarts.min.js · 数据可视化二合一</p>
+    </div>
+
+    <div class="gzh_grid">
+        <!-- ============ 柱状图 ============ -->
+        <div class="gzh_card">
+            <h2>📊 Bar Chart with Negative Value <span class="gzh_bar_tag">type: 'bar'</span></h2>
+            <div id="gzh_bar" class="gzh_chart"></div>
+        </div>
+
+        <!-- ============ 雷达图 ============ -->
+        <div class="gzh_card">
+            <h2>📡 Basic Radar Chart <span class="gzh_radar_tag">type: 'radar'</span></h2>
+            <div id="gzh_radar" class="gzh_chart"></div>
+        </div>
+    </div>
+
+    <div class="gzh_notes">
+        <div class="gzh_note">
+            <b>柱状图技巧</b><br>
+            使用 <code>stack: 'Total'</code> 实现堆叠；
+            数据点支持对象形式 <code>{ value, label }</code>，
+            可在单个数据上挂自定义标签样式（如负值放在右侧）。
+        </div>
+        <div class="gzh_note">
+            <b>雷达图技巧</b><br>
+            <code>radar.indicator</code> 定义各维度指标及最大值；
+            <code>shape: 'circle'</code> 可切换圆形雷达；
+            多 <code>series</code> 数据可叠加对比（预算 vs 实际）。
+        </div>
+        <div class="gzh_note">
+            <b>离线部署</b><br>
+            页面通过相对路径 <code>cdn/echarts.min.js</code> 加载本地库，
+            无需外网即可工作。JS 文件约 1.03 MB。
+        </div>
+    </div>
+
+    <div class="gzh_src">
+        来源：
+        <a href="https://echarts.apache.org/examples/zh/editor.html?c=bar-negative2" target="_blank">bar-negative2</a> ·
+        <a href="https://echarts.apache.org/examples/zh/editor.html?c=radar" target="_blank">radar</a>
+    </div>
+</div>
+
+<script>
+    /* ============ 柱状图 ============ */
+    (function gzh_bar() {
+        var dom = document.getElementById("gzh_bar");
+        var chart = echarts.init(dom, "dark", { renderer: "canvas" });
+
+        var labelRight = { position: "right" };
+        var option = {
+            backgroundColor: "transparent",
+            tooltip: {
+                trigger: "axis",
+                axisPointer: { type: "shadow" }
+            },
+            grid: { top: 60, bottom: 40, left: 20, right: 60, containLabel: true },
+            title: {
+                text: "Bar Chart with Negative Value",
+                left: "center",
+                top: 10,
+                textStyle: { color: "#cbd5e1", fontSize: 14, fontWeight: 600 }
+            },
+            xAxis: {
+                type: "value",
+                position: "top",
+                splitLine: { lineStyle: { type: "dashed", color: "#334155" } },
+                axisLabel: { color: "#94a3b8" },
+                axisLine: { lineStyle: { color: "#475569" } }
+            },
+            yAxis: {
+                type: "category",
+                axisLine: { show: false },
+                axisLabel: { show: false },
+                axisTick: { show: false },
+                splitLine: { show: false },
+                data: [
+                    "ten", "nine", "eight", "seven", "six",
+                    "five", "four", "three", "two", "one"
+                ]
+            },
+            series: [
+                {
+                    name: "Cost",
+                    type: "bar",
+                    stack: "Total",
+                    label: { show: true, formatter: "{b}" },
+                    itemStyle: {
+                        color: function (p) {
+                            return p.value >= 0
+                                ? new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+                                    { offset: 0, color: "#10b981" },
+                                    { offset: 1, color: "#34d399" }
+                                ])
+                                : new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+                                    { offset: 0, color: "#ef4444" },
+                                    { offset: 1, color: "#f87171" }
+                                ]);
+                        }
+                    },
+                    data: [
+                        { value: -0.07, label: labelRight },
+                        { value: -0.09, label: labelRight },
+                        0.2,
+                        0.44,
+                        { value: -0.23, label: labelRight },
+                        0.08,
+                        { value: -0.17, label: labelRight },
+                        0.47,
+                        { value: -0.36, label: labelRight },
+                        0.18
+                    ]
+                }
+            ]
+        };
+
+        chart.setOption(option);
+        window.addEventListener("resize", function () { chart.resize(); });
+    })();
+
+    /* ============ 雷达图 ============ */
+    (function gzh_radar() {
+        var dom = document.getElementById("gzh_radar");
+        var chart = echarts.init(dom, "dark", { renderer: "canvas" });
+
+        var option = {
+            backgroundColor: "transparent",
+            tooltip: {},
+            title: {
+                text: "Basic Radar Chart",
+                left: "center",
+                top: 10,
+                textStyle: { color: "#cbd5e1", fontSize: 14, fontWeight: 600 }
+            },
+            legend: {
+                data: ["Allocated Budget", "Actual Spending"],
+                bottom: 4,
+                textStyle: { color: "#cbd5e1" }
+            },
+            radar: {
+                indicator: [
+                    { name: "Sales",              max: 6500 },
+                    { name: "Administration",    max: 16000 },
+                    { name: "Information Tech.", max: 30000 },
+                    { name: "Customer Support",  max: 38000 },
+                    { name: "Development",       max: 52000 },
+                    { name: "Marketing",         max: 25000 }
+                ],
+                splitArea: {
+                    areaStyle: {
+                        color: ["rgba(30,41,59,.4)", "rgba(51,65,85,.4)"],
+                        shadowColor: "rgba(0,0,0,.1)", shadowBlur: 4
+                    }
+                },
+                axisLine: { lineStyle: { color: "#475569" } },
+                splitLine: { lineStyle: { color: "#475569" } },
+                axisName: { color: "#cbd5e1", fontSize: 11 }
+            },
+            series: [
+                {
+                    name: "Budget vs spending",
+                    type: "radar",
+                    data: [
+                        {
+                            value: [4200, 3000, 20000, 35000, 50000, 18000],
+                            name: "Allocated Budget",
+                            areaStyle: { color: "rgba(96,165,250,.28)" },
+                            lineStyle: { color: "#60a5fa", width: 2 },
+                            itemStyle: { color: "#60a5fa" }
+                        },
+                        {
+                            value: [5000, 14000, 28000, 26000, 42000, 21000],
+                            name: "Actual Spending",
+                            areaStyle: { color: "rgba(167,139,250,.28)" },
+                            lineStyle: { color: "#a78bfa", width: 2 },
+                            itemStyle: { color: "#a78bfa" }
+                        }
+                    ]
+                }
+            ]
+        };
+
+        chart.setOption(option);
+        window.addEventListener("resize", function () { chart.resize(); });
+    })();
+</script>
+</body>
+</html>
