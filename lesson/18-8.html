@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>智能客服运营数据大屏 v2</title>
     <script src="cdn/echarts.min.js"></script>
+    <script src="cdn/china.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -609,9 +610,14 @@ function gzh_map() {
         return { coords: [[113.23, 23.16], [p.value[0], p.value[1]]], value: Math.floor(Math.random() * 500 + 100) };
     });
 
-    fetch("cdn/china.json").then(function (r) { return r.json(); }).then(function (geo) {
-        echarts.registerMap("china", geo);
-        chart.setOption({
+    /* 使用 script 标签加载（避免 file:// CORS） */
+    var geo = window.gzh_china_geo;
+    if (!geo) {
+        dom.innerHTML = '<div style="color:#ef4444;padding:40px;text-align:center;">地图数据未加载，请确认 cdn/china.js 存在</div>';
+        return;
+    }
+    echarts.registerMap("china", geo);
+    chart.setOption({
             backgroundColor: "transparent",
             tooltip: {
                 trigger: "item",
@@ -666,9 +672,7 @@ function gzh_map() {
                 }
             ]
         });
-    }).catch(function () {
-        dom.innerHTML = '<div style="color:#ef4444;padding:40px;text-align:center;">地图 GeoJSON 加载失败</div>';
-    });
+    window.addEventListener("resize", function () { chart.resize(); });
 }
 
 /* ============================ 4. 右：渠道对比柱 ============================ */
